@@ -9,6 +9,7 @@
 enum MessageCommand
 {
 	COMMAND_UNKNOWN,
+	COMMAND_IGNORE,
 	
 	COMMAND_SYSTEM_MSGTIMEOUT,
 	COMMAND_SYSTEM_OK,
@@ -45,11 +46,13 @@ enum MessageCommand
 	COMMAND_JACKCLICKER_LOWER,
 	COMMAND_JACKCLICKER_STOP,
 
+	COMMAND_CUBECLICKER_RUN,
 	COMMAND_CUBECLICKER_RAISE,
 	COMMAND_CUBECLICKER_LOWER,
 	COMMAND_CUBECLICKER_STOP,
 	COMMAND_CUBEINTAKE_RUN,
 	COMMAND_CUBEINTAKE_STOP,
+
 	COMMAND_CUBEAUTOCYCLE_START,
 	COMMAND_CUBEAUTOCYCLE_STOP,
 
@@ -74,10 +77,19 @@ struct AutonomousParams
 	unsigned uDelay;
 };
 
+struct ClickerParams
+{
+	bool clicker;//true means "add cube"
+	bool intake;
+};
+
+
 union MessageParams
 {
 	TankDriveParams tankDrive;	
 	AutonomousParams autonomous;
+	ClickerParams clicker;
+
 };
 
 struct RobotMessage

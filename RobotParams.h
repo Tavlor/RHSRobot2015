@@ -109,13 +109,28 @@ const int IO2C_AUTO_ACCEL = 1;
 #ifdef USE_XBOX_FOR_CONTROLLER_1
 #define TANK_DRIVE_LEFT				-Controller_1->GetRawAxis(XBX_AXS_STCK_LFT_Y)
 #define TANK_DRIVE_RIGHT			-Controller_1->GetRawAxis(XBX_AXS_STCK_RGHT_Y)
-#endif
+#define DRIVETRAIN_LEFT_MOTOR		-Controller_1->GetRawAxis(XBX_AXS_STCK_LFT_Y)
+#define DRIVETRAIN_RIGHT_MOTOR		-Controller_1->GetRawAxis(XBX_AXS_STCK_RGHT_Y)
+#define CONVEYOR_FWD				Controller_1->GetRawButton(XBX_BTN_BMP_LFT)
+#define CONVEYOR_BCK				Controller_1->GetRawButton(XBX_BTN_BMP_RGHT)
+#define
+#else
 
 #ifdef USE_L310_FOR_CONTROLLER_1
 #define TANK_DRIVE_LEFT				-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y)
 #define TANK_DRIVE_RIGHT			-Controller_1->GetRawAxis(L310_THUMBSTICK_RIGHT_Y)
-#define CONVEYOR_FWD				Controller_1->GetRawButton(L310_BUTTON_BUMPER_LEFT)
+#define DRIVETRAIN_LEFT_MOTOR		-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y)
+#define DRIVETRAIN_RIGHT_MOTOR		-Controller_1->GetRawAxis(L310_THUMBSTICK_RIGHT_Y)
+#define CONVEYOR_FWD				Controller_1->GetRawButton(L310_BUTTON_BUMPER_LEFT)//Includes the vertical intakes
 #define CONVEYOR_BCK				Controller_1->GetRawButton(L310_BUTTON_BUMPER_RIGHT)
+//#define HOOK_UP
+//#define HOOK_DOWN
+#define CLICKER_MOVE				Controller_1->GetRawButton(L310_BUTTON_A)
+#define CUBE_INTAKE_RUN				Controller_1->GetRawButton(L310_BUTTON_B)
+#define CAN_LIFT_RAISE				Controller_1->GetRawButton(L310_BUTTON_Y)//Y is above X on gamepad
+#define CAN_LIFT_LOWER				Controller_1->GetRawButton(L310_BUTTON_X)
+
+#endif
 #endif
 
 #ifdef USE_X3D_FOR_CONTROLLER_2
