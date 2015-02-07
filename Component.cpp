@@ -1,5 +1,8 @@
 /*
- * The Drivetrain component class handles driving related functionality.
+ * The Component class is a template for component
+ * classes (simple, yes?). Be sure to replace each
+ * instance of "Component" with your desired class
+ * name. Leave "ComponentBase" alone.
  */
 
 #include "WPILib.h"
@@ -16,6 +19,7 @@ Component::Component()
 {
 	pthread_attr_t attr;
 	taskID = 0;
+	//TODO instantiate member objects
 
 	// set thread attributes to default values
     pthread_attr_init(&attr);
@@ -37,6 +41,7 @@ Component::Component()
 Component::~Component()
 {
 	pthread_cancel(taskID);
+	//TODO delete member objects
 };
 
 void Component::OnStateChange()	
@@ -47,6 +52,7 @@ void Component::Run()
 {
 	switch(localMessage.command)			//Reads the message command
 	{
+	//TODO add command cases for Component
 		case COMMAND_COMPONENT_TEST:
 			break;
 

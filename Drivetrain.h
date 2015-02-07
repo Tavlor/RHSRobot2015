@@ -9,6 +9,7 @@
 
 //Robot
 #include "ComponentBase.h"			//For ComponentBase class
+#include "ADXRS450Gyro.h"
 
 //WPILib
 #include "WPILib.h"
@@ -30,6 +31,9 @@ private:
 	pthread_t taskID;
 	CANTalon* leftMotor;
 	CANTalon* rightMotor;
+	ADXRS450Gyro *gyro;
+	Encoder *encoder;
+
 
 	void OnStateChange();
 	void Run();

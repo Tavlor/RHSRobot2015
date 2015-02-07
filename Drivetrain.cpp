@@ -30,7 +30,9 @@ Drivetrain::Drivetrain() :
 	rightMotor->SetControlMode(CANSpeedController::kPercentVbus);
 	leftMotor->SetVoltageRampRate(120.0);
 	rightMotor->SetVoltageRampRate(120.0);
-
+	gyro = new ADXRS450Gyro();
+	gyro->Start();
+	encoder = new Encoder(0, 1);
 
 	assert(leftMotor && rightMotor);
 
@@ -59,6 +61,9 @@ Drivetrain::~Drivetrain()			//Destructor
 
 	delete leftMotor;
 	delete rightMotor;
+	gyro->Stop();
+	delete gyro;
+	delete encoder;
 }
 
 void Drivetrain::OnStateChange()			//Handles state changes
@@ -97,6 +102,9 @@ void Drivetrain::OnStateChange()			//Handles state changes
 }
 
 void Drivetrain::Run() {
+	SmartDashboard::PutNumber("Drivetrain Gyro Angle", gyro->GetAngle());
+	SmartDashboard::PutNumber("Drivetrain Gyro Rate", gyro->GetRate());
+	SmartDashboard::PutNumber("Drivetrain Encoder Angle", encoder->Get());
 	switch (localMessage.command) {
 	case COMMAND_DRIVETRAIN_DRIVE_TANK:
 		leftMotor->Set(pow(localMessage.params.tankDrive.left, 3));
