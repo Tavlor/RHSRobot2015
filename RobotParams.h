@@ -16,16 +16,16 @@ const char* const ROBOT_VERSION =	"-1.0.0-Alpha";			//Version
 
 //Task Params - Defines component task priorites relative to the default priority.
 //EXAMPLE: const int DRIVETRAIN_PRIORITY = DEFAULT_PRIORITY -2;
-const int DEFAULT_PRIORITY = 0;
-const int COMPONENT_PRIORITY = DEFAULT_PRIORITY;
-const int DRIVETRAIN_PRIORITY = DEFAULT_PRIORITY;
-const int AUTONOMOUS_PRIORITY = DEFAULT_PRIORITY;
-const int AUTOEXEC_PRIORITY = DEFAULT_PRIORITY;
-const int AUTOPARSER_PRIORITY = DEFAULT_PRIORITY;
-const int CONVEYOR_PRIORITY = DEFAULT_PRIORITY;
-const int CLICKER_PRIORITY = DEFAULT_PRIORITY;
-const int JACKCLICKER_PRIORITY = DEFAULT_PRIORITY;
-const int CANLIFTER_PRIORITY = DEFAULT_PRIORITY;
+const int DEFAULT_PRIORITY = 150;
+const int COMPONENT_PRIORITY 	= DEFAULT_PRIORITY;
+const int DRIVETRAIN_PRIORITY 	= DEFAULT_PRIORITY;
+const int AUTONOMOUS_PRIORITY 	= DEFAULT_PRIORITY;
+const int AUTOEXEC_PRIORITY 	= DEFAULT_PRIORITY;
+const int AUTOPARSER_PRIORITY 	= DEFAULT_PRIORITY;
+const int CONVEYOR_PRIORITY 	= DEFAULT_PRIORITY;
+const int CLICKER_PRIORITY 		= DEFAULT_PRIORITY;
+const int JACKCLICKER_PRIORITY 	= DEFAULT_PRIORITY;
+const int CANLIFTER_PRIORITY 	= DEFAULT_PRIORITY;
 
 //Task Names - Used when you view the task list but used by the operating system
 //EXAMPLE: const char* DRIVETRAIN_TASKNAME = "tDrive";
@@ -38,6 +38,16 @@ const char* const CONVEYOR_TASKNAME		= "tConveyor";
 const char* const CLICKER_TASKNAME		= "tClick";
 const char* const JACKCLICKER_TASKNAME	= "tJackClick";
 const char* const CANLIFTER_TASKNAME	= "tCanLift";
+
+const int COMPONENT_STACKSIZE	= 0x10000;
+const int DRIVETRAIN_STACKSIZE	= 0x10000;
+const int AUTONOMOUS_STACKSIZE	= 0x10000;
+const int AUTOEXEC_STACKSIZE	= 0x10000;
+const int AUTOPARSER_STACKSIZE	= 0x10000;
+const int CONVEYOR_STACKSIZE	= 0x10000;
+const int CLICKER_STACKSIZE		= 0x10000;
+const int JACKCLICKER_STACKSIZE	= 0x10000;
+const int CANLIFTER_STACKSIZE	= 0x10000;
 
 //TODO change these variables throughout the code to PIPE instead  of QUEUE
 //Queue Names - Used when you want to open the message queue for any task
@@ -68,8 +78,8 @@ const int PWM_DRIVETRAIN_RIGHT_MOTOR = 0;
  * 6 - lifter
  */
 const int CAN_PDB = 42;
-const int CAN_DRIVETRAIN_LEFT_MOTOR = 1;
-const int CAN_DRIVETRAIN_RIGHT_MOTOR = 2;
+const int CAN_DRIVETRAIN_LEFT_MOTOR = 20;
+const int CAN_DRIVETRAIN_RIGHT_MOTOR = 23;
 const int CAN_PALLET_JACK_CONVEYOR = 3;
 const int CAN_PALLET_JACK_INTAKE_VERTICAL_LEFT = 4;
 const int CAN_PALLET_JACK_INTAKE_VERTICAL_RIGHT = 5;
@@ -119,6 +129,8 @@ const int IO2C_AUTO_ACCEL = 1;
 #ifdef USE_L310_FOR_CONTROLLER_1
 #define TANK_DRIVE_LEFT				-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y)
 #define TANK_DRIVE_RIGHT			-Controller_1->GetRawAxis(L310_THUMBSTICK_RIGHT_Y)
+#define ARCADE_DRIVE_X				Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_X)
+#define ARCADE_DRIVE_Y			-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y)
 #define DRIVETRAIN_LEFT_MOTOR		-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y)
 #define DRIVETRAIN_RIGHT_MOTOR		-Controller_1->GetRawAxis(L310_THUMBSTICK_RIGHT_Y)
 #define CONVEYOR_FWD				Controller_1->GetRawButton(L310_BUTTON_BUMPER_LEFT)//Includes the vertical intakes

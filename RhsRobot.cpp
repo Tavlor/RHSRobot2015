@@ -102,9 +102,21 @@ void RhsRobot::Run() {
 	}
 
 	if (drivetrain) {
-		robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_TANK;
-		robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT;
-		robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT;
+		if (GetCurrentRobotState() == ROBOT_STATE_AUTONOMOUS) {
+			if (HasStateChanged())
+				robotMessage.command = COMMAND_DRIVETRAIN_INIT_STRAIGHT;
+			else {
+				robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_STRAIGHT;
+				robotMessage.params.straightDistance = 600;			//in inches
+			}
+		} else {
+			robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_TANK;
+			robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT;
+			robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT;
+			/*robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_ARCADE;
+			 robotMessage.params.arcadeDrive.x = ARCADE_DRIVE_X;
+			 robotMessage.params.arcadeDrive.y = ARCADE_DRIVE_Y;*/
+		}
 		drivetrain->SendMessage(&robotMessage);
 	}
 

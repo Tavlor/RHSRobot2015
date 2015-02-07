@@ -9,10 +9,11 @@
 
 //Robot
 #include "ComponentBase.h"			//For ComponentBase class
-#include "ADXRS450Gyro.h"
 
 //WPILib
 #include "WPILib.h"
+#include "ADXRS453Z.h"
+
 
 const float JOYSTICK_DEADZONE = 0.10;
 const float MAX_GAIN_PER_MESSAGE = 0.1;
@@ -24,19 +25,22 @@ public:
 	~Drivetrain();
 	static void *StartTask(void *pThis)
 	{
-		((Drivetrain *)pThis)->Task();
+		((Drivetrain *)pThis)->DoWork();
 		return(NULL);
 	}
 private:
-	pthread_t taskID;
 	CANTalon* leftMotor;
 	CANTalon* rightMotor;
-	ADXRS450Gyro *gyro;
+	ADXRS453Z *gyro;
 	Encoder *encoder;
-
+	float left, right; //previous motor values
+	float initialAngle, errorAngle;
+	float coveredDist;
 
 	void OnStateChange();
 	void Run();
+	void DriveStraight(float);
+	float LimitMotor(float,float);
 };
 
 #endif			//DRIVETRAIN_H

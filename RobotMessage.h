@@ -25,6 +25,9 @@ enum MessageCommand
 	COMMAND_CHECKLIST_RUN,
 
 	COMMAND_DRIVETRAIN_DRIVE_TANK,
+	COMMAND_DRIVETRAIN_DRIVE_ARCADE,
+	COMMAND_DRIVETRAIN_INIT_STRAIGHT,
+	COMMAND_DRIVETRAIN_DRIVE_STRAIGHT,
 
 	COMMAND_CONVEYOR_RUN_FWD,
 	COMMAND_CONVEYOR_RUN_BCK,
@@ -71,6 +74,12 @@ struct TankDriveParams
 	float right;
 };
 
+struct ArcadeDriveParams
+{
+	float x;
+	float y;
+};
+
 struct AutonomousParams
 {
 	unsigned uMode;
@@ -83,13 +92,13 @@ struct ClickerParams
 	bool intake;
 };
 
-
 union MessageParams
 {
-	TankDriveParams tankDrive;	
+	TankDriveParams tankDrive;
+	ArcadeDriveParams arcadeDrive;
 	AutonomousParams autonomous;
 	ClickerParams clicker;
-
+	float straightDistance;
 };
 
 struct RobotMessage
