@@ -132,7 +132,7 @@ void Clicker::Run()
 	{
 		if(intakeMotor->IsRevLimitSwitchClosed())
 		{
-			intakeMotor->Set(-0.50);
+			intakeMotor->Set(0.0);
 		}
 		else
 		{
