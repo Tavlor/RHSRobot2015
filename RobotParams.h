@@ -1,4 +1,5 @@
-/* 
+/**  Defines task parameters, hardware assignments and controller button/axis assignment.
+ *
  * This header contains basic parameters for the robot. All parameters must be constants with internal
  * linkage, otherwise the One Definition Rule will be violated.
  */
@@ -84,9 +85,9 @@ const int CAN_PALLET_JACK_CONVEYOR = 3;
 const int CAN_PALLET_JACK_INTAKE_VERTICAL_LEFT = 4;
 const int CAN_PALLET_JACK_INTAKE_VERTICAL_RIGHT = 5;
 const int CAN_PALLET_JACK_TOTE_LIFT = 6;
-const int CAN_CUBE_CLICKER = 7;
+const int CAN_CUBE_BIN_LIFT = 7;
 const int CAN_CUBE_INTAKE = 8;
-const int CAN_CUBE_BIN_LIFT = 9;
+const int CAN_CUBE_CLICKER = 9;
 
 //Relay Channels - Assigns names to Relay ports 1-8 on the Roborio
 //EXAMPLE: const int RLY_COMPRESSOR = 1;
@@ -126,6 +127,9 @@ const int IO2C_AUTO_ACCEL = 1;
 #define TANK_DRIVE_RIGHT			-Controller_1->GetRawAxis(L310_THUMBSTICK_RIGHT_Y)
 #define CONVEYOR_FWD				Controller_1->GetRawButton(L310_BUTTON_BUMPER_LEFT)
 #define CONVEYOR_BCK				Controller_1->GetRawButton(L310_BUTTON_BUMPER_RIGHT)
+#define CLICKER_UP					Controller_1->GetRawButton(L310_BUTTON_A)
+#define CLICKER_DOWN				Controller_1->GetRawButton(L310_BUTTON_B)
+#define CUBEINTAKE_RUN				Controller_1->GetRawButton(L310_BUTTON_X)
 #endif
 
 #ifdef USE_X3D_FOR_CONTROLLER_2

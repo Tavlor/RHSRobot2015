@@ -1,6 +1,13 @@
-/*
- * The Drivetrain component class handles driving related functionality.
+/**  Implementation of class to drive the pallet jack.
+ *
+ * This class is derived from the standard Component base class and includes
+ * initialization for the devices used to control the pallet jack's wheels.
+ *
+ * The task receives messages form the main robot class and runs the wheels.
+ * Special commands use a gyro and quadrature encoder to drive straight X feet
+ * or to turn X degrees.
  */
+
 
 //Local
 #include "Drivetrain.h"			//For the local header file
@@ -29,9 +36,9 @@ Drivetrain::Drivetrain() :
 	leftMotor->SetVoltageRampRate(120.0);
 	rightMotor->SetVoltageRampRate(120.0);
 
-	gyro = new ADXRS453Z;
-	wpi_assert(gyro);
-	gyro->Start();
+	//gyro = new ADXRS453Z;
+	//wpi_assert(gyro);
+	//gyro->Start();
 
 	pTask = new Task(DRIVETRAIN_TASKNAME, (FUNCPTR) &Drivetrain::StartTask,
 			DRIVETRAIN_PRIORITY, DRIVETRAIN_STACKSIZE);

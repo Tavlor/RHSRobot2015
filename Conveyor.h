@@ -1,3 +1,8 @@
+/**  Definitions of class to control conveyor on the pallet jack.
+ *
+ * This classes is derived from the standard Component base class and includes
+ * definitions for the devices used to control the pallet jack's conveyor.
+ */
 
 #ifndef CONVEYOR_H
 #define CONVEYOR_H

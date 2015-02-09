@@ -17,7 +17,7 @@
 
 using namespace std;
 
-// these must match the enumeration above!!
+/**
 
 const char *szTokens[] = 
 {

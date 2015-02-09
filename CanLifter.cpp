@@ -1,5 +1,11 @@
-/*
- * The CanLifter component class handles the cube's can lifting
+/**  Implementation of class to control can lifter on the cube.
+ *
+ * This class is derived from the standard Component base class and includes
+ * initialization for the devices used to control the cube's can lifter.
+ *
+ * The task receives messages from the main robot class and raises or lowers
+ * the can lifter. Hall effect sensors  are used to stop the motion of the
+ * lifter at the desired points.
  */
 
 #include "WPILib.h"

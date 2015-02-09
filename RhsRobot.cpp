@@ -1,3 +1,10 @@
+/**  Main robot class.
+ *
+ * The RhsRobot class is the main robot class. It inherits from RhsRobotBase and MUST define the Init() function, the Run() function, and
+ * the OnStateChange() function.  Messages from the DS are processed and commands sent to the subsystems
+ * that implement behaviors for each part for the robot.
+ */
+
 #include "WPILib.h"
 
 //Robot
@@ -17,6 +24,9 @@ RhsRobot::RhsRobot()
     clicker = NULL;
     jackclicker = NULL;
     canlifter = NULL;
+
+	bCubeIntakeButtonDown = false;
+	bCubeIntakeRunning = false;
 
 	iLoop = 0;
 }
@@ -139,7 +149,46 @@ void RhsRobot::Run()
 
 	if(clicker)
 	{
-		//TODO: assign input controls to the clicker
+		//TODO: assign final input controls to the clicker
+
+		if(CLICKER_UP)
+		{
+			robotMessage.command = COMMAND_CUBECLICKER_RAISE;
+		}
+		else if(CLICKER_DOWN)
+		{
+			robotMessage.command = COMMAND_CUBECLICKER_LOWER;
+		}
+		else
+		{
+			robotMessage.command = COMMAND_CUBECLICKER_STOP;
+		}
+
+		clicker->SendMessage(&robotMessage);
+
+		if(CUBEINTAKE_RUN && (bCubeIntakeButtonDown == false))
+		{
+			bCubeIntakeButtonDown = true;
+
+			bCubeIntakeRunning = !bCubeIntakeRunning;
+			robotMessage.command = COMMAND_CUBEINTAKE_RUN;
+
+		}
+		else
+		{
+			bCubeIntakeButtonDown = false;
+		}
+
+		if(bCubeIntakeRunning)
+		{
+			robotMessage.command = COMMAND_CUBEINTAKE_RUN;
+		}
+		else
+		{
+			robotMessage.command = COMMAND_CUBEINTAKE_STOP;
+		}
+
+		clicker->SendMessage(&robotMessage);
 	}
 
 	if(jackclicker)

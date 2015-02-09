@@ -1,5 +1,7 @@
-/*
- * The Drivetrain component class handles driving related functionality.
+/**  Definitions of class to control the drive train.
+ *
+ * This classes is derived from the standard Component base class and includes
+ * definitions for the devices used to control the pallet jack wheels.
  */
 
 #ifndef DRIVETRAIN_H

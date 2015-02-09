@@ -1,5 +1,10 @@
-/*
- * The Drivetrain component class handles driving related functionality.
+/**  Example of subsystem task behavior.
+ *
+ * This class is derived from the standard Component base class and includes
+ * initialization for the devices used to control a given subsystem.
+ *
+ * The task receives messages from the main robot class and implements behaviors
+ * for a given subsystem.
  */
 
 #include "WPILib.h"
