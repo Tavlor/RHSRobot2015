@@ -1,4 +1,5 @@
-/* 
+/**  Definitions of joystick buttons and sticks.
+ *
  * This is a list of the button and axis numbers for several controllers.
  */
 

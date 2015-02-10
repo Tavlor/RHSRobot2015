@@ -1,6 +1,13 @@
-/*
- * The Drivetrain component class handles driving related functionality.
+/**  Implementation of class to drive the pallet jack.
+ *
+ * This class is derived from the standard Component base class and includes
+ * initialization for the devices used to control the pallet jack's wheels.
+ *
+ * The task receives messages form the main robot class and runs the wheels.
+ * Special commands use a gyro and quadrature encoder to drive straight X feet
+ * or to turn X degrees.
  */
+
 
 //Local
 #include "Drivetrain.h"			//For the local header file
@@ -39,12 +46,12 @@ Drivetrain::Drivetrain() :
 	pTask = new Task(DRIVETRAIN_TASKNAME, (FUNCPTR) &Drivetrain::StartTask,
 			DRIVETRAIN_PRIORITY, DRIVETRAIN_STACKSIZE);
 	wpi_assert(pTask);
-	pTask->Start((int) this);
+	pTask->Start((int)this);
 }
 
 Drivetrain::~Drivetrain()			//Destructor
 {
-	delete (pTask);
+	delete(pTask);
 	delete leftMotor;
 	delete rightMotor;
 }
@@ -122,6 +129,7 @@ void Drivetrain::Run() {
 	SmartDashboard::PutNumber("Right Drive Motor Voltage", rightMotor->GetOutputVoltage());
 
 }
+
 void Drivetrain::DriveStraight(float targetDist) {
 	coveredDist = encoder->GetDistance();
 	SmartDashboard::PutNumber("Remaining Distance", targetDist - coveredDist);

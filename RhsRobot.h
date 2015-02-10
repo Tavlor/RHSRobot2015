@@ -1,6 +1,7 @@
-/*
+/**  Main robot class.
+ *
  * The RhsRobot class is the main robot class. It inherits from RhsRobotBase and MUST define the Init() function, the Run() function, and
- * the OnStateChange() function.
+ * the OnStateChange() function.  Messages from the DS are processed and commands.
  */
 
 #ifndef RHS_ROBOT_H
@@ -38,6 +39,8 @@ private:
 	void Run();
 
 	int iLoop;
+	bool bCubeIntakeButtonDown;
+	bool bCubeIntakeRunning;
 };
 
 #endif //RHS_ROBOT_H

@@ -1,4 +1,9 @@
-
+/**  Example of subsystem task declaration.
+ *
+ * This class is derived from the standard Component base class and includes
+ * initialization for the devices used to control a given subsystem.
+ *
+ */
 #ifndef COMPONENT_H
 #define COMPONENT_H
 

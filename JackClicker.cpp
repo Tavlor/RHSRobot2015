@@ -1,5 +1,11 @@
-/*
- * The JackClicker component class handles the pallet jack's tote lifting
+/**  Implementation of class to control tote lifter on the pallet jack.
+ *
+ * This class is derived from the standard Component base class and includes
+ * initialization for the devices used to control the pallet jack's tote lifter.
+ *
+ * The task receives messages form the main robot class and raises or lowers
+ * the tote lifter which "clicks" into place, thus the name.  Hall effect sensors
+ * are used to stop the motion of the "clicker" at the desired points.
  */
 
 #include "WPILib.h"

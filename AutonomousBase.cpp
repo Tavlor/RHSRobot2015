@@ -107,7 +107,7 @@ void AutonomousBase::LoadScriptFile()
 	
 	if(scriptStream.is_open())
 	{
-		// don't read the script if executing it!
+		/**
 		
 		if(bInAutoMode == false)
 		{
