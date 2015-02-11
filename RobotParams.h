@@ -92,6 +92,8 @@ const int CAN_CUBE_CLICKER = 9;
 //Relay Channels - Assigns names to Relay ports 1-8 on the Roborio
 //EXAMPLE: const int RLY_COMPRESSOR = 1;
 
+const int CUBECLICKER_MAX_TOTES = 6;
+
 //Digital I/O - Assigns names to Digital I/O ports 1-14 on the Roborio
 //EXAMPLE: const int PWM_DRIVETRAIN_ENCODER_RIGHT_A = 1;
 const int PWM_DRIVETRAIN_ENCODER_A = 1;
@@ -140,6 +142,7 @@ const int IO2C_AUTO_ACCEL = 1;
 #define CLICKER_UP					Controller_1->GetRawButton(L310_BUTTON_A)
 #define CLICKER_DOWN				Controller_1->GetRawButton(L310_BUTTON_B)
 #define CUBE_INTAKE_RUN				Controller_1->GetRawButton(L310_BUTTON_X)
+#define CUBE_INTAKE_STOP			Controller_1->GetRawButton(L310_BUTTON_Y)
 #define A_BUTTON					Controller_1->GetRawButton(L310_BUTTON_A)
 #define B_BUTTON					Controller_1->GetRawButton(L310_BUTTON_B)
 #define X_BUTTON					Controller_1->GetRawButton(L310_BUTTON_X)

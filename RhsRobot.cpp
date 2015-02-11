@@ -151,7 +151,7 @@ void RhsRobot::Run() {
 	if (clicker) {
 		//TODO: assign final input controls to the clicker
 
-		if (CLICKER_UP) {
+		/*if (CLICKER_UP) {
 			robotMessage.command = COMMAND_CUBECLICKER_RAISE;
 		}
 		else if (CLICKER_DOWN) {
@@ -159,10 +159,10 @@ void RhsRobot::Run() {
 		}
 		else {
 			robotMessage.command = COMMAND_CUBECLICKER_STOP;
-		}
+		}*/
 
-		clicker->SendMessage(&robotMessage);
-
+		//clicker->SendMessage(&robotMessage);
+/*
 		if (CUBE_INTAKE_RUN && !bwpCubeIntakeButton) {
 			//if button is pressed and wasn't previously
 			bwpCubeIntakeButton = true;
@@ -172,6 +172,13 @@ void RhsRobot::Run() {
 			//if button isn't pressed and was previously
 			bwpCubeIntakeButton = false;
 			robotMessage.command = COMMAND_CUBEINTAKE_STOP;
+		}
+*/
+		if (CUBE_INTAKE_RUN) {
+			robotMessage.command = COMMAND_CUBEAUTOCYCLE_START;
+		}
+		else if(CUBE_INTAKE_STOP) {
+			robotMessage.command = COMMAND_CUBEAUTOCYCLE_STOP;
 		}
 
 		clicker->SendMessage(&robotMessage);

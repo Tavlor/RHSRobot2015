@@ -140,7 +140,6 @@ void Drivetrain::ArcadeDrive(float x, float y)
 	leftMotor->Set(y - x/2);
 	rightMotor->Set(-(y + x/2));
 }
-
 void Drivetrain::DriveStraight(float targetDist) {
 	coveredDist = encoder->GetDistance();
 	errorAngle = targetAngle - gyro->GetAngle();

@@ -37,6 +37,8 @@ Clicker::Clicker()
 	intakeMotor->ConfigRevLimitSwitchNormallyOpen(false);
 	intakeMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 
+	lastState = STATE_CUBECLICKER_TOP;
+
 	pTask = new Task(CLICKER_TASKNAME, (FUNCPTR) &Clicker::StartTask,
 			CLICKER_PRIORITY, CLICKER_STACKSIZE);
 	wpi_assert(pTask);
@@ -95,63 +97,162 @@ void Clicker::Run()
 	switch(localMessage.command)			//Reads the message command
 	{
 		case COMMAND_CUBECLICKER_RAISE:
-			clickerMotor->Set(0.25);		// the spring will help it up
+			if (!bEnableAutoCycle)
+				clickerMotor->Set(0.25);		// the spring will help it up
 			break;
 
 		case COMMAND_CUBECLICKER_LOWER:
-			clickerMotor->Set(-1.0);
+			if (!bEnableAutoCycle)
+				clickerMotor->Set(-1.0);
 			break;
 
 		case COMMAND_CUBECLICKER_STOP:
-			clickerMotor->Set(0.0);
+			if (!bEnableAutoCycle)
+				clickerMotor->Set(0.0);
 			break;
 
 		case COMMAND_CUBEINTAKE_RUN:
-			bAutoCubeIntake = true;
+			if (!bEnableAutoCycle)
+				bAutoCubeIntake = true;
 			break;
 
 		case COMMAND_CUBEINTAKE_STOP:
-			bAutoCubeIntake = false;
+			if (!bEnableAutoCycle)
+				bAutoCubeIntake = false;
 			break;
 
 		case COMMAND_CUBEAUTOCYCLE_START:
 			bEnableAutoCycle = true;
+			lastState = STATE_CUBECLICKER_TOP;
+			Top();
 			break;
 
 		case COMMAND_CUBEAUTOCYCLE_STOP:
 			bEnableAutoCycle = false;
+			lastState = STATE_CUBECLICKER_TOP;
 			break;
 
 		default:
 			break;
 		}
-
-	// this should work when done from the Talon but it does not - weird
-
-	//if(bAutoCubeIntake)
-	//{
-	//	intakeMotor->Set(-0.5);
-	//}
-	//else
-	//{
-	//	intakeMotor->Set(0.0);
-	//}
 	SmartDashboard::PutBoolean("Cube Intake Toggle", bAutoCubeIntake);
 	// Backup
-	 if(bAutoCubeIntake)
-	{
-		if(intakeMotor->IsRevLimitSwitchClosed())
-		{
-			intakeMotor->Set(0.0);
-		}
-		else
-		{
-			intakeMotor->Set(-0.50);
-		}
-	}
+	 //if(bAutoCubeIntake)
+	//{
+	//	if(intakeMotor->IsRevLimitSwitchClosed())
+	//	{
+	//		intakeMotor->Set(0.0);
+	//	}
+	//	else
+	//	{
+	//		intakeMotor->Set(-0.50);
+	//	}
+	//}
 
 	//TODO: add timeout support for clicker motor just in case the sensors fail
 
 	//TODO: add state machine for auto cycling
+	 bool irsens = !intakeMotor->IsRevLimitSwitchClosed();
+	 //bool hallEffectTop = clickerMotor->IsRevLimitSwitchClosed();
+	 bool hallEffectBottom = clickerMotor->IsRevLimitSwitchClosed();
+	 bool hallEffectTop = clickerMotor->IsFwdLimitSwitchClosed();
 
+	 SmartDashboard::PutBoolean("IR:", irsens);
+	 SmartDashboard::PutBoolean("TopClick", hallEffectTop);
+	 SmartDashboard::PutBoolean("BottomCLick", hallEffectBottom);
+
+	 switch(lastState) {
+	 case STATE_CUBECLICKER_BOTTOM:
+	 		 SmartDashboard::PutString("STATE", "BOTTOM");
+	 		 break;
+	 case STATE_CUBECLICKER_TOP:
+	 		 SmartDashboard::PutString("STATE", "TOP");
+	 		 break;
+	 case STATE_CUBECLICKER_LOWER:
+	 		 SmartDashboard::PutString("STATE", "LOWER");
+	 		 break;
+	 case STATE_CUBECLICKER_RAISE:
+	 		 SmartDashboard::PutString("STATE", "RAISE");
+	 		 break;
+	 }
+
+	 if(bEnableAutoCycle) {
+		 switch(lastState) {
+
+		 case STATE_CUBECLICKER_TOP:
+			if(irsens){
+				lastState = STATE_CUBECLICKER_LOWER;
+				Lower();
+			}
+			else{
+				lastState = STATE_CUBECLICKER_TOP;
+				//Top();
+			}
+		 	break;
+
+		 	 case STATE_CUBECLICKER_LOWER:
+		 		 if(!hallEffectBottom){
+		 			 lastState = STATE_CUBECLICKER_LOWER;
+		 			 //Lower();
+		 		 }
+		 		 else{
+		 		   lastState = STATE_CUBECLICKER_BOTTOM;
+		 		   Bottom();
+		 		 }
+		 	 break;
+
+		 	case STATE_CUBECLICKER_BOTTOM:
+		 	  if(iNumOfTotes == CUBECLICKER_MAX_TOTES){
+				if(irsens){
+					lastState = STATE_CUBECLICKER_TOP;
+					Top();
+				}else{
+					iNumOfTotes = 1;
+					lastState = STATE_CUBECLICKER_RAISE;
+					Raise();
+				}
+			}
+			else{
+				iNumOfTotes++;
+				lastState = STATE_CUBECLICKER_RAISE;
+				Raise();
+			}
+		 	break;
+
+
+		 	 case STATE_CUBECLICKER_RAISE:
+				if(!hallEffectTop){
+					lastState = STATE_CUBECLICKER_RAISE;
+					//Raise();
+				}
+				else{
+					lastState = STATE_CUBECLICKER_TOP;
+					Top();
+				}
+				break;
+		 }
+	 }
+};
+
+
+void Clicker::Top()
+{
+	clickerMotor->Set(0);
+	intakeMotor->Set(-0.5);
+};
+
+void Clicker::Bottom()
+{
+	clickerMotor->Set(0);
+	intakeMotor->Set(0);
+};
+void Clicker::Raise()
+{
+	clickerMotor->Set(0.25);
+	intakeMotor->Set(-0.5);
+};
+void Clicker::Lower()
+{
+	clickerMotor->Set(-1.0);
+	intakeMotor->Set(0);
 };
