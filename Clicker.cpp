@@ -128,16 +128,16 @@ void Clicker::Run()
 
 	// this should work when done from the Talon but it does not - weird
 
-	if(bAutoCubeIntake)
-	{
-		intakeMotor->Set(-0.5);
-	}
-	else
-	{
-		intakeMotor->Set(0.0);
-	}
+	//if(bAutoCubeIntake)
+	//{
+	//	intakeMotor->Set(-0.5);
+	//}
+	//else
+	//{
+	//	intakeMotor->Set(0.0);
+	//}
 	SmartDashboard::PutBoolean("Cube Intake Toggle", bAutoCubeIntake);
-	/* Backup
+	// Backup
 	 if(bAutoCubeIntake)
 	{
 		if(intakeMotor->IsRevLimitSwitchClosed())
@@ -148,7 +148,7 @@ void Clicker::Run()
 		{
 			intakeMotor->Set(-0.50);
 		}
-	}*/
+	}
 
 	//TODO: add timeout support for clicker motor just in case the sensors fail
 
