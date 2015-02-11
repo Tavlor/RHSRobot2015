@@ -1,3 +1,10 @@
+/**  Main robot class.
+ *
+ * The RhsRobot class is the main robot class. It inherits from RhsRobotBase and MUST define the Init() function, the Run() function, and
+ * the OnStateChange() function.  Messages from the DS are processed and commands sent to the subsystems
+ * that implement behaviors for each part for the robot.
+ */
+
 #include "WPILib.h"
 
 //Robot
@@ -16,6 +23,8 @@ RhsRobot::RhsRobot() {
 	clicker = NULL;
 	jackclicker = NULL;
 	canlifter = NULL;
+
+	bwpCubeIntakeButton = false;
 
 	iLoop = 0;
 }
@@ -61,9 +70,11 @@ void RhsRobot::OnStateChange()			//Handles state changes
 	 * 			{
 	 * 				drivetrain->SendMessage(&robotMessage);
 	 * 			}
+	 * Note: robotMessage is set in RHSRobotBase::StartCompetition
 	 */
 
 	if (drivetrain) {
+		robotMessage.params.autonomous.PJackDistance = 600;			//in inches
 		drivetrain->SendMessage(&robotMessage);
 	}
 
@@ -103,19 +114,14 @@ void RhsRobot::Run() {
 
 	if (drivetrain) {
 		if (GetCurrentRobotState() == ROBOT_STATE_AUTONOMOUS) {
-			if (HasStateChanged())
-				robotMessage.command = COMMAND_DRIVETRAIN_INIT_STRAIGHT;
-			else {
-				robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_STRAIGHT;
-				robotMessage.params.straightDistance = 600;			//in inches
-			}
+			robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_STRAIGHT;
 		} else {
 			robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_TANK;
-			robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT;
-			robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT;
-			/*robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_ARCADE;
-			 robotMessage.params.arcadeDrive.x = ARCADE_DRIVE_X;
-			 robotMessage.params.arcadeDrive.y = ARCADE_DRIVE_Y;*/
+			 robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT;
+			 robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT;
+			//robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_ARCADE;
+			//robotMessage.params.arcadeDrive.x = ARCADE_DRIVE_X;
+			//robotMessage.params.arcadeDrive.y = ARCADE_DRIVE_Y;
 		}
 		drivetrain->SendMessage(&robotMessage);
 	}
@@ -124,26 +130,50 @@ void RhsRobot::Run() {
 		//button press triggers action; if nothing happens, the ignore command is sent
 		if (CONVEYOR_FWD) {
 			robotMessage.command = COMMAND_CONVEYOR_RUNALL_FWD;
-		} else if (CONVEYOR_BCK) {
-			robotMessage.command = COMMAND_CONVEYOR_RUNALL_BCK;
-		} else {
-			robotMessage.command = COMMAND_CONVEYOR_STOP;
+		}
+		else if (CONVEYOR_BCK) {	//if intaking
+			if(CONVEYOR_ADJUST_LEFT > .5) {
+				robotMessage.command = COMMAND_CONVEYOR_CANADJUST_LEFT;
+			}
+			else if(CONVEYOR_ADJUST_RIGHT > .5) {
+				robotMessage.command = COMMAND_CONVEYOR_CANADJUST_RIGHT;
+			}
+			else {
+				robotMessage.command = COMMAND_CONVEYOR_RUNALL_BCK;
+			}
+		}
+		else {
+			robotMessage.command = COMMAND_CONVEYOR_RUNALL_STOP;
 		}
 
 		conveyor->SendMessage(&robotMessage);
 	}
-
 	if (clicker) {
-		if (CLICKER_MOVE) {
-			robotMessage.params.clicker.clicker = true;
-		} else {
-			robotMessage.params.clicker.clicker = false;
+		//TODO: assign final input controls to the clicker
+
+		if (CLICKER_UP) {
+			robotMessage.command = COMMAND_CUBECLICKER_RAISE;
 		}
-		if (CUBE_INTAKE_RUN) {
-			robotMessage.params.clicker.intake = true;
-		} else {
-			robotMessage.params.clicker.intake = false;
+		else if (CLICKER_DOWN) {
+			robotMessage.command = COMMAND_CUBECLICKER_LOWER;
 		}
+		else {
+			robotMessage.command = COMMAND_CUBECLICKER_STOP;
+		}
+
+		clicker->SendMessage(&robotMessage);
+
+		if (CUBE_INTAKE_RUN && !bwpCubeIntakeButton) {
+			//if button is pressed and wasn't previously
+			bwpCubeIntakeButton = true;
+			robotMessage.command = COMMAND_CUBEINTAKE_RUN;
+		}
+		else if(!CUBE_INTAKE_RUN && bwpCubeIntakeButton){
+			//if button isn't pressed and was previously
+			bwpCubeIntakeButton = false;
+			robotMessage.command = COMMAND_CUBEINTAKE_STOP;
+		}
+
 		clicker->SendMessage(&robotMessage);
 	}
 
@@ -152,14 +182,15 @@ void RhsRobot::Run() {
 	}
 
 	if (canlifter) {
-		if (CAN_LIFT_RAISE) {
-			robotMessage.command = COMMAND_CANLIFTER_RAISE;
-		} else if (CAN_LIFT_LOWER) {
-			robotMessage.command = COMMAND_CANLIFTER_RAISE;
-		} else {
-			robotMessage.command = COMMAND_IGNORE;
-		}
-		canlifter->SendMessage(&robotMessage);
+		/*
+		 if (CAN_LIFT_RAISE) {
+		 robotMessage.command = COMMAND_CANLIFTER_RAISE;
+		 } else if (CAN_LIFT_LOWER) {
+		 robotMessage.command = COMMAND_CANLIFTER_RAISE;
+		 } else {
+		 robotMessage.command = COMMAND_IGNORE;
+		 }
+		 canlifter->SendMessage(&robotMessage);*/
 	}
 
 	iLoop++;

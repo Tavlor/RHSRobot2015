@@ -1,4 +1,5 @@
-/* 
+/**  Defines task parameters, hardware assignments and controller button/axis assignment.
+ *
  * This header contains basic parameters for the robot. All parameters must be constants with internal
  * linkage, otherwise the One Definition Rule will be violated.
  */
@@ -78,15 +79,15 @@ const int PWM_DRIVETRAIN_RIGHT_MOTOR = 0;
  * 6 - lifter
  */
 const int CAN_PDB = 42;
-const int CAN_DRIVETRAIN_LEFT_MOTOR = 20;
-const int CAN_DRIVETRAIN_RIGHT_MOTOR = 23;
+const int CAN_DRIVETRAIN_LEFT_MOTOR = 1;
+const int CAN_DRIVETRAIN_RIGHT_MOTOR = 2;
 const int CAN_PALLET_JACK_CONVEYOR = 3;
 const int CAN_PALLET_JACK_INTAKE_VERTICAL_LEFT = 4;
 const int CAN_PALLET_JACK_INTAKE_VERTICAL_RIGHT = 5;
 const int CAN_PALLET_JACK_TOTE_LIFT = 6;
-const int CAN_CUBE_CLICKER = 7;
+const int CAN_CUBE_BIN_LIFT = 7;
 const int CAN_CUBE_INTAKE = 8;
-const int CAN_CUBE_BIN_LIFT = 9;
+const int CAN_CUBE_CLICKER = 9;
 
 //Relay Channels - Assigns names to Relay ports 1-8 on the Roborio
 //EXAMPLE: const int RLY_COMPRESSOR = 1;
@@ -123,26 +124,26 @@ const int IO2C_AUTO_ACCEL = 1;
 #define DRIVETRAIN_RIGHT_MOTOR		-Controller_1->GetRawAxis(XBX_AXS_STCK_RGHT_Y)
 #define CONVEYOR_FWD				Controller_1->GetRawButton(XBX_BTN_BMP_LFT)
 #define CONVEYOR_BCK				Controller_1->GetRawButton(XBX_BTN_BMP_RGHT)
-#define
-#else
+#endif
 
 #ifdef USE_L310_FOR_CONTROLLER_1
 #define TANK_DRIVE_LEFT				-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y)
 #define TANK_DRIVE_RIGHT			-Controller_1->GetRawAxis(L310_THUMBSTICK_RIGHT_Y)
 #define ARCADE_DRIVE_X				Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_X)
-#define ARCADE_DRIVE_Y			-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y)
+#define ARCADE_DRIVE_Y				-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y)
 #define DRIVETRAIN_LEFT_MOTOR		-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y)
 #define DRIVETRAIN_RIGHT_MOTOR		-Controller_1->GetRawAxis(L310_THUMBSTICK_RIGHT_Y)
 #define CONVEYOR_FWD				Controller_1->GetRawButton(L310_BUTTON_BUMPER_LEFT)//Includes the vertical intakes
 #define CONVEYOR_BCK				Controller_1->GetRawButton(L310_BUTTON_BUMPER_RIGHT)
-//#define HOOK_UP
-//#define HOOK_DOWN
-#define CLICKER_MOVE				Controller_1->GetRawButton(L310_BUTTON_A)
-#define CUBE_INTAKE_RUN				Controller_1->GetRawButton(L310_BUTTON_B)
-#define CAN_LIFT_RAISE				Controller_1->GetRawButton(L310_BUTTON_Y)//Y is above X on gamepad
-#define CAN_LIFT_LOWER				Controller_1->GetRawButton(L310_BUTTON_X)
-
-#endif
+#define CONVEYOR_ADJUST_LEFT		Controller_1->GetRawAxis(L310_TRIGGER_RIGHT)//inverted
+#define CONVEYOR_ADJUST_RIGHT		Controller_1->GetRawAxis(L310_TRIGGER_LEFT)//i.e
+#define CLICKER_UP					Controller_1->GetRawButton(L310_BUTTON_A)
+#define CLICKER_DOWN				Controller_1->GetRawButton(L310_BUTTON_B)
+#define CUBE_INTAKE_RUN				Controller_1->GetRawButton(L310_BUTTON_X)
+#define A_BUTTON					Controller_1->GetRawButton(L310_BUTTON_A)
+#define B_BUTTON					Controller_1->GetRawButton(L310_BUTTON_B)
+#define X_BUTTON					Controller_1->GetRawButton(L310_BUTTON_X)
+#define Y_BUTTON					Controller_1->GetRawButton(L310_BUTTON_Y)
 #endif
 
 #ifdef USE_X3D_FOR_CONTROLLER_2

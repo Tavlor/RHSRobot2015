@@ -1,8 +1,10 @@
-/*
- * The Component class is a template for component
- * classes (simple, yes?). Be sure to replace each
- * instance of "Component" with your desired class
- * name. Leave "ComponentBase" alone.
+/**  Example of subsystem task behavior.
+ *
+ * This class is derived from the standard Component base class and includes
+ * initialization for the devices used to control a given subsystem.
+ *
+ * The task receives messages from the main robot class and implements behaviors
+ * for a given subsystem.
  */
 
 #include "WPILib.h"
@@ -26,8 +28,8 @@ Component::Component()
 
 Component::~Component()
 {
-	delete(pTask);
 	//TODO delete member objects
+	delete(pTask);
 };
 
 void Component::OnStateChange()	

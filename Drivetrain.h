@@ -1,5 +1,7 @@
-/*
- * The Drivetrain component class handles driving related functionality.
+/**  Definitions of class to control the drive train.
+ *
+ * This classes is derived from the standard Component base class and includes
+ * definitions for the devices used to control the pallet jack wheels.
  */
 
 #ifndef DRIVETRAIN_H
@@ -33,14 +35,18 @@ private:
 	CANTalon* rightMotor;
 	ADXRS453Z *gyro;
 	Encoder *encoder;
-	float left, right; //previous motor values
-	float initialAngle, errorAngle;
+	float left, right; //motor values
+	float targetAngle, errorAngle;
 	float coveredDist;
+	float speed = .2;
+
+	const float recoverStrength = 15;
 
 	void OnStateChange();
 	void Run();
+	void ArcadeDrive(float, float);
 	void DriveStraight(float);
-	float LimitMotor(float,float);
+	void Turn(float);//for auto, use with DriveStraight
 };
 
 #endif			//DRIVETRAIN_H

@@ -17,8 +17,6 @@
 
 using namespace std;
 
-// these must match the enumeration above!!
-
 const char *szTokens[] = 
 {
 		"MODE",
@@ -113,4 +111,3 @@ void Autonomous::Evaluate(std::string rStatement)
 
 	printf("%s\n", rStatus.c_str());
 }
-

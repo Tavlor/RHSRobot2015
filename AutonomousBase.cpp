@@ -19,7 +19,7 @@ extern "C" {
 
 static void *RunAuto(void *pBase)
 {
-	((AutonomousBase *)pBase)->AutoTask();
+	//((AutonomousBase *)pBase)->AutoTask(); fix this
 	return(0);
 };
 }
@@ -107,7 +107,7 @@ void AutonomousBase::LoadScriptFile()
 	
 	if(scriptStream.is_open())
 	{
-		// don't read the script if executing it!
+		/**
 		
 		if(bInAutoMode == false)
 		{
@@ -147,6 +147,6 @@ void AutonomousBase::AutoTask()
 		{
 			Evaluate(script[lineNumber]);
 			++lineNumber;
-		}
+		}*/
 	}
 }

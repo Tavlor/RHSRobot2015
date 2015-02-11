@@ -1,5 +1,10 @@
-/*
- * The Conveyor component class handles the Pallet Jack's tote intake and output.
+/**  Implementation of class to control tote conveyor on the pallet jack.
+ *
+ * This class is derived from the standard Component base class and includes
+ * initialization for the devices used to control the pallet jack's conveyor.
+ *
+ * The task receives messages form the main robot class and runs the conveyor
+ * forward or backwards.  A beam break sensor is used to position the totes.
  */
 
 #include "WPILib.h"
@@ -124,7 +129,7 @@ void Conveyor::Run() {
 		break;
 
 	case COMMAND_CONVEYOR_INTAKEBOTH_OUT:
-		intakeLeftMotor->Set(-0.0);
+		intakeLeftMotor->Set(-1.0);
 		intakeRightMotor->Set(1.0);
 		break;
 
@@ -136,15 +141,15 @@ void Conveyor::Run() {
 	case COMMAND_CONVEYOR_RUNALL_FWD:
 		conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
 		conveyorMotor->Set(1.0);
-		intakeLeftMotor->Set(1.0);
-		intakeRightMotor->Set(-1.0);
+		intakeLeftMotor->Set(-1.0);
+		intakeRightMotor->Set(1.0);
 		break;
 
 	case COMMAND_CONVEYOR_RUNALL_BCK:
 		conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 		conveyorMotor->Set(-1.0);
-		intakeLeftMotor->Set(-1.0);
-		intakeRightMotor->Set(1.0);
+		intakeLeftMotor->Set(1.0);
+		intakeRightMotor->Set(-1.0);
 		break;
 
 	case COMMAND_CONVEYOR_RUNALL_STOP:

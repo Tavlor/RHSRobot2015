@@ -1,5 +1,8 @@
-/* 
+/**  Base class from which we derive our main robot class.
+ *
  * The RhsRobotBase class is an extension to RobotBase and provides basic robot functionality.
+ * This class sends state change messages, initializes the Smart Dashboard and calls the
+ * work loop for this years robot.
  */
 
 #include <assert.h>
@@ -21,7 +24,6 @@ RhsRobotBase::RhsRobotBase()			//Constructor
 
 	previousRobotState = ROBOT_STATE_UNKNOWN;
 	currentRobotState = ROBOT_STATE_UNKNOWN;
-	//TODO call function to turn off watchdog
 	SmartDashboard::init();
 	loop = 0;			//Initializes the loop counter
 }

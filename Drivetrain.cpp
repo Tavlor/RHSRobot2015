@@ -1,6 +1,13 @@
-/*
- * The Drivetrain component class handles driving related functionality.
+/**  Implementation of class to drive the pallet jack.
+ *
+ * This class is derived from the standard Component base class and includes
+ * initialization for the devices used to control the pallet jack's wheels.
+ *
+ * The task receives messages form the main robot class and runs the wheels.
+ * Special commands use a gyro and quadrature encoder to drive straight X feet
+ * or to turn X degrees.
  */
+
 
 //Local
 #include "Drivetrain.h"			//For the local header file
@@ -39,12 +46,12 @@ Drivetrain::Drivetrain() :
 	pTask = new Task(DRIVETRAIN_TASKNAME, (FUNCPTR) &Drivetrain::StartTask,
 			DRIVETRAIN_PRIORITY, DRIVETRAIN_STACKSIZE);
 	wpi_assert(pTask);
-	pTask->Start((int) this);
+	pTask->Start((int)this);
 }
 
 Drivetrain::~Drivetrain()			//Destructor
 {
-	delete (pTask);
+	delete(pTask);
 	delete leftMotor;
 	delete rightMotor;
 }
@@ -55,7 +62,7 @@ void Drivetrain::OnStateChange()			//Handles state changes
 	case COMMAND_ROBOT_STATE_AUTONOMOUS:
 		leftMotor->Set(0.0);
 		rightMotor->Set(0.0);
-		initialAngle = gyro->GetAngle();
+		targetAngle = gyro->GetAngle();
 		encoder->Reset();
 		break;
 
@@ -97,17 +104,22 @@ void Drivetrain::Run() {
 	case COMMAND_DRIVETRAIN_DRIVE_ARCADE:
 		SmartDashboard::PutString("Drivetrain CMD",
 				"COMMAND_DRIVETRAIN_DRIVE_ARCADE");
-		leftMotor->Set(.5*(localMessage.params.arcadeDrive.y + localMessage.params.arcadeDrive.x));
-		rightMotor->Set(-.5*(localMessage.params.arcadeDrive.y - localMessage.params.arcadeDrive.x));
+		ArcadeDrive(localMessage.params.arcadeDrive.x,localMessage.params.arcadeDrive.y);
 		break;
-	/*case COMMAND_DRIVETRAIN_INIT_STRAIGHT:
+	case COMMAND_DRIVETRAIN_INIT_STRAIGHT:
 		SmartDashboard::PutString("Drivetrain CMD",
 				"COMMAND_DRIVETRAIN_INIT_STRAIGHT");
-		break;*/
+		break;
 	case COMMAND_DRIVETRAIN_DRIVE_STRAIGHT:
 		SmartDashboard::PutString("Drivetrain CMD",
 				"COMMAND_DRIVETRAIN_DRIVE_STRAIGHT");
-		DriveStraight(120);//localMessage.params.straightDistance);
+		DriveStraight(localMessage.params.autonomous.PJackDistance);
+		break;
+
+	case COMMAND_DRIVETRAIN_TURN:
+		SmartDashboard::PutString("Drivetrain CMD",
+				"COMMAND_DRIVETRAIN_TURN");
+		Turn(localMessage.params.autonomous.turnAngle);
 		break;
 
 	case COMMAND_SYSTEM_MSGTIMEOUT:
@@ -117,45 +129,37 @@ void Drivetrain::Run() {
 		break;
 	}
 	//Put out information
-	SmartDashboard::PutNumber("Covered Distance", coveredDist);
 	SmartDashboard::PutNumber("Left Drive Motor Voltage", leftMotor->GetOutputVoltage());
 	SmartDashboard::PutNumber("Right Drive Motor Voltage", rightMotor->GetOutputVoltage());
+	SmartDashboard::PutNumber("Gyro Angle", gyro->GetAngle());
 
+}
+
+void Drivetrain::ArcadeDrive(float x, float y)
+{
+	leftMotor->Set(y - x/2);
+	rightMotor->Set(-(y + x/2));
 }
 void Drivetrain::DriveStraight(float targetDist) {
 	coveredDist = encoder->GetDistance();
-	SmartDashboard::PutNumber("Remaining Distance", targetDist - coveredDist);
-	SmartDashboard::PutNumber("Gyro Angle", gyro->GetAngle());
-	SmartDashboard::PutNumber("Angle Error", errorAngle);
-	errorAngle = initialAngle - gyro->GetAngle();
+	errorAngle = targetAngle - gyro->GetAngle();
 	if (coveredDist < targetDist) {
-		//remember, you are reverting the error
-		left = (1 + errorAngle/45) * .3;
-		right = (-1 + errorAngle/45) * .3;
+		//glorified arcade drive
+		left = (1 + errorAngle/recoverStrength) * speed;
+		right = (-1 + errorAngle/recoverStrength) * speed;
 	} else {
 		left = 0;
 		right = 0;
 	}
 	leftMotor->Set(left);
 	rightMotor->Set(right);
+	SmartDashboard::PutNumber("Covered Distance", coveredDist);
+	SmartDashboard::PutNumber("Remaining Distance", targetDist - coveredDist);
+	SmartDashboard::PutNumber("Angle Error", errorAngle);
+	SmartDashboard::PutNumber("Target Angle", targetAngle);
 }
-float Drivetrain::LimitMotor(float motorValue, float pastValue) //restrict motor acceleration to prevent destruction
-		{
-	/*use "motor->Get()" to get the previous PWM value
-	 note: motorValue is usually based on raw joystick reading,
-	 while pastValue is the previous gain-limited reading */
-	// if the motorValue is arbitrarily small, make it 0
-	if (motorValue < JOYSTICK_DEADZONE && motorValue > -JOYSTICK_DEADZONE)
-		motorValue = 0.0;
 
-	/* restrict the acceleration
-	 formula: if(change_in_motor_value > +-allowed_change)
-	 return previous_value -+ allowed_change; */
-	//positive acceleration
-	if ((motorValue - pastValue) > MAX_GAIN_PER_MESSAGE)
-		return pastValue + MAX_GAIN_PER_MESSAGE;
-	//negative acceleration
-	if ((motorValue - pastValue) < -MAX_GAIN_PER_MESSAGE)
-		return pastValue - MAX_GAIN_PER_MESSAGE;
-	return motorValue;
+void Drivetrain::Turn(float angle)
+{
+	targetAngle += angle;
 }

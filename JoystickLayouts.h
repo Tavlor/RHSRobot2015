@@ -1,4 +1,5 @@
-/* 
+/**  Definitions of joystick buttons and sticks.
+ *
  * This is a list of the button and axis numbers for several controllers.
  */
 
@@ -98,6 +99,8 @@
 #define L310_THUMBSTICK_LEFT_Y		1
 #define L310_THUMBSTICK_RIGHT_X		4
 #define L310_THUMBSTICK_RIGHT_Y		5
+
+#define L310_POV					0//D-pad
 
 #define L310_TRIGGER_LEFT			2	// value > 0
 #define L310_TRIGGER_RIGHT			3	// value < 0

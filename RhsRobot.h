@@ -1,6 +1,7 @@
-/*
+/**  Main robot class.
+ *
  * The RhsRobot class is the main robot class. It inherits from RhsRobotBase and MUST define the Init() function, the Run() function, and
- * the OnStateChange() function.
+ * the OnStateChange() function.  Messages from the DS are processed and commands.
  */
 
 #ifndef RHS_ROBOT_H
@@ -38,6 +39,18 @@ private:
 	void Run();
 
 	int iLoop;
+	// joystick wasPressed variables;
+	bool bwpCubeIntakeButton;
+
+	/* Example of proper button toggle
+	 * if(BUTTON_A && !bwpA) {
+	 * 	 bwpA = true;
+	 * 	 Thingie->DoTask(42);
+	 * }
+	 * else if(!BUTTON_A && bwpA) {
+	 *	 bwpA = false;
+	 * }
+	 */
 };
 
 #endif //RHS_ROBOT_H
