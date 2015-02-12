@@ -6,8 +6,8 @@
 #define CHECKLIST_H
 
 //Robot
-#include "Drivetrain.h"
 #include "ComponentBase.h"
+#include "Drivetrain.h"
 class RhsRobot;
 
 //WPILib

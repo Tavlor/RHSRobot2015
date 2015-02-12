@@ -8,14 +8,12 @@
  * lifter at the desired points.
  */
 
+#include "CanLifter.h"
 #include "WPILib.h"
 
 //Robot
 #include "ComponentBase.h"
 #include "RobotParams.h"
-
-//Local
-#include "CanLifter.h"
 
 CanLifter::CanLifter()
 : ComponentBase(CANLIFTER_TASKNAME, CANLIFTER_QUEUE, CANLIFTER_PRIORITY)

@@ -6,11 +6,10 @@
 #include <fstream>
 #include <string>
 
-#include "AutonomousBase.h"
-#include "RobotParams.h"
-#include "RobotMessage.h"
-
 #include "WPILib.h"
+#include "RobotMessage.h"
+#include "RobotParams.h"
+#include "AutonomousBase.h"
 
 class Autonomous : public AutonomousBase
 {

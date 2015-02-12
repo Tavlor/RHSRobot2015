@@ -3,16 +3,14 @@
  */
 
 //Local
-#include "AutonomousBase.h" 
+#include "AutonomousBase.h"
 
-//Robot
-#include "ComponentBase.h"
-#include "RobotParams.h"
-
-//Built-In
 #include <iostream>
 #include <fstream>
 #include <string>
+
+#include "ComponentBase.h"
+#include "RobotParams.h"
 using namespace std;
 
 extern "C" {

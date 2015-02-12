@@ -5,6 +5,7 @@
  * work loop for this years robot.
  */
 
+#include "RhsRobotBase.h"			//For the local header file
 #include <assert.h>
 
 //Built-In
@@ -12,9 +13,6 @@
 #include "WPILib.h"			//For the RobotBase class, the watchdog, SmartDashboard, and the DriverStationLCD class
 
 //Local
-#include "RhsRobotBase.h"			//For the local header file
-
-//Robot
 #include "RobotParams.h"			//For various robot parameters
 #include "Autonomous.h"
 

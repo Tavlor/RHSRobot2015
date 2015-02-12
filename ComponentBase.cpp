@@ -5,6 +5,7 @@
  * all components use.
  */
 
+#include "ComponentBase.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <assert.h>
@@ -14,7 +15,6 @@
 #include <sys/types.h>
 
 //Local
-#include "ComponentBase.h"
 
 //Robot
 class RhsRobot;

@@ -99,6 +99,8 @@ enum MessageCommand
 	COMMAND_CONVEYOR_INTAKEBOTH_STOP, //!< COMMAND_CONVEYOR_INTAKEBOTH_STOP
 	COMMAND_CONVEYOR_CANADJUST_LEFT, //!< COMMAND_CONVEYOR_CANADJUST_LEFT
 	COMMAND_CONVEYOR_CANADJUST_RIGHT, //!< COMMAND_CONVEYOR_CANADJUST_RIGHT
+	COMMAND_CONVEYOR_CANADJUST_BOTH, //!< COMMAND_CONVEYOR_CANADJUST_BOTH
+	//NOTE: the robot intakes with BCK and reverts with FWD
 	COMMAND_CONVEYOR_RUNALL_FWD,      //!< COMMAND_CONVEYOR_RUNALL_FWD
 	COMMAND_CONVEYOR_RUNALL_BCK,      //!< COMMAND_CONVEYOR_RUNALL_BCK
 	COMMAND_CONVEYOR_RUNALL_STOP,     //!< COMMAND_CONVEYOR_RUNALL_STOP
@@ -145,18 +147,11 @@ struct AutonomousParams
 	float turnAngle;
 };
 
-struct ClickerParams
-{
-	bool clicker;//true means "add cube"
-	bool intake;
-};
-
 union MessageParams
 {
 	TankDriveParams tankDrive;
 	ArcadeDriveParams arcadeDrive;
 	AutonomousParams autonomous;
-	ClickerParams clicker;
 };
 
 struct RobotMessage

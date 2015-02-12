@@ -8,15 +8,14 @@
 #define RHS_ROBOT_H
 
 #include "WPILib.h"
-#include "RhsRobotBase.h"
 
-//Robot
-#include "Drivetrain.h"
 #include "Autonomous.h"
-#include "Conveyor.h"
-#include "Clicker.h"
-#include "JackClicker.h"
 #include "CanLifter.h"
+#include "Clicker.h"
+#include "Conveyor.h"
+#include "Drivetrain.h"
+#include "JackClicker.h"
+#include "RhsRobotBase.h"
 
 class RhsRobot : public RhsRobotBase
 {
@@ -45,10 +44,11 @@ private:
 	/* Example of proper button toggle
 	 * if(BUTTON_A && !bwpA) {
 	 * 	 bwpA = true;
-	 * 	 Thingie->DoTask(42);
+	 * 	 Thingie->DoButtonPress(42);
 	 * }
 	 * else if(!BUTTON_A && bwpA) {
 	 *	 bwpA = false;
+	 *	 Thingie->DoButtonRelease(42);
 	 * }
 	 */
 };

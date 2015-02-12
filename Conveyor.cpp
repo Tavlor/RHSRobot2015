@@ -7,14 +7,12 @@
  * forward or backwards.  A beam break sensor is used to position the totes.
  */
 
+#include "Conveyor.h"
 #include "WPILib.h"
 
 //Robot
 #include "ComponentBase.h"
 #include "RobotParams.h"
-
-//Local
-#include "Conveyor.h"
 
 Conveyor::Conveyor() :
 		ComponentBase(CONVEYOR_TASKNAME, CONVEYOR_QUEUE,
@@ -88,11 +86,11 @@ void Conveyor::Run() {
 	{
 	case COMMAND_CONVEYOR_RUN_FWD:
 		conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
-		conveyorMotor->Set(1.0);
+		conveyorMotor->Set(-fConveyorSpeed);
 		break;
 	case COMMAND_CONVEYOR_RUN_BCK:
 		conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
-		conveyorMotor->Set(-1.0);
+		conveyorMotor->Set(fConveyorSpeed);
 		break;
 	case COMMAND_CONVEYOR_STOP:
 		conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
@@ -100,11 +98,11 @@ void Conveyor::Run() {
 		break;
 
 	case COMMAND_CONVEYOR_INTAKELEFT_IN:
-		intakeLeftMotor->Set(1.0);
+		intakeLeftMotor->Set(-fIntakeSpeed);
 		break;
 
 	case COMMAND_CONVEYOR_INTAKELEFT_OUT:
-		intakeLeftMotor->Set(-1.0);
+		intakeLeftMotor->Set(fIntakeSpeed);
 		break;
 
 	case COMMAND_CONVEYOR_INTAKELEFT_STOP:
@@ -112,11 +110,11 @@ void Conveyor::Run() {
 		break;
 
 	case COMMAND_CONVEYOR_INTAKERIGHT_IN:
-		intakeRightMotor->Set(-1.0);
+		intakeRightMotor->Set(fIntakeSpeed);
 		break;
 
 	case COMMAND_CONVEYOR_INTAKERIGHT_OUT:
-		intakeRightMotor->Set(1.0);
+		intakeRightMotor->Set(-fIntakeSpeed);
 		break;
 
 	case COMMAND_CONVEYOR_INTAKERIGHT_STOP:
@@ -124,13 +122,13 @@ void Conveyor::Run() {
 		break;
 
 	case COMMAND_CONVEYOR_INTAKEBOTH_IN:
-		intakeLeftMotor->Set(1.0);
-		intakeRightMotor->Set(-1.0);
+		intakeLeftMotor->Set(-fIntakeSpeed);
+		intakeRightMotor->Set(fIntakeSpeed);
 		break;
 
 	case COMMAND_CONVEYOR_INTAKEBOTH_OUT:
-		intakeLeftMotor->Set(-1.0);
-		intakeRightMotor->Set(1.0);
+		intakeLeftMotor->Set(fIntakeSpeed);
+		intakeRightMotor->Set(-fIntakeSpeed);
 		break;
 
 	case COMMAND_CONVEYOR_INTAKEBOTH_STOP:
@@ -140,16 +138,16 @@ void Conveyor::Run() {
 
 	case COMMAND_CONVEYOR_RUNALL_FWD:
 		conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
-		conveyorMotor->Set(1.0);
-		intakeLeftMotor->Set(-1.0);
-		intakeRightMotor->Set(1.0);
+		conveyorMotor->Set(-fConveyorSpeed);
+		intakeLeftMotor->Set(fIntakeSpeed);
+		intakeRightMotor->Set(-fIntakeSpeed);
 		break;
 
 	case COMMAND_CONVEYOR_RUNALL_BCK:
 		conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
-		conveyorMotor->Set(-1.0);
-		intakeLeftMotor->Set(1.0);
-		intakeRightMotor->Set(-1.0);
+		conveyorMotor->Set(fConveyorSpeed);
+		intakeLeftMotor->Set(-fIntakeSpeed);
+		intakeRightMotor->Set(fIntakeSpeed);
 		break;
 
 	case COMMAND_CONVEYOR_RUNALL_STOP:
@@ -158,7 +156,32 @@ void Conveyor::Run() {
 		intakeRightMotor->Set(0.0);
 		break;
 
+	case COMMAND_CONVEYOR_CANADJUST_BOTH:
+		SmartDashboard::PutString("Conveyor CMD",
+				"COMMAND_CONVEYOR_CANADJUST_BOTH");
+		conveyorMotor->Set(fConveyorSpeed);
+		intakeLeftMotor->Set(fAdjustSpeed);
+		intakeRightMotor->Set(-fAdjustSpeed);
+		break;
+
+	case COMMAND_CONVEYOR_CANADJUST_LEFT:
+		SmartDashboard::PutString("Conveyor CMD",
+				"COMMAND_CONVEYOR_CANADJUST_LEFT");
+		conveyorMotor->Set(fConveyorSpeed);
+		intakeLeftMotor->Set(fAdjustSpeed);
+		intakeRightMotor->Set(fIntakeSpeed);
+		break;
+
+	case COMMAND_CONVEYOR_CANADJUST_RIGHT:
+		SmartDashboard::PutString("Conveyor CMD",
+				"COMMAND_CONVEYOR_CANADJUST_RIGHT");
+		conveyorMotor->Set(fConveyorSpeed);
+		intakeLeftMotor->Set(-fIntakeSpeed);
+		intakeRightMotor->Set(-fAdjustSpeed);
+		break;
 	case COMMAND_SYSTEM_MSGTIMEOUT:
+		SmartDashboard::PutString("Conveyor CMD",
+				"COMMAND_SYSTEM_MSGTIMEOUT");
 	default:
 		break;
 	}

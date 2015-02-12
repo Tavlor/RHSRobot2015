@@ -6,12 +6,11 @@
 #define AUTONOMOUS_BASE_H
 
 //Robot
-#include "ComponentBase.h" //For the ComponentBase class
-#include "RobotParams.h" //For various robot parameters
-
-//Built-In
 #include <string>
 #include <pthread.h>
+
+#include "ComponentBase.h" //For the ComponentBase class
+#include "RobotParams.h" //For various robot parameters
 
 const int AUTONOMOUS_SCRIPT_LINES = 64;
 const int AUTONOMOUS_CHECKLIST_LINES = 64;

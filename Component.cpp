@@ -7,14 +7,12 @@
  * for a given subsystem.
  */
 
+#include "Component.h"
 #include "WPILib.h"
 
 //Robot
 #include "ComponentBase.h"
 #include "RobotParams.h"
-
-//Local
-#include "Component.h"
 
 Component::Component()
 : ComponentBase(COMPONENT_TASKNAME, COMPONENT_QUEUE, COMPONENT_PRIORITY)

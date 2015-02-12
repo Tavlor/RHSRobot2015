@@ -12,10 +12,9 @@
 #include <pthread.h>
 
 //Robot
-#include "ComponentBase.h"			//For ComponentBase class
-
-//WPILib
 #include "WPILib.h"
+
+#include "ComponentBase.h"			//For ComponentBase class
 
 class Clicker : public ComponentBase
 {
@@ -47,7 +46,7 @@ private:
 	bool hitBottom;
 
 	ClickerState lastState = STATE_CUBECLICKER_TOP;
-	int iNumOfTotes = 1;
+	int iNumOfTotes = 0;
 	int iLastChecked;
 
 	//All Cube sensors are connected to the Talons, and are thus not

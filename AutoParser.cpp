@@ -1,3 +1,4 @@
+#include "AutoParser.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -10,10 +11,7 @@
 //Robot
 #include "ComponentBase.h"
 #include "RobotParams.h"
-
-//Local
 #include "Autonomous.h"
-#include "AutoParser.h"
 
 using namespace std;
 

@@ -10,10 +10,9 @@
 #include <pthread.h>
 
 //Robot
-#include "ComponentBase.h"			//For ComponentBase class
-
-//WPILib
 #include "WPILib.h"
+
+#include "ComponentBase.h"			//For ComponentBase class
 
 class Conveyor: public ComponentBase
 {
@@ -30,6 +29,10 @@ private:
 	CANTalon *conveyorMotor;
 	CANTalon *intakeLeftMotor;
 	CANTalon *intakeRightMotor;
+
+	float fConveyorSpeed = .5;
+	float fIntakeSpeed = 1;//typical intake speed
+	float fAdjustSpeed = .15;//intake speed used when shifting cans
 
 	void OnStateChange();
 	void Run();

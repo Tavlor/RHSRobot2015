@@ -11,10 +11,9 @@
 #include <pthread.h>
 
 //Robot
-#include "ComponentBase.h"			//For ComponentBase class
-
-//WPILib
 #include "WPILib.h"
+
+#include "ComponentBase.h"			//For ComponentBase class
 
 class JackClicker : public ComponentBase
 {

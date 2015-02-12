@@ -10,10 +10,9 @@
 #include <pthread.h>
 
 //Robot
-#include "ComponentBase.h"			//For ComponentBase class
-
-//WPILib
 #include "WPILib.h"
+
+#include "ComponentBase.h"			//For ComponentBase class
 #include "ADXRS453Z.h"
 
 
@@ -44,9 +43,11 @@ private:
 
 	void OnStateChange();
 	void Run();
+	void Put();//for SmartDashboard
 	void ArcadeDrive(float, float);
 	void DriveStraight(float);
 	void Turn(float);//for auto, use with DriveStraight
+	void AddDistance(float);
 };
 
 #endif			//DRIVETRAIN_H

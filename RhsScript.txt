@@ -1,0 +1,8 @@
+# sample commands
+#BEGIN
+#END
+#DELAY <seconds>
+#
+BEGIN
+DELAY 1.0
+END

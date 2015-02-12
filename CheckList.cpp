@@ -4,10 +4,8 @@
 
 //Local
 #include "CheckList.h"
-
-//Robot
-#include "RobotParams.h"
 #include "ComponentBase.h"			//For the ComponentBase class
+#include "RobotParams.h"
 class RhsRobot;			//For the pointer to the RhsRobot object
 
 //WPILib

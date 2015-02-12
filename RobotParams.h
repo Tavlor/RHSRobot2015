@@ -82,8 +82,8 @@ const int CAN_PDB = 42;
 const int CAN_DRIVETRAIN_LEFT_MOTOR = 1;
 const int CAN_DRIVETRAIN_RIGHT_MOTOR = 2;
 const int CAN_PALLET_JACK_CONVEYOR = 3;
-const int CAN_PALLET_JACK_INTAKE_VERTICAL_LEFT = 4;
-const int CAN_PALLET_JACK_INTAKE_VERTICAL_RIGHT = 5;
+const int CAN_PALLET_JACK_INTAKE_VERTICAL_LEFT = 5;
+const int CAN_PALLET_JACK_INTAKE_VERTICAL_RIGHT = 4;
 const int CAN_PALLET_JACK_TOTE_LIFT = 6;
 const int CAN_CUBE_BIN_LIFT = 7;
 const int CAN_CUBE_INTAKE = 8;
@@ -138,7 +138,7 @@ const int IO2C_AUTO_ACCEL = 1;
 #define CONVEYOR_FWD				Controller_1->GetRawButton(L310_BUTTON_BUMPER_LEFT)//Includes the vertical intakes
 #define CONVEYOR_BCK				Controller_1->GetRawButton(L310_BUTTON_BUMPER_RIGHT)
 #define CONVEYOR_ADJUST_LEFT		Controller_1->GetRawAxis(L310_TRIGGER_RIGHT)//inverted
-#define CONVEYOR_ADJUST_RIGHT		Controller_1->GetRawAxis(L310_TRIGGER_LEFT)//i.e
+#define CONVEYOR_ADJUST_RIGHT		Controller_1->GetRawAxis(L310_TRIGGER_LEFT)//i.e, left trigger changes right intake
 #define CLICKER_UP					Controller_1->GetRawButton(L310_BUTTON_A)
 #define CLICKER_DOWN				Controller_1->GetRawButton(L310_BUTTON_B)
 #define CUBE_INTAKE_RUN				Controller_1->GetRawButton(L310_BUTTON_X)

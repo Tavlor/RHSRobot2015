@@ -8,20 +8,17 @@
  * or to turn X degrees.
  */
 
-
 //Local
 #include "Drivetrain.h"			//For the local header file
 
-//Robot
-#include "ComponentBase.h"
-#include "RobotParams.h"
-
-//Built-In
 #include <math.h>
 #include <assert.h>
 
 #include <string>
 #include <iostream>
+
+#include "ComponentBase.h"
+#include "RobotParams.h"
 using namespace std;
 
 Drivetrain::Drivetrain() :
@@ -46,12 +43,12 @@ Drivetrain::Drivetrain() :
 	pTask = new Task(DRIVETRAIN_TASKNAME, (FUNCPTR) &Drivetrain::StartTask,
 			DRIVETRAIN_PRIORITY, DRIVETRAIN_STACKSIZE);
 	wpi_assert(pTask);
-	pTask->Start((int)this);
+	pTask->Start((int) this);
 }
 
 Drivetrain::~Drivetrain()			//Destructor
 {
-	delete(pTask);
+	delete (pTask);
 	delete leftMotor;
 	delete rightMotor;
 }
@@ -104,7 +101,8 @@ void Drivetrain::Run() {
 	case COMMAND_DRIVETRAIN_DRIVE_ARCADE:
 		SmartDashboard::PutString("Drivetrain CMD",
 				"COMMAND_DRIVETRAIN_DRIVE_ARCADE");
-		ArcadeDrive(localMessage.params.arcadeDrive.x,localMessage.params.arcadeDrive.y);
+		ArcadeDrive(localMessage.params.arcadeDrive.x,
+				localMessage.params.arcadeDrive.y);
 		break;
 	case COMMAND_DRIVETRAIN_INIT_STRAIGHT:
 		SmartDashboard::PutString("Drivetrain CMD",
@@ -117,8 +115,7 @@ void Drivetrain::Run() {
 		break;
 
 	case COMMAND_DRIVETRAIN_TURN:
-		SmartDashboard::PutString("Drivetrain CMD",
-				"COMMAND_DRIVETRAIN_TURN");
+		SmartDashboard::PutString("Drivetrain CMD", "COMMAND_DRIVETRAIN_TURN");
 		Turn(localMessage.params.autonomous.turnAngle);
 		break;
 
@@ -129,25 +126,23 @@ void Drivetrain::Run() {
 		break;
 	}
 	//Put out information
-	SmartDashboard::PutNumber("Left Drive Motor Voltage", leftMotor->GetOutputVoltage());
-	SmartDashboard::PutNumber("Right Drive Motor Voltage", rightMotor->GetOutputVoltage());
-	SmartDashboard::PutNumber("Gyro Angle", gyro->GetAngle());
+	Put();
 
 }
 
-void Drivetrain::ArcadeDrive(float x, float y)
-{
-	leftMotor->Set(y - x/2);
-	rightMotor->Set(-(y + x/2));
+void Drivetrain::ArcadeDrive(float x, float y) {
+	leftMotor->Set(y + x / 2);
+	rightMotor->Set(-(y - x / 2));
 }
 void Drivetrain::DriveStraight(float targetDist) {
 	coveredDist = encoder->GetDistance();
 	errorAngle = targetAngle - gyro->GetAngle();
 	if (coveredDist < targetDist) {
 		//glorified arcade drive
-		left = (1 + errorAngle/recoverStrength) * speed;
-		right = (-1 + errorAngle/recoverStrength) * speed;
-	} else {
+		left = (1 + errorAngle / recoverStrength) * speed;
+		right = (-1 + errorAngle / recoverStrength) * speed;
+	}
+	else {
 		left = 0;
 		right = 0;
 	}
@@ -159,7 +154,17 @@ void Drivetrain::DriveStraight(float targetDist) {
 	SmartDashboard::PutNumber("Target Angle", targetAngle);
 }
 
-void Drivetrain::Turn(float angle)
-{
+void Drivetrain::Turn(float angle) {
 	targetAngle += angle;
+}
+void Drivetrain::AddDistance(float distance) {
+	coveredDist -= distance;
+}
+void Drivetrain::Put() {
+	SmartDashboard::PutNumber("Left Drive Motor Voltage",
+			leftMotor->GetOutputVoltage());
+	SmartDashboard::PutNumber("Right Drive Motor Voltage",
+			rightMotor->GetOutputVoltage());
+	SmartDashboard::PutNumber("Gyro Angle", gyro->GetAngle());
+
 }

@@ -5,14 +5,12 @@
  * that implement behaviors for each part for the robot.
  */
 
+#include "RhsRobot.h"
 #include "WPILib.h"
 
 //Robot
 #include "ComponentBase.h"
 #include "RobotParams.h"
-
-//Robot
-#include "RhsRobot.h"
 
 RhsRobot::RhsRobot() {
 	Controller_1 = NULL;
@@ -37,7 +35,7 @@ RhsRobot::~RhsRobot() {
 
 	delete Controller_1;
 	delete Controller_2;
-	//delete autonomous;
+	delete autonomous;
 	delete drivetrain;
 	delete conveyor;
 	delete clicker;
@@ -59,7 +57,7 @@ void RhsRobot::Init()			//Initializes the robot
 	clicker = new Clicker();
 	jackclicker = new JackClicker();
 	canlifter = new CanLifter();
-	//autonomous = new Autonomous();
+	autonomous = new Autonomous();
 }
 
 void RhsRobot::OnStateChange()			//Handles state changes
@@ -107,6 +105,8 @@ void RhsRobot::Run() {
 
 	if (autonomous) {
 		if (GetCurrentRobotState() == ROBOT_STATE_AUTONOMOUS) {
+			robotMessage.command = COMMAND_AUTONOMOUS_RUN;
+			autonomous->SendMessage(&robotMessage);
 			// all messages to components will come from the autonomous task
 			return;
 		}
@@ -115,10 +115,11 @@ void RhsRobot::Run() {
 	if (drivetrain) {
 		if (GetCurrentRobotState() == ROBOT_STATE_AUTONOMOUS) {
 			robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_STRAIGHT;
-		} else {
+		}
+		else {
 			robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_TANK;
-			 robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT;
-			 robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT;
+			robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT;
+			robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT;
 			//robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_ARCADE;
 			//robotMessage.params.arcadeDrive.x = ARCADE_DRIVE_X;
 			//robotMessage.params.arcadeDrive.y = ARCADE_DRIVE_Y;
@@ -128,21 +129,30 @@ void RhsRobot::Run() {
 
 	if (conveyor) {
 		//button press triggers action; if nothing happens, the ignore command is sent
-		if (CONVEYOR_FWD) {
+		if (CONVEYOR_FWD) { //only used for autonomous and depositing cans
+			SmartDashboard::PutString("Conveyor Mode", "Output Front");
 			robotMessage.command = COMMAND_CONVEYOR_RUNALL_FWD;
 		}
-		else if (CONVEYOR_BCK) {	//if intaking
-			if(CONVEYOR_ADJUST_LEFT > .5) {
+		else if (CONVEYOR_BCK) {//used to intake and deposit totesif (CONVEYOR_ADJUST_LEFT > .1) {
+			if (CONVEYOR_ADJUST_LEFT > .1 && CONVEYOR_ADJUST_RIGHT > .1) {
+				SmartDashboard::PutString("Conveyor Mode", "Adjusting Both");
+				robotMessage.command = COMMAND_CONVEYOR_CANADJUST_BOTH;
+			}
+			else if (CONVEYOR_ADJUST_LEFT > .1) {
+				SmartDashboard::PutString("Conveyor Mode", "Adjusting Left");
 				robotMessage.command = COMMAND_CONVEYOR_CANADJUST_LEFT;
 			}
-			else if(CONVEYOR_ADJUST_RIGHT > .5) {
+			else if (CONVEYOR_ADJUST_RIGHT > .1) {
+				SmartDashboard::PutString("Conveyor Mode", "Adjusting Right");
 				robotMessage.command = COMMAND_CONVEYOR_CANADJUST_RIGHT;
 			}
 			else {
+				SmartDashboard::PutString("Conveyor Mode", "Intake Front");
 				robotMessage.command = COMMAND_CONVEYOR_RUNALL_BCK;
 			}
 		}
 		else {
+			SmartDashboard::PutString("Conveyor Mode", "Stopped");
 			robotMessage.command = COMMAND_CONVEYOR_RUNALL_STOP;
 		}
 
@@ -152,32 +162,32 @@ void RhsRobot::Run() {
 		//TODO: assign final input controls to the clicker
 
 		/*if (CLICKER_UP) {
-			robotMessage.command = COMMAND_CUBECLICKER_RAISE;
-		}
-		else if (CLICKER_DOWN) {
-			robotMessage.command = COMMAND_CUBECLICKER_LOWER;
-		}
-		else {
-			robotMessage.command = COMMAND_CUBECLICKER_STOP;
-		}*/
+		 robotMessage.command = COMMAND_CUBECLICKER_RAISE;
+		 }
+		 else if (CLICKER_DOWN) {
+		 robotMessage.command = COMMAND_CUBECLICKER_LOWER;
+		 }
+		 else {
+		 robotMessage.command = COMMAND_CUBECLICKER_STOP;
+		 }*/
 
 		//clicker->SendMessage(&robotMessage);
-/*
-		if (CUBE_INTAKE_RUN && !bwpCubeIntakeButton) {
-			//if button is pressed and wasn't previously
-			bwpCubeIntakeButton = true;
-			robotMessage.command = COMMAND_CUBEINTAKE_RUN;
-		}
-		else if(!CUBE_INTAKE_RUN && bwpCubeIntakeButton){
-			//if button isn't pressed and was previously
-			bwpCubeIntakeButton = false;
-			robotMessage.command = COMMAND_CUBEINTAKE_STOP;
-		}
-*/
+		/*
+		 if (CUBE_INTAKE_RUN && !bwpCubeIntakeButton) {
+		 //if button is pressed and wasn't previously
+		 bwpCubeIntakeButton = true;
+		 robotMessage.command = COMMAND_CUBEINTAKE_RUN;
+		 }
+		 else if(!CUBE_INTAKE_RUN && bwpCubeIntakeButton){
+		 //if button isn't pressed and was previously
+		 bwpCubeIntakeButton = false;
+		 robotMessage.command = COMMAND_CUBEINTAKE_STOP;
+		 }
+		 */
 		if (CUBE_INTAKE_RUN) {
 			robotMessage.command = COMMAND_CUBEAUTOCYCLE_START;
 		}
-		else if(CUBE_INTAKE_STOP) {
+		else if (CUBE_INTAKE_STOP) {
 			robotMessage.command = COMMAND_CUBEAUTOCYCLE_STOP;
 		}
 

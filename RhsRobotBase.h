@@ -9,10 +9,8 @@
 #include <unistd.h>
 
 //Robot
-#include "RobotMessage.h"
-
-//WPILib
 #include <WPILib.h>			//For the RobotBase class
+#include "RobotMessage.h"
 
 typedef enum eRobotOpMode
 {

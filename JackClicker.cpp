@@ -8,14 +8,12 @@
  * are used to stop the motion of the "clicker" at the desired points.
  */
 
+#include "JackClicker.h"
 #include "WPILib.h"
 
 //Robot
 #include "ComponentBase.h"
 #include "RobotParams.h"
-
-//Local
-#include "JackClicker.h"
 
 JackClicker::JackClicker()
 : ComponentBase(JACKCLICKER_TASKNAME, JACKCLICKER_QUEUE, JACKCLICKER_PRIORITY)
