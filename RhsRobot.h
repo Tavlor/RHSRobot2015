@@ -10,7 +10,7 @@
 #include "WPILib.h"
 
 #include "Autonomous.h"
-#include "CanLifter.h"
+//#include "CanLifter.h"
 #include "Clicker.h"
 #include "Conveyor.h"
 #include "Drivetrain.h"
@@ -31,7 +31,7 @@ private:
 	Conveyor* conveyor;
 	Clicker* clicker;
 	JackClicker* jackclicker;
-	CanLifter* canlifter;
+	//CanLifter* canlifter;
 	
 	void Init();
 	void OnStateChange();

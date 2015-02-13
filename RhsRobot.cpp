@@ -20,7 +20,7 @@ RhsRobot::RhsRobot() {
 	conveyor = NULL;
 	clicker = NULL;
 	jackclicker = NULL;
-	canlifter = NULL;
+	//canlifter = NULL;
 
 	bwpCubeIntakeButton = false;
 
@@ -40,7 +40,7 @@ RhsRobot::~RhsRobot() {
 	delete conveyor;
 	delete clicker;
 	delete jackclicker;
-	delete canlifter;
+	//delete canlifter;
 }
 
 void RhsRobot::Init()			//Initializes the robot
@@ -56,7 +56,7 @@ void RhsRobot::Init()			//Initializes the robot
 	conveyor = new Conveyor();
 	clicker = new Clicker();
 	jackclicker = new JackClicker();
-	canlifter = new CanLifter();
+	//canlifter = new CanLifter();
 	autonomous = new Autonomous();
 }
 
@@ -88,9 +88,9 @@ void RhsRobot::OnStateChange()			//Handles state changes
 		jackclicker->SendMessage(&robotMessage);
 	}
 
-	if (canlifter) {
-		canlifter->SendMessage(&robotMessage);
-	}
+	//if (canlifter) {
+	//	canlifter->SendMessage(&robotMessage);
+	//}
 }
 
 void RhsRobot::Run() {
@@ -198,7 +198,7 @@ void RhsRobot::Run() {
 		//TODO: assign input controls to the pallet jack clicker
 	}
 
-	if (canlifter) {
+	//if (canlifter) {
 		/*
 		 if (CAN_LIFT_RAISE) {
 		 robotMessage.command = COMMAND_CANLIFTER_RAISE;
@@ -208,7 +208,7 @@ void RhsRobot::Run() {
 		 robotMessage.command = COMMAND_IGNORE;
 		 }
 		 canlifter->SendMessage(&robotMessage);*/
-	}
+	//}
 
 	iLoop++;
 }

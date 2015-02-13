@@ -95,8 +95,8 @@ void Drivetrain::Run() {
 	case COMMAND_DRIVETRAIN_DRIVE_TANK:
 		SmartDashboard::PutString("Drivetrain CMD",
 				"COMMAND_DRIVETRAIN_DRIVE_TANK");
-		leftMotor->Set(pow(localMessage.params.tankDrive.left, 3));
-		rightMotor->Set(-pow(localMessage.params.tankDrive.right, 3));
+		leftMotor->Set(localMessage.params.tankDrive.left/2.0);//(pow(localMessage.params.tankDrive.left, 3));
+		rightMotor->Set(-localMessage.params.tankDrive.right/2.0);//(-pow(localMessage.params.tankDrive.right, 3));
 		break;
 	case COMMAND_DRIVETRAIN_DRIVE_ARCADE:
 		SmartDashboard::PutString("Drivetrain CMD",
@@ -161,6 +161,8 @@ void Drivetrain::AddDistance(float distance) {
 	coveredDist -= distance;
 }
 void Drivetrain::Put() {
+	SmartDashboard::PutNumber("Left Drive Motor PWM", leftMotor->Get());
+	SmartDashboard::PutNumber("Right Drive Motor PWM", rightMotor->Get());
 	SmartDashboard::PutNumber("Left Drive Motor Voltage",
 			leftMotor->GetOutputVoltage());
 	SmartDashboard::PutNumber("Right Drive Motor Voltage",

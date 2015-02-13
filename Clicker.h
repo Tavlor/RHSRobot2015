@@ -30,14 +30,23 @@ public:
 private:
 
 	enum ClickerState{
-			STATE_CUBECLICKER_RAISE,
-			STATE_CUBECLICKER_LOWER,
-			STATE_CUBECLICKER_TOP,
-			STATE_CUBECLICKER_BOTTOM
+			STATE_CLICKER_RAISE,
+			STATE_CLICKER_LOWER,
+			STATE_CLICKER_TOP,
+			STATE_CLICKER_BOTTOM,
+			STATE_CLICKER_BOTTOMHOLD
+	};
+
+	enum LifterState {
+		STATE_LIFTER_BOTTOM,
+		STATE_LIFTER_RAISE,
+		STATE_LIFTER_TOP,
+		STATE_LIFTER_LOWER
 	};
 
 	CANTalon *clickerMotor;
 	CANTalon *intakeMotor;
+	CANTalon *lifterMotor;
 	bool bEnableAutoCycle;
 	bool bAutoCubeIntake;
 
@@ -45,7 +54,8 @@ private:
 	bool hitTop;
 	bool hitBottom;
 
-	ClickerState lastState = STATE_CUBECLICKER_TOP;
+	ClickerState clickerLastState = STATE_CLICKER_TOP;
+	LifterState lifterLastState = STATE_LIFTER_BOTTOM;
 	int iNumOfTotes = 0;
 	int iLastChecked;
 
@@ -57,6 +67,7 @@ private:
 	void Bottom();
 	void Lower();
 	void Raise();
+	void Reset();
 };
 
 #endif			//CLICKER_H

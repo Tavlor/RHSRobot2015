@@ -37,7 +37,14 @@ Clicker::Clicker() :
 	intakeMotor->ConfigLimitMode(
 			CANSpeedController::kLimitMode_SwitchInputsOnly);
 
-	lastState = STATE_CUBECLICKER_TOP;
+	lifterMotor = new CANTalon(CAN_CUBE_BIN_LIFT);
+	wpi_assert(lifterMotor);
+	lifterMotor->SetVoltageRampRate(120.0);
+	lifterMotor->ConfigNeutralMode(CANSpeedController::NeutralMode::kNeutralMode_Brake);
+	lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
+
+	clickerLastState = STATE_CLICKER_TOP;
+	lifterLastState = STATE_LIFTER_BOTTOM;
 
 	pTask = new Task(CLICKER_TASKNAME, (FUNCPTR) &Clicker::StartTask,
 			CLICKER_PRIORITY, CLICKER_STACKSIZE);
@@ -48,6 +55,9 @@ Clicker::Clicker() :
 
 Clicker::~Clicker() {
 	delete (pTask);
+	delete clickerMotor;
+	delete intakeMotor;
+	delete lifterMotor;
 }
 ;
 
@@ -117,13 +127,15 @@ void Clicker::Run() {
 
 	case COMMAND_CUBEAUTOCYCLE_START:
 		bEnableAutoCycle = true;
-		lastState = STATE_CUBECLICKER_TOP;
+		clickerLastState = STATE_CLICKER_TOP;
+		lifterLastState = STATE_LIFTER_BOTTOM;
 		Top();
 		break;
 
 	case COMMAND_CUBEAUTOCYCLE_STOP:
 		bEnableAutoCycle = false;
-		lastState = STATE_CUBECLICKER_TOP;
+		clickerLastState = STATE_CLICKER_TOP;
+		lifterLastState = STATE_LIFTER_BOTTOM;
 		break;
 
 	default:
@@ -146,88 +158,120 @@ void Clicker::Run() {
 	//TODO: add timeout support for clicker motor just in case the sensors fail
 
 	//TODO: add state machine for auto cycling
-	bool irsens = !intakeMotor->IsRevLimitSwitchClosed();
-	//bool hallEffectTop = clickerMotor->IsRevLimitSwitchClosed();
-	bool hallEffectBottom = clickerMotor->IsRevLimitSwitchClosed();
-	bool hallEffectTop = clickerMotor->IsFwdLimitSwitchClosed();
+	bool irsens = !intakeMotor->IsRevLimitSwitchClosed();//true if the sensor is blocked/tripped
+	//bool clickerHallEffectTop = clickerMotor->IsRevLimitSwitchClosed();
+	bool clickerHallEffectBottom = clickerMotor->IsRevLimitSwitchClosed();
+	bool clickerHallEffectTop = clickerMotor->IsFwdLimitSwitchClosed();
+	bool lifterHallEffectBottom = lifterMotor->IsRevLimitSwitchClosed();
+	bool lifterHallEffectTop = lifterMotor->IsFwdLimitSwitchClosed();
 
 	SmartDashboard::PutBoolean("IR", irsens);
-	SmartDashboard::PutBoolean("TopClick", hallEffectTop);
-	SmartDashboard::PutBoolean("BottomCLick", hallEffectBottom);
+	SmartDashboard::PutBoolean("TopClick", clickerHallEffectTop);
+	SmartDashboard::PutBoolean("BottomCLick", clickerHallEffectBottom);
 
-	switch(lastState) {
-	case STATE_CUBECLICKER_BOTTOM:
+	switch(clickerLastState) {
+	case STATE_CLICKER_BOTTOM:
 		SmartDashboard::PutString("CUBE CLICKER STATE", "BOTTOM");
 		break;
-	case STATE_CUBECLICKER_TOP:
+	case STATE_CLICKER_TOP:
 		SmartDashboard::PutString("CUBE CLICKER STATE", "TOP");
 		break;
-	case STATE_CUBECLICKER_LOWER:
+	case STATE_CLICKER_LOWER:
 		SmartDashboard::PutString("CUBE CLICKER STATE", "LOWER");
 		break;
-	case STATE_CUBECLICKER_RAISE:
+	case STATE_CLICKER_RAISE:
 		SmartDashboard::PutString("CUBE CLICKER STATE", "RAISE");
 		break;
 	}
 
 	if(bEnableAutoCycle) {
-		switch(lastState) {
+		switch(clickerLastState) {
 
-		case STATE_CUBECLICKER_TOP:
+		case STATE_CLICKER_TOP:
 			if(irsens) {
-				lastState = STATE_CUBECLICKER_LOWER;
+				clickerLastState = STATE_CLICKER_LOWER;
 				Lower();
 			}
 			else {
-				lastState = STATE_CUBECLICKER_TOP;
+				clickerLastState = STATE_CLICKER_TOP;
 				//Top();
 			}
 			break;
 
-		case STATE_CUBECLICKER_LOWER:
-			if(!hallEffectBottom) {
-				lastState = STATE_CUBECLICKER_LOWER;
+		case STATE_CLICKER_LOWER:
+			if(!clickerHallEffectBottom) {
+				clickerLastState = STATE_CLICKER_LOWER;
 				//Lower();
 			}
 			else {
-				lastState = STATE_CUBECLICKER_BOTTOM;
+				clickerLastState = STATE_CLICKER_BOTTOM;
 				Bottom();
 			}
 			break;
 
-		case STATE_CUBECLICKER_BOTTOM:
+		case STATE_CLICKER_BOTTOM:
 			if(iNumOfTotes == CUBECLICKER_MAX_TOTES - 1) {//waits until can is on top - can hall effect
+				clickerLastState = STATE_CLICKER_BOTTOMHOLD;
+				lifterLastState = STATE_LIFTER_RAISE;
 
 			}
 			if(iNumOfTotes == CUBECLICKER_MAX_TOTES) {//waits until totes removed - IR
-				if(irsens) {
-					lastState = STATE_CUBECLICKER_TOP;
-					Top();
-				}
-				else {
-					iNumOfTotes = 0;
-					lastState = STATE_CUBECLICKER_RAISE;
-					Raise();
-				}
+				clickerLastState = STATE_CLICKER_BOTTOMHOLD;
 			}
 			else {
 				iNumOfTotes++;
-				lastState = STATE_CUBECLICKER_RAISE;
+				clickerLastState = STATE_CLICKER_RAISE;
 				Raise();
 			}
 			break;
 
-		case STATE_CUBECLICKER_RAISE:
-			if(!hallEffectTop) {
-				lastState = STATE_CUBECLICKER_RAISE;
+		case STATE_CLICKER_BOTTOMHOLD:
+
+			if(!irsens) {
+				Reset();
+			}
+			else if (lifterLastState == STATE_LIFTER_TOP && iNumOfTotes == 5){
+				iNumOfTotes++;
+				clickerLastState = STATE_CLICKER_RAISE;
+			}
+
+			else
+			{
+				//TODO add bottom hold functions
+			}
+
+			break;
+
+		case STATE_CLICKER_RAISE:
+			if(!clickerHallEffectTop) {
+				clickerLastState = STATE_CLICKER_RAISE;
 				//Raise();
 			}
 			else {
-				lastState = STATE_CUBECLICKER_TOP;
+				clickerLastState = STATE_CLICKER_TOP;
 				Top();
 			}
 			break;
 		}
+	}
+	switch(lifterLastState) {
+	case STATE_LIFTER_BOTTOM:
+		lifterMotor->Set(0.0);
+		break;
+	case STATE_LIFTER_RAISE:
+		if(lifterHallEffectTop)
+			lifterLastState = STATE_LIFTER_TOP;
+		lifterMotor->Set(-0.3);
+		break;
+	case STATE_LIFTER_TOP:
+		lifterMotor->Set(0.0);
+		break;
+	case STATE_LIFTER_LOWER:
+		if(lifterHallEffectBottom)
+			lifterLastState = STATE_LIFTER_BOTTOM;
+		lifterMotor->Set(0.3);
+		break;
+
 	}
 	SmartDashboard::PutNumber("Number of Totes in Cube", iNumOfTotes);
 }
@@ -237,20 +281,24 @@ void Clicker::Top() {
 	clickerMotor->Set(0);
 	intakeMotor->Set(-0.5);
 }
-;
-
 void Clicker::Bottom() {
 	clickerMotor->Set(0);
 	intakeMotor->Set(0);
 }
-;
 void Clicker::Raise() {
 	clickerMotor->Set(0.25);
 	intakeMotor->Set(-0.5);
 }
-;
 void Clicker::Lower() {
 	clickerMotor->Set(-1.0);
 	intakeMotor->Set(0);
 }
-;
+void Clicker::Reset() {
+	iNumOfTotes = 0;
+	if(clickerLastState != STATE_CLICKER_TOP) {
+		clickerLastState = STATE_CLICKER_RAISE;
+	}
+	if(lifterLastState != STATE_LIFTER_BOTTOM) {
+		lifterLastState = STATE_LIFTER_LOWER;
+	}
+}

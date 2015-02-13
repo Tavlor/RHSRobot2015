@@ -2,6 +2,7 @@
  *
  * This classes is derived from the standard Component base class and includes
  * definitions for the devices used to control the pallet jack's can lifter.
+ * NOTE: Worked into the clicker class, files kept as backup
  */
 
 #ifndef CANLIFTER_H
