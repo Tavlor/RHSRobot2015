@@ -18,10 +18,16 @@ extern "C" {
 
 Autonomous::Autonomous() : AutonomousBase()
 {
+	//previously empty, this may belong in AutonomousBase()
+	pTask = new Task(AUTONOMOUS_TASKNAME, (FUNCPTR) &Autonomous::StartTask,
+			AUTONOMOUS_PRIORITY, AUTONOMOUS_STACKSIZE);
+	wpi_assert(pTask);
+	pTask->Start((int)this);
 }
 
 Autonomous::~Autonomous()
-{	
+{
+	delete(pTask);
 }
 
 

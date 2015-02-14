@@ -16,6 +16,11 @@ class Autonomous : public AutonomousBase
 	public:
 		Autonomous();
 		virtual ~Autonomous();
+		static void *StartTask(void *pThis)
+		{
+			((Autonomous *)pThis)->DoWork();
+			return(NULL);
+		}
 
 	private:
 		void Evaluate(std::string rStatement);

@@ -28,6 +28,7 @@ ComponentBase::ComponentBase(const char* componentName, const char *queueName, i
 
 	mkfifo(queueName, 0666);
 	queueLocal = queueName;
+	printf("COMPONENT: %s\n",componentName);//Added by Talyor for debugging
 }
 
 void ComponentBase::SendMessage(RobotMessage* robotMessage)

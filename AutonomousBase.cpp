@@ -105,7 +105,6 @@ void AutonomousBase::LoadScriptFile()
 	
 	if(scriptStream.is_open())
 	{
-		/**
 		
 		if(bInAutoMode == false)
 		{
@@ -145,6 +144,6 @@ void AutonomousBase::AutoTask()
 		{
 			Evaluate(script[lineNumber]);
 			++lineNumber;
-		}*/
+		}
 	}
 }
