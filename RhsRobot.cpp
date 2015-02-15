@@ -58,6 +58,7 @@ void RhsRobot::Init()			//Initializes the robot
 	jackclicker = new JackClicker();
 	//canlifter = new CanLifter();
 	autonomous = new Autonomous();
+
 }
 
 void RhsRobot::OnStateChange()			//Handles state changes
@@ -72,7 +73,6 @@ void RhsRobot::OnStateChange()			//Handles state changes
 	 */
 
 	if (drivetrain) {
-		robotMessage.params.autonomous.PJackDistance = 600;			//in inches
 		drivetrain->SendMessage(&robotMessage);
 	}
 
@@ -113,17 +113,12 @@ void RhsRobot::Run() {
 	}
 
 	if (drivetrain) {
-		if (GetCurrentRobotState() == ROBOT_STATE_AUTONOMOUS) {
-			robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_STRAIGHT;
-		}
-		else {
-			robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_TANK;
-			robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT;
-			robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT;
+			//robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_TANK;
+			//robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT;
+			//robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT;
 			//robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_ARCADE;
 			//robotMessage.params.arcadeDrive.x = ARCADE_DRIVE_X;
 			//robotMessage.params.arcadeDrive.y = ARCADE_DRIVE_Y;
-		}
 		drivetrain->SendMessage(&robotMessage);
 	}
 
@@ -158,6 +153,7 @@ void RhsRobot::Run() {
 
 		conveyor->SendMessage(&robotMessage);
 	}
+
 	if (clicker) {
 		//TODO: assign final input controls to the clicker
 
@@ -184,13 +180,24 @@ void RhsRobot::Run() {
 		 robotMessage.command = COMMAND_CUBEINTAKE_STOP;
 		 }
 		 */
+		if(TANK_DRIVE_LEFT > .8)
+			robotMessage.command = COMMAND_CUBECLICKER_RAISE;
+		else if(TANK_DRIVE_LEFT < -.8)
+			robotMessage.command = COMMAND_CUBECLICKER_LOWER;
+		else if(TANK_DRIVE_RIGHT > .8)
+			robotMessage.command = COMMAND_CANLIFTER_RAISE;
+		else if(TANK_DRIVE_RIGHT < -.8)
+			robotMessage.command = COMMAND_CANLIFTER_LOWER;
+		else if(A_BUTTON)
+			robotMessage.command = COMMAND_CUBEINTAKE_RUN;
+		else
+			robotMessage.command = COMMAND_CUBE_STOP;
 		if (CUBE_INTAKE_RUN) {
 			robotMessage.command = COMMAND_CUBEAUTOCYCLE_START;
 		}
 		else if (CUBE_INTAKE_STOP) {
 			robotMessage.command = COMMAND_CUBEAUTOCYCLE_STOP;
 		}
-
 		clicker->SendMessage(&robotMessage);
 	}
 

@@ -78,12 +78,12 @@ const int PWM_DRIVETRAIN_RIGHT_MOTOR = 0;
  * 5 -
  * 6 - lifter
  */
-const int CAN_PDB = 42;
+const int CAN_PDB = 0;
 const int CAN_DRIVETRAIN_LEFT_MOTOR = 1;
 const int CAN_DRIVETRAIN_RIGHT_MOTOR = 2;
 const int CAN_PALLET_JACK_CONVEYOR = 3;
-const int CAN_PALLET_JACK_INTAKE_VERTICAL_LEFT = 5;
 const int CAN_PALLET_JACK_INTAKE_VERTICAL_RIGHT = 4;
+const int CAN_PALLET_JACK_INTAKE_VERTICAL_LEFT = 5;
 const int CAN_PALLET_JACK_TOTE_LIFT = 6;
 const int CAN_CUBE_BIN_LIFT = 7;
 const int CAN_CUBE_INTAKE = 8;

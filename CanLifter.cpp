@@ -24,6 +24,8 @@ CanLifter::CanLifter()
 	lifterMotor->ConfigNeutralMode(CANSpeedController::NeutralMode::kNeutralMode_Brake);
 	lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 
+	wpi_assert(lifterMotor->IsAlive());
+
 	pTask = new Task(CANLIFTER_TASKNAME, (FUNCPTR) &CanLifter::StartTask,
 			CANLIFTER_PRIORITY, CANLIFTER_STACKSIZE);
 	wpi_assert(pTask);

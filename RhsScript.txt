@@ -1,8 +1,18 @@
 # sample commands
 #BEGIN
 #END
+#MOVE <left speed> <right speed>
+#MMOVE <speed> <distance:inches>
+#TURN <speed> <degrees>
+#FLINGCAN <speed> <distance:inches>
+#ADDTOTE <speed> <distance:inches>
+#LIFTTOTE
+#LOWERTOTE
 #DELAY <seconds>
 #
 BEGIN
 DELAY 1.0
+ADDTOTE .3, 20
+MMOVE .3 30
+DELAY 3.0
 END

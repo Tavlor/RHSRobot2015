@@ -81,7 +81,6 @@ enum MessageCommand
 	COMMAND_DRIVETRAIN_STOP,			//!< COMMAND_DRIVETRAIN_STOP
 	COMMAND_DRIVETRAIN_DRIVE_TANK,		//!< COMMAND_DRIVETRAIN_DRIVE_TANK
 	COMMAND_DRIVETRAIN_DRIVE_ARCADE,	//!< COMMAND_DRIVETRAIN_DRIVE_ARCADE
-	COMMAND_DRIVETRAIN_INIT_STRAIGHT,	//!< COMMAND_DRIVETRAIN_INIT_STRAIGHT
 	COMMAND_DRIVETRAIN_DRIVE_STRAIGHT,	//!< COMMAND_DRIVETRAIN_DRIVE_STRAIGHT
 	COMMAND_DRIVETRAIN_TURN,			//!< COMMAND_DRIVETRAIN_TURN
 
@@ -120,6 +119,7 @@ enum MessageCommand
 	COMMAND_CANLIFTER_RAISE,          //!< COMMAND_CANLIFTER_RAISE
 	COMMAND_CANLIFTER_LOWER,          //!< COMMAND_CANLIFTER_LOWER
 	COMMAND_CANLIFTER_STOP,           //!< COMMAND_CANLIFTER_STOP
+	COMMAND_CUBE_STOP,
 
 	COMMAND_COMPONENT_TEST,           //!< COMMAND_COMPONENT_TEST
 
@@ -143,7 +143,9 @@ struct AutonomousParams
 	unsigned uMode;
 	unsigned uDelay;
 	//used by drivetrain for straight driving
-	float PJackDistance;
+	float driveSpeed;
+	float driveDistance;
+	float turnSpeed;
 	float turnAngle;
 };
 
@@ -157,7 +159,7 @@ union MessageParams
 struct RobotMessage
 {
 	MessageCommand command;
-	int replyQ;
+	const char* replyQ;
 	MessageParams params;
 };
 

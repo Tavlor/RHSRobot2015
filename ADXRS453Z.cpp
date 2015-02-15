@@ -10,13 +10,9 @@
 
 int ADXRS453ZUpdateFunction(int pointer_val) {
 	ADXRS453Z * gyro = (ADXRS453Z *) pointer_val;
-	Timer * timer = new Timer(); //don't update too often
-	timer->Start();
-
 	while (true) {
 		gyro->Update();
-		//SmartDashboard::PutNumber("task loop time", timer->Get());
-		timer->Reset();
+		Wait(0.01);
 	}
 	return 0;
 }

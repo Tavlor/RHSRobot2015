@@ -1,3 +1,6 @@
+/* See AutoMotionFuncs.cpp for more functions
+ *
+ */
 #include "AutoParser.h"
 #include <string.h>
 #include <stdlib.h>
@@ -15,17 +18,18 @@
 
 using namespace std;
 
-const char *szTokens[] = 
-{
+const char *szTokens[] = {
 		"MODE",
 		"BEGIN",
-		"DELAY",
 		"END",
-		"NOP"
-};
+		"DELAY",
+		"MOVE",
+		"MMOVE",
+		"TURN",
+		"ADDTOTE"
+		"NOP" };
 
-void Autonomous::Evaluate(std::string rStatement)
-{
+void Autonomous::Evaluate(std::string rStatement) {
 	char *pToken;
 	char *pCurrLinePos;
 	int iCommand;
@@ -33,18 +37,17 @@ void Autonomous::Evaluate(std::string rStatement)
 
 	string rStatus;
 
-	if(rStatement.empty())
-	{
+	if(rStatement.empty()) {
+		printf("statement is empty");
 		return;
 	}
 
 	// process the autonomous motion
 
-	pCurrLinePos = (char *)rStatement.c_str();
+	pCurrLinePos = (char *) rStatement.c_str();
 	printf("%s\n", rStatement.c_str());
 
-	if(*pCurrLinePos == sComment)
-	{
+	if(*pCurrLinePos == sComment) {
 		rStatus.append("comment");
 		printf("%s\n", rStatus.c_str());
 		return;
@@ -57,18 +60,14 @@ void Autonomous::Evaluate(std::string rStatement)
 	// which command are we to execute??
 	// this can be (easily) be made much faster... any student want to improve on this?
 
-	for(iCommand = AUTO_TOKEN_MODE; iCommand < AUTO_TOKEN_LAST; iCommand++)
-	{
-		if(!strncmp(pToken, 
-				szTokens[iCommand], 
-				strlen(szTokens[iCommand])))
-		{
+	for(iCommand = AUTO_TOKEN_MODE; iCommand < AUTO_TOKEN_LAST; iCommand++) {
+		//printf("comparing %s to %s\n", pToken, szTokens[iCommand]);
+		if(!strncmp(pToken, szTokens[iCommand], strlen(szTokens[iCommand]))) {
 			break;
 		}
 	}
 
-	if(iCommand == AUTO_TOKEN_LAST)
-	{
+	if(iCommand == AUTO_TOKEN_LAST) {
 		// no valid token found
 		rStatus.append("no tokens");
 		printf("%s\n", rStatus.c_str());
@@ -77,8 +76,7 @@ void Autonomous::Evaluate(std::string rStatement)
 
 	// execute the proper command
 
-	switch (iCommand)
-	{
+	switch(iCommand) {
 	case AUTO_TOKEN_BEGIN:
 		rStatus.append("start");
 		break;
@@ -90,21 +88,57 @@ void Autonomous::Evaluate(std::string rStatement)
 	case AUTO_TOKEN_DELAY:
 		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
 
-		if(pToken == NULL)
-		{
+		if(pToken == NULL) {
 			rStatus.append("missing parameter");
 		}
-		else
-		{
+		else {
 			fParam1 = atof(pToken);
 			rStatus.append("wait");
 			Wait(fParam1);
+			// break out if auto mode is over
+
+			//for(fWait = 0.0; fWait < fParam1; fWait += 0.01)
+			//{
+			//	if(bInAutoMode)
+			//	{
+			//		Wait(0.01);
+			//	}
+			//	else
+			//	{
+			//		break;
+			//	}
+			//}
 		}
-		break;	
+		break;
+	case AUTO_TOKEN_MOVE:
+		if(!Move(pCurrLinePos)) {
+			rStatus.append("move error");
+		}
+		else {
+			rStatus.append("move");
+		}
+		break;
+	case AUTO_TOKEN_MMOVE:
+		if(!MeasuredMove(pCurrLinePos)) {
+			rStatus.append("move error");
+		}
+		else {
+			rStatus.append("move");
+		}
+		break;
+	case AUTO_TOKEN_TURN:
+		if(!Turn(pCurrLinePos)) {
+			rStatus.append("move error");
+		}
+		else {
+			rStatus.append("move");
+		}
+		break;
 
 	default:
 		rStatus.append("unknown token");
-		break;;
+		break;
+		;
 	}
 
 	printf("%s\n", rStatus.c_str());

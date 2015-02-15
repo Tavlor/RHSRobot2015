@@ -14,7 +14,7 @@
 
 const int AUTONOMOUS_SCRIPT_LINES = 64;
 const int AUTONOMOUS_CHECKLIST_LINES = 64;
-const char* const AUTONOMOUS_SCRIPT_FILEPATH = "RhsScript.txt";
+const char* const AUTONOMOUS_SCRIPT_FILEPATH = "/home/lvuser/RhsScript.txt";
 
 class AutonomousBase : public ComponentBase
 {

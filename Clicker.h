@@ -49,10 +49,24 @@ private:
 	CANTalon *lifterMotor;
 	bool bEnableAutoCycle;
 	bool bAutoCubeIntake;
-
-	//bool bEnableAutoCycle;
 	bool hitTop;
 	bool hitBottom;
+
+	/* CANLIFTER
+	 * 	Raise: positive
+	 *	Lower: negative
+	 * CLICKER
+	 *	Raise:negative
+	 *	Lower:positive
+	 * INTAKE
+	 *	Run: negative
+	 */
+	const float fLifterRaise = 1;
+	const float fLifterLower = -1;
+	const float fClickerRaise = -1;
+	const float fClickerLower = 1;
+	const float fClickerHover = .25;
+	const float fIntake = -.5;
 
 	ClickerState clickerLastState = STATE_CLICKER_TOP;
 	LifterState lifterLastState = STATE_LIFTER_BOTTOM;
@@ -65,6 +79,7 @@ private:
 	void Run();
 	void Top();
 	void Bottom();
+	void BottomHold(bool);
 	void Lower();
 	void Raise();
 	void Reset();

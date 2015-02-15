@@ -34,20 +34,22 @@ private:
 	CANTalon* rightMotor;
 	ADXRS453Z *gyro;
 	Encoder *encoder;
+	BuiltInAccelerometer accelerometer;
+	MessageCommand lastCommand;
 	float left, right; //motor values
-	float targetAngle, errorAngle;
-	float coveredDist;
-	float speed = .2;
 
+	//how strong direction recovery is, lower = stronger
 	const float recoverStrength = 15;
+	//how far from goal the robot can be before stopping
+	const float distError = 1;//inches
+	const float angleError = 3;//degrees
 
 	void OnStateChange();
 	void Run();
 	void Put();//for SmartDashboard
 	void ArcadeDrive(float, float);
-	void DriveStraight(float);
-	void Turn(float);//for auto, use with DriveStraight
-	void AddDistance(float);
+	void MeasuredMove(float,float);
+	void Turn(float, float);
 };
 
 #endif			//DRIVETRAIN_H

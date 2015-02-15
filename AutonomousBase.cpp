@@ -28,6 +28,7 @@ AutonomousBase::AutonomousBase()
 	lineNumber = 0;
 	bInAutoMode = false;
 	iExecTaskID = -1;
+	LoadScriptFile();
 }
 
 AutonomousBase::~AutonomousBase()	//Destructor
@@ -79,6 +80,7 @@ void AutonomousBase::Run()	//Autonomous logic
 		case COMMAND_AUTONOMOUS_RUN:
 			if(lineNumber < AUTONOMOUS_SCRIPT_LINES)
 			{
+				//printf("%i: \n",lineNumber);
 				if(script[lineNumber].empty() == false)
 				{
 					Evaluate(script[lineNumber]);
@@ -101,9 +103,11 @@ void AutonomousBase::Run()	//Autonomous logic
 
 void AutonomousBase::LoadScriptFile()
 {
-	ifstream scriptStream(AUTONOMOUS_SCRIPT_FILEPATH);
+	printf("Auto Script Filepath: [%s]\n",AUTONOMOUS_SCRIPT_FILEPATH);
+	ifstream scriptStream;
+	scriptStream.open(AUTONOMOUS_SCRIPT_FILEPATH);
 	
-	if(scriptStream.is_open())
+	if(scriptStream.is_open())//not working
 	{
 		
 		if(bInAutoMode == false)
@@ -120,6 +124,7 @@ void AutonomousBase::LoadScriptFile()
 					script[i].clear();
 				}
 			}
+			printf("Autonomous script loaded\n");
 		}
 		else
 		{

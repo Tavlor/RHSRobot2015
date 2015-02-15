@@ -1,13 +1,28 @@
-/**  Implementation of class to control tote lifter on the cube.
+/**  Implementation of class to control functions on the cube.
  *
  * This class is derived from the standard Component base class and includes
- * initialization for the devices used to control the cube's tote lifter.
+ * initialization for the devices used to control the cube's components.
  *
- * The task receives messages from the main robot class and raises or lowers
- * the tote lifter which "clicks" into place, thus the name. Hall effect sensors
- * are used to stop the motion of the "clicker" at the desired points.
+ * The task receives messages from the main robot class and controls three components:
+ *
+ * THE CLICKER
+ * Raises or lowers the tote lifter which "clicks" into place, thus the name.
+ * Hall effect sensors are used to stop the motion of the "clicker" at the desired points.
+ *	Raise:negative
+ *	Lower:positive
+ *
+ * THE CAN LIFT
+ * Lifts the can onto the top of a stack of totes. It also has hall effect
+ * sensors to stop motion at the top and bottom, as well as trigger other actions.
+ * 	Raise: positive
+ *	Lower: negative
+ *
+ * THE INTAKE
+ * A roller which pulls totes into the cube from the chute (yes, chute). It is triggered
+ * by an IR beam break sensor.
+ *	Run: negative
  */
-
+//Please DO NOT modify the +/- motor value notes above with out FULL TESTING
 #include "Clicker.h"
 #include "WPILib.h"
 
@@ -40,8 +55,14 @@ Clicker::Clicker() :
 	lifterMotor = new CANTalon(CAN_CUBE_BIN_LIFT);
 	wpi_assert(lifterMotor);
 	lifterMotor->SetVoltageRampRate(120.0);
-	lifterMotor->ConfigNeutralMode(CANSpeedController::NeutralMode::kNeutralMode_Brake);
-	lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
+	lifterMotor->ConfigNeutralMode(
+			CANSpeedController::NeutralMode::kNeutralMode_Brake);
+	lifterMotor->ConfigLimitMode(
+			CANSpeedController::kLimitMode_SwitchInputsOnly);
+
+	wpi_assert(clickerMotor->IsAlive());
+	wpi_assert(intakeMotor->IsAlive());
+	wpi_assert(lifterMotor->IsAlive());
 
 	clickerLastState = STATE_CLICKER_TOP;
 	lifterLastState = STATE_LIFTER_BOTTOM;
@@ -102,45 +123,60 @@ void Clicker::OnStateChange() {
 }
 ;
 
+/* CANLIFTER
+ * 	Raise: positive
+ *	Lower: negative
+ * CLICKER
+ *	Raise:negative
+ *	Lower:positive
+ * INTAKE
+ *	Run: negative
+ */
 void Clicker::Run() {
 	switch(localMessage.command)			//Reads the message command
 	{
 	case COMMAND_CUBECLICKER_RAISE:
-		if(!bEnableAutoCycle) clickerMotor->Set(0.25);// the spring will help it up
+		SmartDashboard::PutString("Cube Command", "COMMAND_CUBECLICKER_RAISE");
+		if(!bEnableAutoCycle) clickerMotor->Set(fClickerRaise);	// the spring will help it up
 		break;
 
 	case COMMAND_CUBECLICKER_LOWER:
-		if(!bEnableAutoCycle) clickerMotor->Set(-1.0);
+		SmartDashboard::PutString("Cube Command", "COMMAND_CUBECLICKER_LOWER");
+		if(!bEnableAutoCycle) clickerMotor->Set(fClickerLower);
+		break;
+	case COMMAND_CANLIFTER_RAISE:
+		SmartDashboard::PutString("Cube Command", "COMMAND_CANLIFTER_RAISE");
+		if(!bEnableAutoCycle) lifterMotor->Set(fLifterRaise);
 		break;
 
-	case COMMAND_CUBECLICKER_STOP:
-		if(!bEnableAutoCycle) clickerMotor->Set(0.0);
+	case COMMAND_CANLIFTER_LOWER:
+		SmartDashboard::PutString("Cube Command", "COMMAND_CANLIFTER_LOWER");
+		if(!bEnableAutoCycle) lifterMotor->Set(fLifterLower);
 		break;
-
 	case COMMAND_CUBEINTAKE_RUN:
-		if(!bEnableAutoCycle) bAutoCubeIntake = true;
+		SmartDashboard::PutString("Cube Command", "COMMAND_CUBEINTAKE_RUN");
+		intakeMotor->Set(fIntake);
+		bAutoCubeIntake = true;
 		break;
 
 	case COMMAND_CUBEINTAKE_STOP:
-		if(!bEnableAutoCycle) bAutoCubeIntake = false;
+		if(!bEnableAutoCycle) {
+			bAutoCubeIntake = false;
+			intakeMotor->Set(0.0);
+		}
 		break;
-
-	case COMMAND_CUBEAUTOCYCLE_START:
-		bEnableAutoCycle = true;
-		clickerLastState = STATE_CLICKER_TOP;
-		lifterLastState = STATE_LIFTER_BOTTOM;
-		Top();
+	case COMMAND_CUBE_STOP:
+		SmartDashboard::PutString("Cube Command", "COMMAND_CUBE_STOP");
+		if(!bEnableAutoCycle) {
+			intakeMotor->Set(0.0);
+			clickerMotor->Set(0.0);
+			lifterMotor->Set(0.0);
+		}
 		break;
-
-	case COMMAND_CUBEAUTOCYCLE_STOP:
-		bEnableAutoCycle = false;
-		clickerLastState = STATE_CLICKER_TOP;
-		lifterLastState = STATE_LIFTER_BOTTOM;
-		break;
-
 	default:
 		break;
 	}
+	SmartDashboard::PutNumber("Lifter Motor", lifterMotor->Get());
 	SmartDashboard::PutBoolean("Cube Intake Toggle", bAutoCubeIntake);
 	// Backup
 	//if(bAutoCubeIntake)
@@ -151,7 +187,7 @@ void Clicker::Run() {
 	//	}
 	//	else
 	//	{
-	//		intakeMotor->Set(-0.50);
+	//		intakeMotor->Set(fIntake);
 	//	}
 	//}
 
@@ -160,34 +196,29 @@ void Clicker::Run() {
 	//TODO: add state machine for auto cycling
 	bool irsens = !intakeMotor->IsRevLimitSwitchClosed();//true if the sensor is blocked/tripped
 	//bool clickerHallEffectTop = clickerMotor->IsRevLimitSwitchClosed();
-	bool clickerHallEffectBottom = clickerMotor->IsRevLimitSwitchClosed();
-	bool clickerHallEffectTop = clickerMotor->IsFwdLimitSwitchClosed();
+	bool clickerHallEffectBottom = clickerMotor->IsFwdLimitSwitchClosed();
+	bool clickerHallEffectTop = clickerMotor->IsRevLimitSwitchClosed();
 	bool lifterHallEffectBottom = lifterMotor->IsRevLimitSwitchClosed();
 	bool lifterHallEffectTop = lifterMotor->IsFwdLimitSwitchClosed();
 
-	SmartDashboard::PutBoolean("IR", irsens);
-	SmartDashboard::PutBoolean("TopClick", clickerHallEffectTop);
-	SmartDashboard::PutBoolean("BottomCLick", clickerHallEffectBottom);
+	SmartDashboard::PutBoolean("Cube Autocycle", bEnableAutoCycle);
+	SmartDashboard::PutBoolean("Cube IR", irsens);
+	SmartDashboard::PutBoolean("Clicker @ Top", clickerHallEffectTop);
+	SmartDashboard::PutBoolean("Clicker @ Bottom", clickerHallEffectBottom);
+	SmartDashboard::PutBoolean("Lifter @ Top", lifterHallEffectTop);
+	SmartDashboard::PutBoolean("Lifter @ Bottom", lifterHallEffectBottom);
+	SmartDashboard::PutNumber("Lifter Voltage", lifterMotor->GetBusVoltage());
+	SmartDashboard::PutNumber("Lifter Voltage", clickerMotor->GetBusVoltage());
+	SmartDashboard::PutNumber("Lifter Current", lifterMotor->GetOutputCurrent());
+	SmartDashboard::PutNumber("Clicker Current", clickerMotor->GetOutputCurrent());
 
-	switch(clickerLastState) {
-	case STATE_CLICKER_BOTTOM:
-		SmartDashboard::PutString("CUBE CLICKER STATE", "BOTTOM");
-		break;
-	case STATE_CLICKER_TOP:
-		SmartDashboard::PutString("CUBE CLICKER STATE", "TOP");
-		break;
-	case STATE_CLICKER_LOWER:
-		SmartDashboard::PutString("CUBE CLICKER STATE", "LOWER");
-		break;
-	case STATE_CLICKER_RAISE:
-		SmartDashboard::PutString("CUBE CLICKER STATE", "RAISE");
-		break;
-	}
+
 
 	if(bEnableAutoCycle) {
 		switch(clickerLastState) {
 
 		case STATE_CLICKER_TOP:
+			SmartDashboard::PutString("Cube Clicker State", "TOP");
 			if(irsens) {
 				clickerLastState = STATE_CLICKER_LOWER;
 				Lower();
@@ -199,6 +230,7 @@ void Clicker::Run() {
 			break;
 
 		case STATE_CLICKER_LOWER:
+			SmartDashboard::PutString("Cube Clicker State", "LOWER");
 			if(!clickerHallEffectBottom) {
 				clickerLastState = STATE_CLICKER_LOWER;
 				//Lower();
@@ -210,6 +242,7 @@ void Clicker::Run() {
 			break;
 
 		case STATE_CLICKER_BOTTOM:
+			SmartDashboard::PutString("Cube Clicker State", "BOTTOM");
 			if(iNumOfTotes == CUBECLICKER_MAX_TOTES - 1) {//waits until can is on top - can hall effect
 				clickerLastState = STATE_CLICKER_BOTTOMHOLD;
 				lifterLastState = STATE_LIFTER_RAISE;
@@ -226,23 +259,24 @@ void Clicker::Run() {
 			break;
 
 		case STATE_CLICKER_BOTTOMHOLD:
+			SmartDashboard::PutString("Cube Clicker State", "BOTTOMHOLD");
 
 			if(!irsens) {
 				Reset();
 			}
-			else if (lifterLastState == STATE_LIFTER_TOP && iNumOfTotes == 5){
+			else if(lifterLastState == STATE_LIFTER_TOP && iNumOfTotes == 5) {
 				iNumOfTotes++;
 				clickerLastState = STATE_CLICKER_RAISE;
 			}
 
-			else
-			{
-				//TODO add bottom hold functions
+			else {
+				BottomHold(clickerHallEffectBottom);
 			}
 
 			break;
 
 		case STATE_CLICKER_RAISE:
+			SmartDashboard::PutString("Cube Clicker State", "RAISE");
 			if(!clickerHallEffectTop) {
 				clickerLastState = STATE_CLICKER_RAISE;
 				//Raise();
@@ -253,25 +287,22 @@ void Clicker::Run() {
 			}
 			break;
 		}
-	}
-	switch(lifterLastState) {
-	case STATE_LIFTER_BOTTOM:
-		lifterMotor->Set(0.0);
-		break;
-	case STATE_LIFTER_RAISE:
-		if(lifterHallEffectTop)
-			lifterLastState = STATE_LIFTER_TOP;
-		lifterMotor->Set(-0.3);
-		break;
-	case STATE_LIFTER_TOP:
-		lifterMotor->Set(0.0);
-		break;
-	case STATE_LIFTER_LOWER:
-		if(lifterHallEffectBottom)
-			lifterLastState = STATE_LIFTER_BOTTOM;
-		lifterMotor->Set(0.3);
-		break;
-
+		switch(lifterLastState) {
+		case STATE_LIFTER_BOTTOM:
+			lifterMotor->Set(0.0);
+			break;
+		case STATE_LIFTER_RAISE:
+			if(lifterHallEffectTop) lifterLastState = STATE_LIFTER_TOP;
+			lifterMotor->Set(fLifterRaise);
+			break;
+		case STATE_LIFTER_TOP:
+			lifterMotor->Set(0.0);
+			break;
+		case STATE_LIFTER_LOWER:
+			if(lifterHallEffectBottom) lifterLastState = STATE_LIFTER_BOTTOM;
+			lifterMotor->Set(fLifterRaise);
+			break;
+		}
 	}
 	SmartDashboard::PutNumber("Number of Totes in Cube", iNumOfTotes);
 }
@@ -279,18 +310,22 @@ void Clicker::Run() {
 
 void Clicker::Top() {
 	clickerMotor->Set(0);
-	intakeMotor->Set(-0.5);
+	intakeMotor->Set(fIntake);
 }
 void Clicker::Bottom() {
 	clickerMotor->Set(0);
 	intakeMotor->Set(0);
 }
+void Clicker::BottomHold(bool hallEffect) {
+	if(hallEffect) clickerMotor->Set(.25);	//drop
+	else clickerMotor->Set(0);	//release
+}
 void Clicker::Raise() {
-	clickerMotor->Set(0.25);
-	intakeMotor->Set(-0.5);
+	clickerMotor->Set(fClickerRaise);
+	intakeMotor->Set(fIntake);
 }
 void Clicker::Lower() {
-	clickerMotor->Set(-1.0);
+	clickerMotor->Set(fClickerLower);
 	intakeMotor->Set(0);
 }
 void Clicker::Reset() {
@@ -301,4 +336,5 @@ void Clicker::Reset() {
 	if(lifterLastState != STATE_LIFTER_BOTTOM) {
 		lifterLastState = STATE_LIFTER_LOWER;
 	}
+
 }

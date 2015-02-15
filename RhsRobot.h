@@ -32,6 +32,8 @@ private:
 	Clicker* clicker;
 	JackClicker* jackclicker;
 	//CanLifter* canlifter;
+
+	std::vector <ComponentBase *> ComponentSet;
 	
 	void Init();
 	void OnStateChange();

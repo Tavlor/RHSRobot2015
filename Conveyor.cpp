@@ -31,6 +31,10 @@ Conveyor::Conveyor() :
 	wpi_assert(intakeRightMotor);
 	intakeRightMotor->SetControlMode(CANSpeedController::kPercentVbus);
 
+	wpi_assert(conveyorMotor->IsAlive());
+	wpi_assert(intakeLeftMotor->IsAlive());
+	wpi_assert(intakeRightMotor->IsAlive());
+
 	pTask = new Task(CONVEYOR_TASKNAME, (FUNCPTR) &Conveyor::StartTask,
 			CONVEYOR_PRIORITY, CONVEYOR_STACKSIZE);
 	wpi_assert(pTask);
