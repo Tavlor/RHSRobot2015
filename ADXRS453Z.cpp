@@ -1,8 +1,5 @@
-/*
-* ADXRS453Z.cpp
-*
-* Created on: Jan 18, 2015
-* Author: ratpack
+/** \file
+* Gyro classes borrowed from the Rat Pack!
 */
 
 #include "ADXRS453Z.h"

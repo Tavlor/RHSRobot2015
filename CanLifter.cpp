@@ -1,4 +1,5 @@
-/**  Implementation of class to control can lifter on the cube.
+/** \file
+ * Implementation of class to control can lifter on the cube.
  *
  * This class is derived from the standard Component base class and includes
  * initialization for the devices used to control the cube's can lifter.

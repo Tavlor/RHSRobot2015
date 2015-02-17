@@ -1,6 +1,7 @@
-/* See AutoMotionFuncs.cpp for more functions
- *
+/** \file
+ *  Autonomous script parser
  */
+
 #include "AutoParser.h"
 #include <string.h>
 #include <stdlib.h>

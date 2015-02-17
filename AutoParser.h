@@ -1,3 +1,7 @@
+/** \file
+ * Tokens used in our scripting language
+ */
+
 #ifndef AUTOPARSER_H
 #define AUTOPARSER_H
 

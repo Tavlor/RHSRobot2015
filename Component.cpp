@@ -1,4 +1,5 @@
-/**  Example of subsystem task behavior.
+/** \file
+ * Example of subsystem task behavior.
  *
  * This class is derived from the standard Component base class and includes
  * initialization for the devices used to control a given subsystem.

@@ -1,4 +1,5 @@
-/**  Definitions of class to control conveyor on the pallet jack.
+/** \file
+ * Definitions of class to control conveyor on the pallet jack.
  *
  * This classes is derived from the standard Component base class and includes
  * definitions for the devices used to control the pallet jack's conveyor.
@@ -31,8 +32,8 @@ private:
 	CANTalon *intakeRightMotor;
 
 	float fConveyorSpeed = .5;
-	float fIntakeSpeed = 1;//typical intake speed
-	float fAdjustSpeed = .15;//intake speed used when shifting cans
+	float fIntakeSpeed = .75;	//typical vertical intake speed
+	float fAdjustSpeed = .15;	//intake speed used when shifting cans
 
 	void OnStateChange();
 	void Run();

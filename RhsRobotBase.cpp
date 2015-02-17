@@ -1,4 +1,5 @@
-/**  Base class from which we derive our main robot class.
+/** \file
+ * Base class from which we derive our main robot class.
  *
  * The RhsRobotBase class is an extension to RobotBase and provides basic robot functionality.
  * This class sends state change messages, initializes the Smart Dashboard and calls the
@@ -60,7 +61,7 @@ void RhsRobotBase::StartCompetition()			//Robot's main function
 	{
 		if(!pDS->IsNewControlData())
 		{
-			usleep(1000);
+			Wait(0.002);
 			continue;
 		}
 

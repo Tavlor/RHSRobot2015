@@ -1,4 +1,5 @@
-/**  Defines task parameters, hardware assignments and controller button/axis assignment.
+/** \file
+ *  Defines task parameters, hardware assignments and controller button/axis assignment.
  *
  * This header contains basic parameters for the robot. All parameters must be constants with internal
  * linkage, otherwise the One Definition Rule will be violated.
@@ -24,7 +25,7 @@ const int AUTONOMOUS_PRIORITY 	= DEFAULT_PRIORITY;
 const int AUTOEXEC_PRIORITY 	= DEFAULT_PRIORITY;
 const int AUTOPARSER_PRIORITY 	= DEFAULT_PRIORITY;
 const int CONVEYOR_PRIORITY 	= DEFAULT_PRIORITY;
-const int CLICKER_PRIORITY 		= DEFAULT_PRIORITY;
+const int CUBE_PRIORITY 		= DEFAULT_PRIORITY;
 const int JACKCLICKER_PRIORITY 	= DEFAULT_PRIORITY;
 const int CANLIFTER_PRIORITY 	= DEFAULT_PRIORITY;
 
@@ -36,7 +37,7 @@ const char* const AUTONOMOUS_TASKNAME	= "tAuto";
 const char* const AUTOEXEC_TASKNAME		= "tAutoEx";
 const char* const AUTOPARSER_TASKNAME	= "tParse";
 const char* const CONVEYOR_TASKNAME		= "tConveyor";
-const char* const CLICKER_TASKNAME		= "tClick";
+const char* const CUBE_TASKNAME			= "tCube";
 const char* const JACKCLICKER_TASKNAME	= "tJackClick";
 const char* const CANLIFTER_TASKNAME	= "tCanLift";
 
@@ -46,7 +47,7 @@ const int AUTONOMOUS_STACKSIZE	= 0x10000;
 const int AUTOEXEC_STACKSIZE	= 0x10000;
 const int AUTOPARSER_STACKSIZE	= 0x10000;
 const int CONVEYOR_STACKSIZE	= 0x10000;
-const int CLICKER_STACKSIZE		= 0x10000;
+const int CUBE_STACKSIZE		= 0x10000;
 const int JACKCLICKER_STACKSIZE	= 0x10000;
 const int CANLIFTER_STACKSIZE	= 0x10000;
 
@@ -59,7 +60,7 @@ const char* const DRIVETRAIN_QUEUE 	= "/tmp/qDrive";
 const char* const AUTONOMOUS_QUEUE 	= "/tmp/qAuto";
 const char* const AUTOPARSER_QUEUE 	= "/tmp/qParse";
 const char* const CONVEYOR_QUEUE	= "/tmp/qConvey";
-const char* const CLICKER_QUEUE		= "/tmp/qClicker";
+const char* const CUBE_QUEUE		= "/tmp/qClicker";
 const char* const JACKCLICKER_QUEUE	= "/tmp/qJackClick";
 const char* const CANLIFTER_QUEUE	= "/tmp/qCanLift";
 
@@ -115,17 +116,11 @@ const int IO2C_AUTO_ACCEL = 1;
 #define	USE_L310_FOR_CONTROLLER_1
 
 //Secondary Controller Mapping - Assigns action to buttons or axes on the second joystick
-#define	USE_X3D_FOR_CONTROLLER_2
+#undef	USE_X3D_FOR_CONTROLLER_2
 #undef 	USE_XBOX_FOR_CONTROLLER_2
-#undef USE_L310_FOR_CONTROLLER_2
+#define USE_L310_FOR_CONTROLLER_2
 
 #ifdef USE_XBOX_FOR_CONTROLLER_1
-#define TANK_DRIVE_LEFT				-Controller_1->GetRawAxis(XBX_AXS_STCK_LFT_Y)
-#define TANK_DRIVE_RIGHT			-Controller_1->GetRawAxis(XBX_AXS_STCK_RGHT_Y)
-#define DRIVETRAIN_LEFT_MOTOR		-Controller_1->GetRawAxis(XBX_AXS_STCK_LFT_Y)
-#define DRIVETRAIN_RIGHT_MOTOR		-Controller_1->GetRawAxis(XBX_AXS_STCK_RGHT_Y)
-#define CONVEYOR_FWD				Controller_1->GetRawButton(XBX_BTN_BMP_LFT)
-#define CONVEYOR_BCK				Controller_1->GetRawButton(XBX_BTN_BMP_RGHT)
 #endif
 
 #ifdef USE_L310_FOR_CONTROLLER_1
@@ -133,28 +128,28 @@ const int IO2C_AUTO_ACCEL = 1;
 #define TANK_DRIVE_RIGHT			-Controller_1->GetRawAxis(L310_THUMBSTICK_RIGHT_Y)
 #define ARCADE_DRIVE_X				Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_X)
 #define ARCADE_DRIVE_Y				-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y)
-#define DRIVETRAIN_LEFT_MOTOR		-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y)
-#define DRIVETRAIN_RIGHT_MOTOR		-Controller_1->GetRawAxis(L310_THUMBSTICK_RIGHT_Y)
-#define CONVEYOR_FWD				Controller_1->GetRawButton(L310_BUTTON_BUMPER_LEFT)//Includes the vertical intakes
+#define CONVEYOR_FWD				Controller_1->GetRawButton(L310_BUTTON_BUMPER_LEFT)		//Includes the vertical intakes
 #define CONVEYOR_BCK				Controller_1->GetRawButton(L310_BUTTON_BUMPER_RIGHT)
-#define CONVEYOR_ADJUST_LEFT		Controller_1->GetRawAxis(L310_TRIGGER_RIGHT)//inverted
-#define CONVEYOR_ADJUST_RIGHT		Controller_1->GetRawAxis(L310_TRIGGER_LEFT)//i.e, left trigger changes right intake
-#define CLICKER_UP					Controller_1->GetRawButton(L310_BUTTON_A)
-#define CLICKER_DOWN				Controller_1->GetRawButton(L310_BUTTON_B)
-#define CUBE_INTAKE_RUN				Controller_1->GetRawButton(L310_BUTTON_X)
-#define CUBE_INTAKE_STOP			Controller_1->GetRawButton(L310_BUTTON_Y)
-#define A_BUTTON					Controller_1->GetRawButton(L310_BUTTON_A)
-#define B_BUTTON					Controller_1->GetRawButton(L310_BUTTON_B)
-#define X_BUTTON					Controller_1->GetRawButton(L310_BUTTON_X)
-#define Y_BUTTON					Controller_1->GetRawButton(L310_BUTTON_Y)
-#endif
+#define CONVEYOR_ADJUST_LEFT		Controller_1->GetRawAxis(L310_TRIGGER_RIGHT)			//inverted
+#define CONVEYOR_ADJUST_RIGHT		Controller_1->GetRawAxis(L310_TRIGGER_LEFT)				//i.e, left trigger changes right intake
+#endif // USE_L310_FOR_CONTROLLER_1
 
 #ifdef USE_X3D_FOR_CONTROLLER_2
-#endif
+#endif // USE_X3D_FOR_CONTROLLER_2
 
 #ifdef USE_XBOX_FOR_CONTROLLER_2
-#endif
+#endif // USE_XBOX_FOR_CONTROLLER_2
 
 #ifdef USE_L310_FOR_CONTROLLER_2
-#endif
+#define CUBEINTAKE_RUN				(Controller_2->GetRawButton(L310_BUTTON_BUMPER_LEFT))
+#define CUBEAUTO_START				(Controller_2->GetRawButton(L310_BUTTON_X))
+#define CUBEAUTO_STOP				(Controller_2->GetRawButton(L310_BUTTON_Y))
+#define CUBEAUTO_PAUSE				(Controller_2->GetRawButton(L310_BUTTON_A))
+#define CUBEAUTO_RESUME				(Controller_2->GetRawButton(L310_BUTTON_B))
+#define CUBECLICKER_RAISE			(-Controller_2->GetRawAxis(L310_THUMBSTICK_LEFT_Y) > 0.75)
+#define CUBECLICKER_LOWER			(-Controller_2->GetRawAxis(L310_THUMBSTICK_LEFT_Y) < -0.75)
+#define CANLIFTER_RAISE				(-Controller_2->GetRawAxis(L310_THUMBSTICK_RIGHT_Y) > 0.75)
+#define CANLIFTER_LOWER				(-Controller_2->GetRawAxis(L310_THUMBSTICK_RIGHT_Y) < -0.75)
+#endif // USE_L310_FOR_CONTROLLER_2
+
 #endif //ROBOT_PARAMS_H

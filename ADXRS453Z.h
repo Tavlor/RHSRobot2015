@@ -1,8 +1,5 @@
-/*
-* ADXRS453Z.h
-*
-* Created on: Jan 18, 2015
-* Author: ratpack
+/** \file
+* Gyro classes borrowed from the Rat Pack!
 */
 
 #ifndef ADXRS450GYRO_H_

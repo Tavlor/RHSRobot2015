@@ -1,4 +1,5 @@
-/**  Base class from which we derive our main robot class.
+/** \file
+ * Base class from which we derive our main robot class.
  *
  * The RhsRobotBase class is an extension to RobotBase and provides basic robot functionality.
  */

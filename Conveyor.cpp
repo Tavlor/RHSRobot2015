@@ -1,4 +1,5 @@
-/**  Implementation of class to control tote conveyor on the pallet jack.
+/** \file
+ * Implementation of class to control tote conveyor on the pallet jack.
  *
  * This class is derived from the standard Component base class and includes
  * initialization for the devices used to control the pallet jack's conveyor.
@@ -20,16 +21,23 @@ Conveyor::Conveyor() :
 	conveyorMotor = new CANTalon(CAN_PALLET_JACK_CONVEYOR);
 	wpi_assert(conveyorMotor);
 	conveyorMotor->SetControlMode(CANSpeedController::kPercentVbus);
-	conveyorMotor->SetVoltageRampRate(120.0);
-	conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
+	conveyorMotor->SetVoltageRampRate(24.0);
+	conveyorMotor->ConfigFwdLimitSwitchNormallyOpen(false);
+	conveyorMotor->ConfigRevLimitSwitchNormallyOpen(true);
+	conveyorMotor->ConfigLimitMode(
+			CANSpeedController::kLimitMode_SwitchInputsOnly);
 
 	intakeLeftMotor = new CANTalon(CAN_PALLET_JACK_INTAKE_VERTICAL_LEFT);
 	wpi_assert(intakeLeftMotor);
 	intakeLeftMotor->SetControlMode(CANSpeedController::kPercentVbus);
+	intakeLeftMotor->ConfigNeutralMode(
+			CANSpeedController::NeutralMode::kNeutralMode_Brake);
 
 	intakeRightMotor = new CANTalon(CAN_PALLET_JACK_INTAKE_VERTICAL_RIGHT);
 	wpi_assert(intakeRightMotor);
 	intakeRightMotor->SetControlMode(CANSpeedController::kPercentVbus);
+	intakeRightMotor->ConfigNeutralMode(
+			CANSpeedController::NeutralMode::kNeutralMode_Brake);
 
 	wpi_assert(conveyorMotor->IsAlive());
 	wpi_assert(intakeLeftMotor->IsAlive());
@@ -89,15 +97,25 @@ void Conveyor::Run() {
 	switch (localMessage.command)			//Reads the message command
 	{
 	case COMMAND_CONVEYOR_RUN_FWD:
-		conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
 		conveyorMotor->Set(-fConveyorSpeed);
 		break;
 	case COMMAND_CONVEYOR_RUN_BCK:
-		conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
+		if(localMessage.params.conveyorStates.bButtonWentDownEvent)
+		{
+			if(!conveyorMotor->IsFwdLimitSwitchClosed())
+			{
+				printf("button down: closed, disable switch\n");
+				conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
+			}
+			else
+			{
+				printf("button down: open, enable switch\n");
+				conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
+			}
+		}
 		conveyorMotor->Set(fConveyorSpeed);
 		break;
 	case COMMAND_CONVEYOR_STOP:
-		conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 		conveyorMotor->Set(0.0);
 		break;
 
@@ -141,14 +159,25 @@ void Conveyor::Run() {
 		break;
 
 	case COMMAND_CONVEYOR_RUNALL_FWD:
-		conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
 		conveyorMotor->Set(-fConveyorSpeed);
 		intakeLeftMotor->Set(fIntakeSpeed);
 		intakeRightMotor->Set(-fIntakeSpeed);
 		break;
 
 	case COMMAND_CONVEYOR_RUNALL_BCK:
-		conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
+		if(localMessage.params.conveyorStates.bButtonWentDownEvent)
+		{
+			if(!conveyorMotor->IsFwdLimitSwitchClosed())
+			{
+				printf("button down: closed, disable switch\n");
+				conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
+			}
+			else
+			{
+				printf("button down: open, enable switch\n");
+				conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
+			}
+		}
 		conveyorMotor->Set(fConveyorSpeed);
 		intakeLeftMotor->Set(-fIntakeSpeed);
 		intakeRightMotor->Set(fIntakeSpeed);

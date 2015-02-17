@@ -1,4 +1,5 @@
-/**  Component base class implementation.
+/** \file
+ * Component base class implementation.
  *
  * In the RhsRobot Framework, each physical subsystem has a corresponding component class.
  * These component classes should inherit the ComponentBase class for access to functions that
@@ -25,6 +26,7 @@ ComponentBase::ComponentBase(const char* componentName, const char *queueName, i
 	iLoop = 0;
 	iPipeRcv = -1;
 	iPipeXmt = -1;
+	pTask = NULL;
 
 	mkfifo(queueName, 0666);
 	queueLocal = queueName;
@@ -38,6 +40,7 @@ void ComponentBase::SendMessage(RobotMessage* robotMessage)
 	if(iPipeXmt < 0)
 	{
 		iPipeXmt = open(queueLocal.c_str(), O_WRONLY);
+		//fcntl(iPipeXmt, F_SETFL, fcntl(iPipeXmt, F_GETFL) | O_NONBLOCK);
 		assert(iPipeXmt > 0);
 	}
 
@@ -93,10 +96,6 @@ void ComponentBase::ClearMessages(void)
 
 void ComponentBase::DoWork()
 {
-	int iLast;
-
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &iLast);
-
 	while(true)
 	{
 		ReceiveMessage();		//Receives a message and copies it into localMessage

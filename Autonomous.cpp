@@ -1,8 +1,10 @@
-/***
- This file contains our autonomous algorithms.  It should detect if we are in
- autonomous mode or not, select an algorithm based upon switch settings at
- the driver station and implement the behaviours till autonomous mode ends.
- ***/
+/** \file
+ * Class for our autonomous behaviours
+ *
+ *  This file contains our autonomous algorithms.  It should detect if we are in
+ *  autonomous mode or not, select an algorithm based upon switch settings at
+ *  the driver station and implement the behaviours till autonomous mode ends.
+ */
 
 #include "Autonomous.h"
 #include "WPILib.h"

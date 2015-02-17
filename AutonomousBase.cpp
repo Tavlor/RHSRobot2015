@@ -1,4 +1,4 @@
-/*
+/** \file
  * The AutonomousBase component class handles basic autonomous functionallity.
  */
 
@@ -11,16 +11,8 @@
 
 #include "ComponentBase.h"
 #include "RobotParams.h"
+
 using namespace std;
-
-extern "C" {
-
-static void *RunAuto(void *pBase)
-{
-	//((AutonomousBase *)pBase)->AutoTask(); fix this
-	return(0);
-};
-}
 
 AutonomousBase::AutonomousBase()
 : ComponentBase(AUTONOMOUS_TASKNAME, AUTONOMOUS_QUEUE, AUTONOMOUS_PRIORITY)
@@ -42,34 +34,17 @@ void AutonomousBase::Init()	//Initializes the autonomous component
  
 void AutonomousBase::OnStateChange()	//Handles state changes
 {
-	pthread_attr_t attr;
-	struct sched_param schedparam;
-
 	if(localMessage.command == COMMAND_ROBOT_STATE_AUTONOMOUS)
 	{
-		// set thread attributes to default values
-	    pthread_attr_init(&attr);
-	    // we do not wait for threads to exit
-	    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-	    // each thread has a unique scheduling algorithm
-	    pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
-	    // we'll force the priority of threads or tasks
-	    pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
-	    // we'll use static real time priority levels
-	    schedparam.__sched_priority = AUTOEXEC_PRIORITY;
-	    pthread_attr_setschedparam(&attr, &schedparam);
-
-	    pthread_create(&iExecTaskID, &attr, RunAuto, this);
-	    pthread_setname_np(iExecTaskID, AUTOEXEC_TASKNAME);
+		pTask = new Task(AUTOEXEC_TASKNAME, (FUNCPTR) &AutonomousBase::StartTask,
+				AUTOEXEC_PRIORITY, AUTOEXEC_STACKSIZE);
+		wpi_assert(pTask);
+		pTask->Start((int)this);
 	}	
 	else if((localMessage.command == COMMAND_ROBOT_STATE_TELEOPERATED) ||
 			(localMessage.command == COMMAND_ROBOT_STATE_DISABLED))
 	{
-		if(iExecTaskID > 0)
-		{
-			pthread_cancel(iExecTaskID);
-			iExecTaskID = -1;
-		}
+		delete(pTask);
 	}
 }
 
@@ -109,7 +84,6 @@ void AutonomousBase::LoadScriptFile()
 	
 	if(scriptStream.is_open())//not working
 	{
-		
 		if(bInAutoMode == false)
 		{
 			for(int i = 0; i < AUTONOMOUS_SCRIPT_LINES; ++i)
@@ -139,7 +113,7 @@ void AutonomousBase::LoadScriptFile()
 	}
 }
 
-void AutonomousBase::AutoTask()
+void AutonomousBase::DoWork()
 {
 	lineNumber = 0;
 	

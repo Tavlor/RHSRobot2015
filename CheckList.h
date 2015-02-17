@@ -1,4 +1,4 @@
-/*
+/** \file
  * The CheckList class runs a prematch checklist
  */
 

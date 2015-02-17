@@ -1,4 +1,5 @@
-/**  Definitions of class to control the drive train.
+/** \file
+ * Definitions of class to control the drive train.
  *
  * This classes is derived from the standard Component base class and includes
  * definitions for the devices used to control the pallet jack wheels.

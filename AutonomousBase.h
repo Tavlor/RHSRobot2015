@@ -1,4 +1,4 @@
-/*
+/** \file
  * The AutonomousBase component class handles basic autonomous functionality.
  */
 
@@ -7,7 +7,8 @@
 
 //Robot
 #include <string>
-#include <pthread.h>
+
+#include "WPILib.h"
 
 #include "ComponentBase.h" //For the ComponentBase class
 #include "RobotParams.h" //For various robot parameters
@@ -21,7 +22,13 @@ class AutonomousBase : public ComponentBase
 public:
 	AutonomousBase();
 	~AutonomousBase();
-	void AutoTask();
+	void DoWork();
+
+	static void *StartTask(void *pThis)
+	{
+		((AutonomousBase *)pThis)->DoWork();
+		return(NULL);
+	}
 
 protected:
 	virtual void Evaluate(std::string statement) = 0;	//Evaluates an autonomous script statement

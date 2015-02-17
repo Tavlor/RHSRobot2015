@@ -1,4 +1,5 @@
-/**  Definitions of class to control can lifter on the pallet jack.
+/** \file
+ * Definitions of class to control can lifter on the pallet jack.
  *
  * This classes is derived from the standard Component base class and includes
  * definitions for the devices used to control the pallet jack's can lifter.

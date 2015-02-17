@@ -1,3 +1,7 @@
+/** \file
+ * Class for our autonomous behaviours
+ */
+
 #ifndef AUTONOMOUS_H
 #define AUTONOMOUS_H
 

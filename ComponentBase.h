@@ -1,4 +1,5 @@
-/**  Component base class declaration.
+/** \file
+ * Component base class declaration.
  *
  * In the RhsRobot Framework, each physical subsystem has a corresponding component class.
  * These component classes should inherit the ComponentBase class for access to functions that

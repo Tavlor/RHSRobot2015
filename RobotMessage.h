@@ -1,4 +1,8 @@
-/**  Defines the messages we pass from task to task.
+/** \file
+ *  Messages used for intertask communications
+ */
+
+/** Defines the messages we pass from task to task.
  *
  * The RobotMessage struct is a data structure used to pass information to the
  * robot's components. It is composed of a command that indicates the action to
@@ -9,61 +13,60 @@
 #define ROBOT_MESSAGE_H
 
 /**
-\msc
-arcgradient = 8;
-robot [label="Main\nRobot"],
-auto [label="Autonomous"],
-check [label="Check\nList"],
-drive [label="Drive\nTrain"],
-conveyor [label="Conveyor"],
-jclick [label="Pallet Jack\nClicker"],
-cclick [label="Cube\nClicker"],
-can [label="Pallet Jack\nCan Lifter"],
-test [label="Component\nExample"];
-robot=>* [label="SYSTEM_MSGTIMEOUT"];
-robot=>* [label="SYSTEM_OK"];
-robot=>* [label="SYSTEM_ERROR"];
-robot=>* [label="STATE_DISABLED"];
-robot=>* [label="STATE_AUTONOMOUS"];
-robot=>* [label="STATE_TELEOPERATED"];
-robot=>* [label="STATE_TEST"];
-robot=>* [label="STATE_UNKNOWN"];
-robot=>auto [label="RUN"];
-robot=>check [label="RUN"];
-robot=>conveyor [label="RUN_FWD"];
-robot=>conveyor [label="RUN_BCK"];
-robot=>conveyor [label="STOP"];
-robot=>conveyor [label="INTAKELEFT_IN"];
-robot=>conveyor [label="INTAKELEFT_OUT"];
-robot=>conveyor [label="INTAKELEFT_STOP"];
-robot=>conveyor [label="INTAKERIGHT_IN"];
-robot=>conveyor [label="INTAKERIGHT_OUT"];
-robot=>conveyor [label="INTAKERIGHT_STOP"];
-robot=>conveyor [label="INTAKEBOTH_IN"];
-robot=>conveyor [label="INTAKEBOTH_OUT"];
-robot=>conveyor [label="INTAKEBOTH_STOP"];
-robot=>conveyor [label="RUNALL_IN"];
-robot=>conveyor [label="RUNALL_OUT"];
-robot=>conveyor [label="RUNALL_STOP"];
-robot=>jclick [label="RAISE"];
-robot=>jclick [label="LOWER"];
-robot=>jclick [label="STOP"];
-robot=>cclick [label="RAISE"];
-robot=>cclick [label="LOWER"];
-robot=>cclick [label="STOP"];
-robot=>cclick [label="CUBEINTAKE_RUN"];
-robot=>cclick [label="CUBEINTAKE_STOP"];
-robot=>cclick [label="CUBEAUTOCYCLE_START"];
-robot=>cclick [label="CUBEAUTOCYCLE_STOP"];
-robot=>can[label="RAISE"];
-robot=>can[label="LOWER"];
-robot=>can[label="STOP"];
-robot=>test[label="TEST"];
-\endmsc
-*/
+ \msc
+ arcgradient = 8;
+ robot [label="Main\nRobot"],
+ auto [label="Autonomous"],
+ check [label="Check\nList"],
+ drive [label="Drive\nTrain"],
+ conveyor [label="Conveyor"],
+ jclick [label="Pallet Jack\nClicker"],
+ cclick [label="Cube\nClicker"],
+ can [label="Pallet Jack\nCan Lifter"],
+ test [label="Component\nExample"];
+ robot=>* [label="SYSTEM_MSGTIMEOUT"];
+ robot=>* [label="SYSTEM_OK"];
+ robot=>* [label="SYSTEM_ERROR"];
+ robot=>* [label="STATE_DISABLED"];
+ robot=>* [label="STATE_AUTONOMOUS"];
+ robot=>* [label="STATE_TELEOPERATED"];
+ robot=>* [label="STATE_TEST"];
+ robot=>* [label="STATE_UNKNOWN"];
+ robot=>auto [label="RUN"];
+ robot=>check [label="RUN"];
+ robot=>conveyor [label="RUN_FWD"];
+ robot=>conveyor [label="RUN_BCK"];
+ robot=>conveyor [label="STOP"];
+ robot=>conveyor [label="INTAKELEFT_IN"];
+ robot=>conveyor [label="INTAKELEFT_OUT"];
+ robot=>conveyor [label="INTAKELEFT_STOP"];
+ robot=>conveyor [label="INTAKERIGHT_IN"];
+ robot=>conveyor [label="INTAKERIGHT_OUT"];
+ robot=>conveyor [label="INTAKERIGHT_STOP"];
+ robot=>conveyor [label="INTAKEBOTH_IN"];
+ robot=>conveyor [label="INTAKEBOTH_OUT"];
+ robot=>conveyor [label="INTAKEBOTH_STOP"];
+ robot=>conveyor [label="RUNALL_IN"];
+ robot=>conveyor [label="RUNALL_OUT"];
+ robot=>conveyor [label="RUNALL_STOP"];
+ robot=>jclick [label="RAISE"];
+ robot=>jclick [label="LOWER"];
+ robot=>jclick [label="STOP"];
+ robot=>cclick [label="RAISE"];
+ robot=>cclick [label="LOWER"];
+ robot=>cclick [label="STOP"];
+ robot=>cclick [label="CUBEINTAKE_RUN"];
+ robot=>cclick [label="CUBEINTAKE_STOP"];
+ robot=>cclick [label="CUBEAUTOCYCLE_START"];
+ robot=>cclick [label="CUBEAUTOCYCLE_STOP"];
+ robot=>can[label="RAISE"];
+ robot=>can[label="LOWER"];
+ robot=>can[label="STOP"];
+ robot=>test[label="TEST"];
+ \endmsc
+ */
 
-enum MessageCommand
-{	
+enum MessageCommand {
 	COMMAND_UNKNOWN,                  //!< COMMAND_UNKNOWN
 	COMMAND_SYSTEM_MSGTIMEOUT,        //!< COMMAND_SYSTEM_MSGTIMEOUT
 	COMMAND_SYSTEM_OK,                //!< COMMAND_SYSTEM_OK
@@ -92,14 +95,14 @@ enum MessageCommand
 	COMMAND_CONVEYOR_INTAKELEFT_STOP, //!< COMMAND_CONVEYOR_INTAKELEFT_STOP
 	COMMAND_CONVEYOR_INTAKERIGHT_IN,  //!< COMMAND_CONVEYOR_INTAKERIGHT_IN
 	COMMAND_CONVEYOR_INTAKERIGHT_OUT, //!< COMMAND_CONVEYOR_INTAKERIGHT_OUT
-	COMMAND_CONVEYOR_INTAKERIGHT_STOP,//!< COMMAND_CONVEYOR_INTAKERIGHT_STOP
+	COMMAND_CONVEYOR_INTAKERIGHT_STOP, //!< COMMAND_CONVEYOR_INTAKERIGHT_STOP
 	COMMAND_CONVEYOR_INTAKEBOTH_IN,   //!< COMMAND_CONVEYOR_INTAKEBOTH_IN
 	COMMAND_CONVEYOR_INTAKEBOTH_OUT,  //!< COMMAND_CONVEYOR_INTAKEBOTH_OUT
 	COMMAND_CONVEYOR_INTAKEBOTH_STOP, //!< COMMAND_CONVEYOR_INTAKEBOTH_STOP
 	COMMAND_CONVEYOR_CANADJUST_LEFT, //!< COMMAND_CONVEYOR_CANADJUST_LEFT
 	COMMAND_CONVEYOR_CANADJUST_RIGHT, //!< COMMAND_CONVEYOR_CANADJUST_RIGHT
 	COMMAND_CONVEYOR_CANADJUST_BOTH, //!< COMMAND_CONVEYOR_CANADJUST_BOTH
-	//NOTE: the robot intakes with BCK and reverts with FWD
+
 	COMMAND_CONVEYOR_RUNALL_FWD,      //!< COMMAND_CONVEYOR_RUNALL_FWD
 	COMMAND_CONVEYOR_RUNALL_BCK,      //!< COMMAND_CONVEYOR_RUNALL_BCK
 	COMMAND_CONVEYOR_RUNALL_STOP,     //!< COMMAND_CONVEYOR_RUNALL_STOP
@@ -115,31 +118,35 @@ enum MessageCommand
 	COMMAND_CUBEINTAKE_STOP,          //!< COMMAND_CUBEINTAKE_STOP
 	COMMAND_CUBEAUTOCYCLE_START,      //!< COMMAND_CUBEAUTOCYCLE_START
 	COMMAND_CUBEAUTOCYCLE_STOP,       //!< COMMAND_CUBEAUTOCYCLE_STOP
+	COMMAND_CUBEAUTOCYCLE_PAUSE,      //!< COMMAND_CUBEAUTOCYCLE_PAUSE
+	COMMAND_CUBEAUTOCYCLE_RESUME,	  //!< COMMAND_CUBEAUTOCYCLE_RESUME
 
 	COMMAND_CANLIFTER_RAISE,          //!< COMMAND_CANLIFTER_RAISE
 	COMMAND_CANLIFTER_LOWER,          //!< COMMAND_CANLIFTER_LOWER
 	COMMAND_CANLIFTER_STOP,           //!< COMMAND_CANLIFTER_STOP
-	COMMAND_CUBE_STOP,
+	COMMAND_CUBE_STOP,           //!< COMMAND_CUBE_STOP
 
 	COMMAND_COMPONENT_TEST,           //!< COMMAND_COMPONENT_TEST
 
 	COMMAND_LAST                      //!< COMMAND_LAST 
 };
 
-struct TankDriveParams
-{
+struct TankDriveParams {
 	float left;
 	float right;
 };
 
-struct ArcadeDriveParams
-{
+struct ConveyorParams {
+	bool bButtonWentDownEvent;
+	float right;
+};
+
+struct ArcadeDriveParams {
 	float x;
 	float y;
 };
 
-struct AutonomousParams
-{
+struct AutonomousParams {
 	unsigned uMode;
 	unsigned uDelay;
 	//used by drivetrain for straight driving
@@ -149,15 +156,14 @@ struct AutonomousParams
 	float turnAngle;
 };
 
-union MessageParams
-{
+union MessageParams {
 	TankDriveParams tankDrive;
 	ArcadeDriveParams arcadeDrive;
+	ConveyorParams conveyorStates;
 	AutonomousParams autonomous;
 };
 
-struct RobotMessage
-{
+struct RobotMessage {
 	MessageCommand command;
 	const char* replyQ;
 	MessageParams params;

@@ -1,4 +1,5 @@
-/**  Implementation of class to drive the pallet jack.
+/** \file
+ * Implementation of class to drive the pallet jack.
  *
  * This class is derived from the standard Component base class and includes
  * initialization for the devices used to control the pallet jack's wheels.
@@ -129,7 +130,7 @@ void Drivetrain::Run() {
 		break;
 	}
 	//Put out information
-	Put();
+	SmartDashboard::PutNumber("Gyro Angle", gyro->GetAngle());
 	lastCommand = localMessage.command;
 }
 
@@ -188,14 +189,4 @@ void Drivetrain::Turn(float speed, float targetAngle) {
 	SmartDashboard::PutString("Remaining Degrees", "Not operating");
 	SmartDashboard::PutString("Turn Speed", "Not operating");
 	printf("Finished turning %f degrees", targetAngle);
-}
-void Drivetrain::Put() {
-	SmartDashboard::PutNumber("Left Drive Motor PWM", leftMotor->Get());
-	SmartDashboard::PutNumber("Right Drive Motor PWM", rightMotor->Get());
-	SmartDashboard::PutNumber("Left Drive Motor Voltage",
-			leftMotor->GetOutputVoltage());
-	SmartDashboard::PutNumber("Right Drive Motor Voltage",
-			rightMotor->GetOutputVoltage());
-	SmartDashboard::PutNumber("Gyro Angle", gyro->GetAngle());
-
 }

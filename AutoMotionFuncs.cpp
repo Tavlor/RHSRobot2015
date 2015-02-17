@@ -1,8 +1,7 @@
-/*
- * Copyright (c) 2014 David Shafer. All rights reserved.
- * For Rockwall Robotics, FRC Team 1296: Full Metal Jackets
- * Licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.
+/** \file
+ * Complex motion functions in out autonomous behavior
  */
+
 #include <WPILib.h>
 #include <string.h>
 #include <stdlib.h>
