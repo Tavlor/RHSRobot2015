@@ -107,7 +107,7 @@ void Cube::OnStateChange() {
 
 void Cube::Run()
 {
-	printf("Cube - Run called - %f", 5);
+	//printf("Cube - Run called - %f", pSafetyTimer->Get());
 	switch(localMessage.command)			//Reads the message command
 	{
 		case COMMAND_CUBECLICKER_RAISE:

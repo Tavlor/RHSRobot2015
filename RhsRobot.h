@@ -12,12 +12,11 @@
 #include "WPILib.h"
 
 #include "Autonomous.h"
-//#include "CanLifter.h"
 #include "Conveyor.h"
 #include "Drivetrain.h"
 #include "JackClicker.h"
 #include "RhsRobotBase.h"
-//#include "RobotMessage.h"
+#include "JoystickListener.h"
 
 class RhsRobot : public RhsRobotBase
 {
@@ -28,23 +27,21 @@ public:
 private:
 	Joystick* Controller_1;
 	Joystick* Controller_2;
+	JoystickListener* ControllerListen_1;
+	JoystickListener* ControllerListen_2;
 	Drivetrain* drivetrain;
 	Autonomous* autonomous;
 	Conveyor* conveyor;
 	Cube* cube;
 	JackClicker* jackclicker;
 
-	bool wpCubeAutoStart = false;
-	bool wpCubeAutoStop = false;
-	bool wpCubeAutoPause = false;
-	bool wpCubeAutoResume = false;
-
 	std::vector <ComponentBase *> ComponentSet;
 	
 	void Init();
 	void OnStateChange();
 	void Run();
-	void ButtonToggle(bool,bool*, MessageCommand);
+	bool CheckButtonPressed(bool, bool);
+	bool CheckButtonReleased(bool, bool);
 
 	bool bLastConveyorButtonDown;
 	int iLoop;

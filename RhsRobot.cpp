@@ -16,12 +16,13 @@
 RhsRobot::RhsRobot() {
 	Controller_1 = NULL;
 	Controller_2 = NULL;
+	ControllerListen_1 = NULL;
+	ControllerListen_2 = NULL;
 	drivetrain = NULL;
 	autonomous = NULL;
 	conveyor = NULL;
 	cube = NULL;
 	jackclicker = NULL;
-	//canlifter = NULL;
 
 	bLastConveyorButtonDown = false;
 
@@ -37,6 +38,8 @@ RhsRobot::~RhsRobot() {
 
 	delete Controller_1;
 	delete Controller_2;
+	delete ControllerListen_1;
+	delete ControllerListen_2;
 }
 
 void RhsRobot::Init() {
@@ -47,6 +50,8 @@ void RhsRobot::Init() {
 	 */
 	Controller_1 = new Joystick(0);
 	Controller_2 = new Joystick(1);
+	ControllerListen_1 = new JoystickListener(Controller_1);
+	ControllerListen_2 = new JoystickListener(Controller_2);
 	drivetrain = new Drivetrain();
 	conveyor = new Conveyor();
 	cube = new Cube();
@@ -165,121 +170,81 @@ void RhsRobot::Run() {
 	}
 
 	if(cube)
+		//TODO add a change-detector for cube commands to reduce number sent
 	{
-		if(CUBEAUTO_START)
+		if(ControllerListen_2->ButtonPressed(CUBEAUTO_START_ID))
 		{
 			robotMessage.command = COMMAND_CUBEAUTOCYCLE_START;
 			cube->SendMessage(&robotMessage);
 		}
-		else if(CUBEAUTO_STOP)
+		else if(ControllerListen_2->ButtonPressed(CUBEAUTO_STOP_ID))
 		{
 			robotMessage.command = COMMAND_CUBEAUTOCYCLE_STOP;
 			cube->SendMessage(&robotMessage);
 		}
-		else if(CUBEAUTO_PAUSE)
+		else if(ControllerListen_2->ButtonPressed(CUBEAUTO_PAUSE_ID))
 		{
-			robotMessage.command = COMMAND_CUBEAUTOCYCLE_STOP;
+			robotMessage.command = COMMAND_CUBEAUTOCYCLE_PAUSE;
 			cube->SendMessage(&robotMessage);
 		}
-		else if(CUBEAUTO_RESUME)
+		else if(ControllerListen_2->ButtonPressed(CUBEAUTO_RESUME_ID))
 		{
-			robotMessage.command = COMMAND_CUBEAUTOCYCLE_STOP;
+			robotMessage.command = COMMAND_CUBEAUTOCYCLE_RESUME;
 			cube->SendMessage(&robotMessage);
 		}
 
 		if(CUBECLICKER_RAISE)
 		{
 			robotMessage.command = COMMAND_CUBECLICKER_RAISE;
+			cube->SendMessage(&robotMessage);
 		}
 		else if(CUBECLICKER_LOWER)
 		{
 			robotMessage.command = COMMAND_CUBECLICKER_LOWER;
+			cube->SendMessage(&robotMessage);
 		}
 		else
 		{
 			robotMessage.command = COMMAND_CUBECLICKER_STOP;
+			cube->SendMessage(&robotMessage);
 		}
 
-		cube->SendMessage(&robotMessage);
 
 		if(CANLIFTER_RAISE)
 		{
 			robotMessage.command = COMMAND_CANLIFTER_RAISE;
+			cube->SendMessage(&robotMessage);
 		}
 		else if(CANLIFTER_LOWER)
 		{
 			robotMessage.command = COMMAND_CANLIFTER_LOWER;
+			cube->SendMessage(&robotMessage);
 		}
 		else
 		{
 			robotMessage.command = COMMAND_CANLIFTER_STOP;
+			cube->SendMessage(&robotMessage);
 		}
-
-		cube->SendMessage(&robotMessage);
 
 		if(CUBEINTAKE_RUN)
 		{
 			robotMessage.command = COMMAND_CUBEINTAKE_RUN;
+			cube->SendMessage(&robotMessage);
 		}
 		else
 		{
 			robotMessage.command = COMMAND_CUBEINTAKE_STOP;
+					cube->SendMessage(&robotMessage);
 		}
-
-		cube->SendMessage(&robotMessage);
 	}
-
-	/*if(cube) {
-		robotMessage.command = COMMAND_UNKNOWN;
-		//The following are formatted as button toggles.
-		ButtonToggle(CUBEAUTO_START, wpCubeAutoStart, COMMAND_CUBEAUTOCYCLE_START);
-		ButtonToggle(CUBEAUTO_STOP, wpCubeAutoStop, COMMAND_CUBEAUTOCYCLE_STOP);
-		ButtonToggle(CUBEAUTO_PAUSE, wpCubeAutoPause, COMMAND_CUBEAUTOCYCLE_PAUSE);
-		ButtonToggle(CUBEAUTO_RESUME, wpCubeAutoResume, COMMAND_CUBEAUTOCYCLE_RESUME);
-		//cube->SendMessage(&robotMessage);
-		if(CUBECLICKER_RAISE) robotMessage.command = COMMAND_CUBECLICKER_RAISE;
-		else if(CUBECLICKER_LOWER) robotMessage.command =
-				COMMAND_CUBECLICKER_LOWER;
-		else robotMessage.command = COMMAND_CUBECLICKER_STOP;
-
-		cube->SendMessage(&robotMessage);
-
-		if(CANLIFTER_RAISE)
-		{
-			robotMessage.command = COMMAND_CANLIFTER_RAISE;
-		}
-			else if(CANLIFTER_LOWER)
-			{
-			robotMessage.command = COMMAND_CANLIFTER_LOWER;
-			}
-		else robotMessage.command = COMMAND_CANLIFTER_STOP;
-
-		cube->SendMessage(&robotMessage);
-
-		if(CUBEINTAKE_RUN) robotMessage.command = COMMAND_CUBEINTAKE_RUN;
-		else robotMessage.command = COMMAND_CUBEINTAKE_STOP;
-
-		cube->SendMessage(&robotMessage);
-	}*/
 
 	if(jackclicker) {
 		//TODO: assign input controls to the pallet jack clicker
 	}
 
+	ControllerListen_1->FinalUpdate();
+	ControllerListen_2->FinalUpdate();
 	iLoop++;
 }
-/*
-void RhsRobot::ButtonToggle(bool button, bool *wasPressed, MessageCommand command)
-{
-	if(button && !wasPressed) {
-	robotMessage.command = command;
-	wasPressed = true;
-
-}
-else if(!button && wasPressed)
-{
-	wasPressed = false;
-}
-}*/
 
 START_ROBOT_CLASS(RhsRobot)
