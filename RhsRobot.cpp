@@ -52,6 +52,8 @@ void RhsRobot::Init() {
 	Controller_2 = new Joystick(1);
 	ControllerListen_1 = new JoystickListener(Controller_1);
 	ControllerListen_2 = new JoystickListener(Controller_2);
+	//ControllerListen_1->SetAxisTolerance(.1);
+	//ControllerListen_2->SetAxisTolerance(.1);
 	drivetrain = new Drivetrain();
 	conveyor = new Conveyor();
 	cube = new Cube();

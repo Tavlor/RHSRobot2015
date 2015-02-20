@@ -110,6 +110,10 @@ const int IO2C_AUTO_ACCEL = 1;
 //Analog I/O - Assigns names to Analog I/O ports 1-8 on Anal;og Breakout Module
 //EXAMPLE: const int AIO_BATTERY = 8;
 
+//Joystick Input Device Counts - used by the listener to watch buttons and axis
+const int JOYSTICK_BUTTON_COUNT = 10;
+const int JOYSTICK_AXIS_COUNT = 6;
+
 //Primary Controller Mapping - Assigns action to buttons or axes on the first joystick
 #undef	USE_X3D_FOR_CONTROLLER_1
 #undef	USE_XBOX_FOR_CONTROLLER_1
@@ -124,6 +128,18 @@ const int IO2C_AUTO_ACCEL = 1;
 #endif
 
 #ifdef USE_L310_FOR_CONTROLLER_1
+//ID numbers for various buttons and axis
+#define TANK_DRIVE_LEFT_ID			L310_THUMBSTICK_LEFT_Y
+#define TANK_DRIVE_RIGHT_ID			L310_THUMBSTICK_RIGHT_Y
+#define ARCADE_DRIVE_X_ID			L310_THUMBSTICK_LEFT_X
+#define ARCADE_DRIVE_Y_ID			L310_THUMBSTICK_LEFT_Y
+#define CONVEYOR_FWD_ID				L310_BUTTON_BUMPER_LEFT
+#define CONVEYOR_BCK_ID				L310_BUTTON_BUMPER_RIGHT
+#define CONVEYOR_ADJUST_LEFT_ID		L310_TRIGGER_RIGHT
+#define CONVEYOR_ADJUST_RIGHT_ID	L310_TRIGGER_LEFT
+#define LISTENER_BUTTON_TEST		L310_BUTTON_A
+#define LISTENER_AXIS_TEST			L310_THUMBSTICK_LEFT_Y
+
 #define TANK_DRIVE_LEFT				-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y)
 #define TANK_DRIVE_RIGHT			-Controller_1->GetRawAxis(L310_THUMBSTICK_RIGHT_Y)
 #define ARCADE_DRIVE_X				Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_X)
