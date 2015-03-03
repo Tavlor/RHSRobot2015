@@ -101,7 +101,7 @@
 #define L310_THUMBSTICK_RIGHT_X		4
 #define L310_THUMBSTICK_RIGHT_Y		5
 
-#define L310_POV					1//D-pad
+#define L310_POV					1   //D-pad
 
 #define L310_TRIGGER_LEFT			2	// value > 0
 #define L310_TRIGGER_RIGHT			3	// value < 0

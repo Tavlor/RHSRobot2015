@@ -37,12 +37,12 @@ Drivetrain::Drivetrain() :
 	wpi_assert(leftMotor->IsAlive());
 	wpi_assert(rightMotor->IsAlive());
 
-	gyro = new ADXRS453Z;
-	encoder = new Encoder(0, 1, false, Encoder::k4X);
-	encoder->SetDistancePerPulse(0.0061359); //diameter*pi/encoder_resolution
-	wpi_assert(gyro);
-	wpi_assert(encoder);
-	gyro->Start();
+	//gyro = new ADXRS453Z;
+	//encoder = new Encoder(0, 1, false, Encoder::k4X);
+	//encoder->SetDistancePerPulse(0.0061359); //diameter*pi/encoder_resolution
+	//wpi_assert(gyro);
+	//wpi_assert(encoder);
+	//gyro->Start();
 
 	pTask = new Task(DRIVETRAIN_TASKNAME, (FUNCPTR) &Drivetrain::StartTask,
 			DRIVETRAIN_PRIORITY, DRIVETRAIN_STACKSIZE);
@@ -55,8 +55,8 @@ Drivetrain::~Drivetrain()			//Destructor
 	delete (pTask);
 	delete leftMotor;
 	delete rightMotor;
-	delete gyro;
-	delete encoder;
+	//delete gyro;
+	//delete encoder;
 }
 
 void Drivetrain::OnStateChange()			//Handles state changes
@@ -65,8 +65,8 @@ void Drivetrain::OnStateChange()			//Handles state changes
 	case COMMAND_ROBOT_STATE_AUTONOMOUS:
 		leftMotor->Set(0.0);
 		rightMotor->Set(0.0);
-		gyro->Reset();
-		encoder->Reset();
+		//gyro->Reset();
+		//encoder->Reset();
 		break;
 
 	case COMMAND_ROBOT_STATE_TEST:
@@ -99,38 +99,34 @@ void Drivetrain::OnStateChange()			//Handles state changes
 void Drivetrain::Run() {
 	switch(localMessage.command) {
 	case COMMAND_DRIVETRAIN_DRIVE_TANK:
-		SmartDashboard::PutString("Drivetrain CMD",
-				"COMMAND_DRIVETRAIN_DRIVE_TANK");
-		leftMotor->Set(localMessage.params.tankDrive.left / 2.0);//(pow(localMessage.params.tankDrive.left, 3));
-		rightMotor->Set(-localMessage.params.tankDrive.right / 2.0);//(-pow(localMessage.params.tankDrive.right, 3));
+		//SmartDashboard::PutString("Drivetrain CMD", "DRIVETRAIN_DRIVE_TANK");
+		leftMotor->Set((pow(localMessage.params.tankDrive.left, 3) * 0.50));
+		rightMotor->Set((-pow(localMessage.params.tankDrive.right, 3) * 0.50));
 		break;
 	case COMMAND_DRIVETRAIN_DRIVE_ARCADE:
-		SmartDashboard::PutString("Drivetrain CMD",
-				"COMMAND_DRIVETRAIN_DRIVE_ARCADE");
+		//SmartDashboard::PutString("Drivetrain CMD", "DRIVETRAIN_DRIVE_ARCADE");
 		ArcadeDrive(localMessage.params.arcadeDrive.x,
 				localMessage.params.arcadeDrive.y);
 		break;
 	case COMMAND_DRIVETRAIN_DRIVE_STRAIGHT:
-		SmartDashboard::PutString("Drivetrain CMD",
-				"COMMAND_DRIVETRAIN_DRIVE_STRAIGHT");
+		//SmartDashboard::PutString("Drivetrain CMD", "DRIVETRAIN_DRIVE_STRAIGHT");
 		MeasuredMove(localMessage.params.autonomous.driveSpeed,
 				localMessage.params.autonomous.driveDistance);
 		break;
 
 	case COMMAND_DRIVETRAIN_TURN:
-		SmartDashboard::PutString("Drivetrain CMD", "COMMAND_DRIVETRAIN_TURN");
+		//SmartDashboard::PutString("Drivetrain CMD", "DRIVETRAIN_TURN");
 		Turn(localMessage.params.autonomous.turnSpeed,
 				localMessage.params.autonomous.turnAngle);
 		break;
 
 	case COMMAND_SYSTEM_MSGTIMEOUT:
-		SmartDashboard::PutString("Drivetrain CMD",
-				"COMMAND_SYSTEM_MSGTIMEOUT");
+		//SmartDashboard::PutString("Drivetrain CMD", "SYSTEM_MSGTIMEOUT");
 	default:
 		break;
 	}
 	//Put out information
-	SmartDashboard::PutNumber("Gyro Angle", gyro->GetAngle());
+	//SmartDashboard::PutNumber("Gyro Angle", gyro->GetAngle());
 	lastCommand = localMessage.command;
 }
 
@@ -139,25 +135,30 @@ void Drivetrain::ArcadeDrive(float x, float y) {
 	rightMotor->Set(-(y - x / 2));
 }
 void Drivetrain::MeasuredMove(float speed, float targetDist) {
+#if 0
 	gyro->Reset();
 	encoder->Reset();
 	bool isFinished = false;
-	while(!isFinished) {
+	while(!isFinished)
+	{
 		float coveredDist = encoder->GetDistance();
 		float remainingDist = targetDist - coveredDist;
 		float adjustment = gyro->GetAngle() / recoverStrength;
 		//glorified arcade drive
-		if(targetDist > 0 && remainingDist > distError) {
+		if(targetDist > 0 && remainingDist > distError)
+		{
 			//if headed in positive direction
 			left = (1 + adjustment) * speed;
 			right = (-1 + adjustment) * speed;
 		}
-		else if(targetDist < 0 && remainingDist < -distError) {
+		else if(targetDist < 0 && remainingDist < -distError)
+		{
 			//if headed in negative direction
 			left = (-1 + adjustment) * speed;
 			right = (1 + adjustment) * speed;
 		}
-		else {
+		else
+		{
 			left = 0;
 			right = 0;
 			isFinished = true;
@@ -172,21 +173,24 @@ void Drivetrain::MeasuredMove(float speed, float targetDist) {
 	SmartDashboard::PutString("Remaining Distance", "Not operating");
 	SmartDashboard::PutString("Angle Adjustment", "Not operating");
 	printf("Finished moving %f inches", targetDist);
+#endif
 }
 
 void Drivetrain::Turn(float speed, float targetAngle) {
+#if 0
 	gyro->Reset();
 	bool isFinished = false;
 	while(!isFinished)
 	{
-	float degreesLeft = targetAngle - gyro->GetAngle();
-	float motorValue = degreesLeft*.3*speed;
-	leftMotor->Set(motorValue);
-	rightMotor->Set(motorValue);
-	SmartDashboard::PutNumber("Remaining Degrees", degreesLeft);
-	SmartDashboard::PutNumber("Turn Speed", motorValue);
+		float degreesLeft = targetAngle - gyro->GetAngle();
+		float motorValue = degreesLeft * .3 * speed;
+		leftMotor->Set(motorValue);
+		rightMotor->Set(motorValue);
+		SmartDashboard::PutNumber("Remaining Degrees", degreesLeft);
+		SmartDashboard::PutNumber("Turn Speed", motorValue);
 	}
 	SmartDashboard::PutString("Remaining Degrees", "Not operating");
 	SmartDashboard::PutString("Turn Speed", "Not operating");
 	printf("Finished turning %f degrees", targetAngle);
+#endif
 }

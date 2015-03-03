@@ -8,6 +8,7 @@
 
 #include "RhsRobotBase.h"			//For the local header file
 #include <assert.h>
+#include <sched.h>
 
 //Built-In
 
@@ -19,7 +20,21 @@
 
 RhsRobotBase::RhsRobotBase()			//Constructor
 {
+	cpu_set_t  mask;
+	struct sched_param param;
+
 	printf("\n\t\t%s \"%s\"\n\tVersion %s built %s at %s\n\n", ROBOT_NAME, ROBOT_NICKNAME, ROBOT_VERSION, __DATE__, __TIME__);
+
+	// run our code on the second core
+
+	CPU_ZERO(&mask);
+	CPU_SET(1, &mask);
+	sched_setaffinity(0, sizeof(mask), &mask);
+
+    param.sched_priority = 10;
+    printf("did this work %d\n", sched_setscheduler(0, SCHED_FIFO, &param));
+
+	// what are our priority limits?
 
 	previousRobotState = ROBOT_STATE_UNKNOWN;
 	currentRobotState = ROBOT_STATE_UNKNOWN;

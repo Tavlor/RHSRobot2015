@@ -32,7 +32,8 @@ RhsRobot::RhsRobot() {
 RhsRobot::~RhsRobot() {
 	std::vector<ComponentBase *>::iterator nextComponent = ComponentSet.begin();
 
-	for(; nextComponent != ComponentSet.end(); ++nextComponent) {
+	for(; nextComponent != ComponentSet.end(); ++nextComponent)
+	{
 		delete (*nextComponent);
 	}
 
@@ -62,23 +63,28 @@ void RhsRobot::Init() {
 
 	std::vector<ComponentBase *>::iterator nextComponent = ComponentSet.begin();
 
-	if(drivetrain) {
+	if(drivetrain)
+	{
 		nextComponent = ComponentSet.insert(nextComponent, drivetrain);
 	}
 
-	if(conveyor) {
+	if(conveyor)
+	{
 		nextComponent = ComponentSet.insert(nextComponent, conveyor);
 	}
 
-	if(cube) {
+	if(cube)
+	{
 		nextComponent = ComponentSet.insert(nextComponent, cube);
 	}
 
-	if(jackclicker) {
+	if(jackclicker)
+	{
 		nextComponent = ComponentSet.insert(nextComponent, jackclicker);
 	}
 
-	if(autonomous) {
+	if(autonomous)
+	{
 		nextComponent = ComponentSet.insert(nextComponent, autonomous);
 	}
 }
@@ -87,7 +93,8 @@ void RhsRobot::OnStateChange() {
 	std::vector<ComponentBase *>::iterator nextComponent;
 
 	for(nextComponent = ComponentSet.begin();
-			nextComponent != ComponentSet.end(); ++nextComponent) {
+			nextComponent != ComponentSet.end(); ++nextComponent)
+	{
 		(*nextComponent)->SendMessage(&robotMessage);
 	}
 }
@@ -102,8 +109,10 @@ void RhsRobot::Run() {
 	 * 			}
 	 */
 
-	if(autonomous) {
-		if(GetCurrentRobotState() == ROBOT_STATE_AUTONOMOUS) {
+	if(autonomous)
+	{
+		if(GetCurrentRobotState() == ROBOT_STATE_AUTONOMOUS)
+		{
 			robotMessage.command = COMMAND_AUTONOMOUS_RUN;
 			autonomous->SendMessage(&robotMessage);
 			// all messages to components will come from the autonomous task
@@ -111,7 +120,8 @@ void RhsRobot::Run() {
 		}
 	}
 
-	if(drivetrain) {
+	if(drivetrain)
+	{
 		robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_TANK;
 		robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT;
 		robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT;
@@ -121,126 +131,162 @@ void RhsRobot::Run() {
 		drivetrain->SendMessage(&robotMessage);
 	}
 
-	if(conveyor) {
-		//button press triggers action; if nothing happens, the ignore command is sent
-		if(CONVEYOR_FWD) { //only used for autonomous and depositing cans
-			SmartDashboard::PutString("Conveyor Mode", "Output Front");
+	if(conveyor)
+	{
+		if(CONVEYOR_FWD)
+		{ //only used for autonomous and depositing cans
+			//SmartDashboard::PutString("Conveyor Mode", "Output Front");
 			robotMessage.command = COMMAND_CONVEYOR_RUNALL_FWD;
-
-			if(!bLastConveyorButtonDown) {
-				robotMessage.params.conveyorStates.bButtonWentDownEvent = true;
+			if(!bLastConveyorButtonDown)
+			{
+				robotMessage.params.conveyorParams.bButtonWentDownEvent = true;
 				bLastConveyorButtonDown = true;
 			}
-			else {
-				robotMessage.params.conveyorStates.bButtonWentDownEvent = false;
+			else
+			{
+				robotMessage.params.conveyorParams.bButtonWentDownEvent = false;
 			}
 		}
-		else if(CONVEYOR_BCK) { //used to intake and deposit totesif (CONVEYOR_ADJUST_LEFT > .1) {
-			if(CONVEYOR_ADJUST_LEFT > .1 && CONVEYOR_ADJUST_RIGHT > .1) {
-				SmartDashboard::PutString("Conveyor Mode", "Adjusting Both");
-				robotMessage.command = COMMAND_CONVEYOR_CANADJUST_BOTH;
-			}
-			else if(CONVEYOR_ADJUST_LEFT > .1) {
-				SmartDashboard::PutString("Conveyor Mode", "Adjusting Left");
-				robotMessage.command = COMMAND_CONVEYOR_CANADJUST_LEFT;
-			}
-			else if(CONVEYOR_ADJUST_RIGHT > .1) {
-				SmartDashboard::PutString("Conveyor Mode", "Adjusting Right");
-				robotMessage.command = COMMAND_CONVEYOR_CANADJUST_RIGHT;
-			}
-			else {
-				SmartDashboard::PutString("Conveyor Mode", "Intake Front");
-				robotMessage.command = COMMAND_CONVEYOR_RUNALL_BCK;
-			}
+		else if(CONVEYOR_BCK)
+		{ //used to intake and deposit totes
+			//SmartDashboard::PutString("Conveyor Mode", "Output Back");
+			robotMessage.command = COMMAND_CONVEYOR_RUNALL_BCK;
 
-			if(!bLastConveyorButtonDown) {
-				robotMessage.params.conveyorStates.bButtonWentDownEvent = true;
+			if(!bLastConveyorButtonDown)
+			{
+				robotMessage.params.conveyorParams.bButtonWentDownEvent = true;
 				bLastConveyorButtonDown = true;
 			}
-			else {
-				robotMessage.params.conveyorStates.bButtonWentDownEvent = false;
+			else
+			{
+				robotMessage.params.conveyorParams.bButtonWentDownEvent = false;
 			}
 		}
-		else {
-			SmartDashboard::PutString("Conveyor Mode", "Stopped");
+		else
+		{
+			//SmartDashboard::PutString("Conveyor Mode", "Stopped");
 			robotMessage.command = COMMAND_CONVEYOR_RUNALL_STOP;
-			robotMessage.params.conveyorStates.bButtonWentDownEvent = false;
+			robotMessage.params.conveyorParams.bButtonWentDownEvent = false;
 			bLastConveyorButtonDown = false;
 		}
 
 		conveyor->SendMessage(&robotMessage);
+
+		if(CONVEYOR_INTAKES_CW > .1)
+		{
+			robotMessage.command = COMMAND_CONVEYOR_INTAKES_CW;
+			robotMessage.params.conveyorParams.intakeSpeed = -CONVEYOR_INTAKES_CW;
+			conveyor->SendMessage(&robotMessage);
+		}
+
+		else if(CONVEYOR_INTAKES_CCW > .1)
+		{
+			robotMessage.command = COMMAND_CONVEYOR_INTAKES_CCW;
+			robotMessage.params.conveyorParams.intakeSpeed = CONVEYOR_INTAKES_CCW;
+			conveyor->SendMessage(&robotMessage);
+		}
+		else
+		{
+			robotMessage.params.conveyorParams.intakeSpeed = 0;
+		}
 	}
 
 	if(cube)
-		//TODO add a change-detector for cube commands to reduce number sent
+	//TODO add a change-detector for cube commands to reduce number sent?
 	{
-		if(ControllerListen_2->ButtonPressed(CUBEAUTO_START_ID))
+		if(ControllerListen_1->ButtonPressed(CUBEAUTO_START_ID) ||
+				ControllerListen_2->ButtonPressed(CUBEAUTO_START_ID))
 		{
+			//SmartDashboard::PutString("Robot->Cube", "Auto Start");
 			robotMessage.command = COMMAND_CUBEAUTOCYCLE_START;
 			cube->SendMessage(&robotMessage);
 		}
-		else if(ControllerListen_2->ButtonPressed(CUBEAUTO_STOP_ID))
+		else if(ControllerListen_1->ButtonPressed(CUBEAUTO_STOP_ID) ||
+				ControllerListen_2->ButtonPressed(CUBEAUTO_STOP_ID))
 		{
+			//SmartDashboard::PutString("Robot->Cube", "Auto Stop");
 			robotMessage.command = COMMAND_CUBEAUTOCYCLE_STOP;
 			cube->SendMessage(&robotMessage);
 		}
-		else if(ControllerListen_2->ButtonPressed(CUBEAUTO_PAUSE_ID))
+		else if(ControllerListen_1->ButtonPressed(CUBEAUTO_PAUSE_ID) ||
+				ControllerListen_2->ButtonPressed(CUBEAUTO_PAUSE_ID))
 		{
+			//SmartDashboard::PutString("Robot->Cube", "Auto Pause");
 			robotMessage.command = COMMAND_CUBEAUTOCYCLE_PAUSE;
 			cube->SendMessage(&robotMessage);
 		}
-		else if(ControllerListen_2->ButtonPressed(CUBEAUTO_RESUME_ID))
+		else if(ControllerListen_1->ButtonPressed(CUBEAUTO_RESUME_ID) ||
+				ControllerListen_2->ButtonPressed(CUBEAUTO_RESUME_ID))
 		{
+			//SmartDashboard::PutString("Robot->Cube", "Auto Resume");
 			robotMessage.command = COMMAND_CUBEAUTOCYCLE_RESUME;
+			cube->SendMessage(&robotMessage);
+		}
+		else if(CANAUTO_OKTORAISE)
+		{
+			//SmartDashboard::PutString("Robot->Cube", "Can OK");
+			robotMessage.command = COMMAND_CUBEAUTOCYCLE_OKTORAISECAN;
+			cube->SendMessage(&robotMessage);
+		}
+
+		if(ControllerListen_1->ButtonPressed(CUBEAUTO_INCREMENT_ID))
+		{
+			//SmartDashboard::PutString("Robot->Cube", "Increment");
+			robotMessage.command = COMMAND_CUBEAUTOCYCLE_INCREMENT_COUNT;
+			cube->SendMessage(&robotMessage);
+		}
+		else if(ControllerListen_1->ButtonPressed(CUBEAUTO_DECREMENT_ID))
+		{
+			//SmartDashboard::PutString("Robot->Cube", "Decrement");
+			robotMessage.command = COMMAND_CUBEAUTOCYCLE_DECREMENT_COUNT;
 			cube->SendMessage(&robotMessage);
 		}
 
 		if(CUBECLICKER_RAISE)
 		{
 			robotMessage.command = COMMAND_CUBECLICKER_RAISE;
-			cube->SendMessage(&robotMessage);
 		}
 		else if(CUBECLICKER_LOWER)
 		{
 			robotMessage.command = COMMAND_CUBECLICKER_LOWER;
-			cube->SendMessage(&robotMessage);
 		}
 		else
 		{
 			robotMessage.command = COMMAND_CUBECLICKER_STOP;
-			cube->SendMessage(&robotMessage);
 		}
 
+		cube->SendMessage(&robotMessage);
 
 		if(CANLIFTER_RAISE)
 		{
 			robotMessage.command = COMMAND_CANLIFTER_RAISE;
-			cube->SendMessage(&robotMessage);
 		}
 		else if(CANLIFTER_LOWER)
 		{
 			robotMessage.command = COMMAND_CANLIFTER_LOWER;
-			cube->SendMessage(&robotMessage);
 		}
 		else
 		{
 			robotMessage.command = COMMAND_CANLIFTER_STOP;
-			cube->SendMessage(&robotMessage);
 		}
 
-		if(CUBEINTAKE_RUN)
+		cube->SendMessage(&robotMessage);
+
+		//Intake should always run
+		/*if(CUBEINTAKE_RUN)
 		{
 			robotMessage.command = COMMAND_CUBEINTAKE_RUN;
-			cube->SendMessage(&robotMessage);
 		}
 		else
 		{
 			robotMessage.command = COMMAND_CUBEINTAKE_STOP;
-					cube->SendMessage(&robotMessage);
 		}
+
+		cube->SendMessage(&robotMessage);*/
 	}
 
-	if(jackclicker) {
+	if(jackclicker)
+	{
 		//TODO: assign input controls to the pallet jack clicker
 	}
 

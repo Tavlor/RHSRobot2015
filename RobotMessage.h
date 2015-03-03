@@ -46,9 +46,11 @@
  robot=>conveyor [label="INTAKEBOTH_IN"];
  robot=>conveyor [label="INTAKEBOTH_OUT"];
  robot=>conveyor [label="INTAKEBOTH_STOP"];
- robot=>conveyor [label="RUNALL_IN"];
- robot=>conveyor [label="RUNALL_OUT"];
- robot=>conveyor [label="RUNALL_STOP"];
+ robot=>conveyor [label="CONVEYOR_CANADJUST_LEFT"];
+ robot=>conveyor [label="CONVEYOR_CANADJUST_RIGHT"];
+ robot=>conveyor [label="CONVEYOR_CANADJUST_BOTH"];
+ robot=>conveyor [label="CONVEYOR_INTAKES_CW"];
+ robot=>conveyor [label="CONVEYOR_INTAKES_CCW"];
  robot=>jclick [label="RAISE"];
  robot=>jclick [label="LOWER"];
  robot=>jclick [label="STOP"];
@@ -102,6 +104,8 @@ enum MessageCommand {
 	COMMAND_CONVEYOR_CANADJUST_LEFT, //!< COMMAND_CONVEYOR_CANADJUST_LEFT
 	COMMAND_CONVEYOR_CANADJUST_RIGHT, //!< COMMAND_CONVEYOR_CANADJUST_RIGHT
 	COMMAND_CONVEYOR_CANADJUST_BOTH, //!< COMMAND_CONVEYOR_CANADJUST_BOTH
+	COMMAND_CONVEYOR_INTAKES_CW,
+	COMMAND_CONVEYOR_INTAKES_CCW,
 
 	COMMAND_CONVEYOR_RUNALL_FWD,      //!< COMMAND_CONVEYOR_RUNALL_FWD
 	COMMAND_CONVEYOR_RUNALL_BCK,      //!< COMMAND_CONVEYOR_RUNALL_BCK
@@ -120,11 +124,14 @@ enum MessageCommand {
 	COMMAND_CUBEAUTOCYCLE_STOP,       //!< COMMAND_CUBEAUTOCYCLE_STOP
 	COMMAND_CUBEAUTOCYCLE_PAUSE,      //!< COMMAND_CUBEAUTOCYCLE_PAUSE
 	COMMAND_CUBEAUTOCYCLE_RESUME,	  //!< COMMAND_CUBEAUTOCYCLE_RESUME
+	COMMAND_CUBEAUTOCYCLE_OKTORAISECAN,
+	COMMAND_CUBEAUTOCYCLE_DECREMENT_COUNT,
+	COMMAND_CUBEAUTOCYCLE_INCREMENT_COUNT,
 
 	COMMAND_CANLIFTER_RAISE,          //!< COMMAND_CANLIFTER_RAISE
 	COMMAND_CANLIFTER_LOWER,          //!< COMMAND_CANLIFTER_LOWER
 	COMMAND_CANLIFTER_STOP,           //!< COMMAND_CANLIFTER_STOP
-	COMMAND_CUBE_STOP,           //!< COMMAND_CUBE_STOP
+	COMMAND_CUBE_STOP,		           //!< COMMAND_CUBE_STOP
 
 	COMMAND_COMPONENT_TEST,           //!< COMMAND_COMPONENT_TEST
 
@@ -139,6 +146,7 @@ struct TankDriveParams {
 struct ConveyorParams {
 	bool bButtonWentDownEvent;
 	float right;
+	float intakeSpeed;
 };
 
 struct ArcadeDriveParams {
@@ -159,7 +167,7 @@ struct AutonomousParams {
 union MessageParams {
 	TankDriveParams tankDrive;
 	ArcadeDriveParams arcadeDrive;
-	ConveyorParams conveyorStates;
+	ConveyorParams conveyorParams;
 	AutonomousParams autonomous;
 };
 

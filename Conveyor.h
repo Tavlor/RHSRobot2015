@@ -32,7 +32,8 @@ private:
 	CANTalon *intakeRightMotor;
 
 	float fConveyorSpeed = .5;
-	float fIntakeSpeed = .75;	//typical vertical intake speed
+
+	float fIntakeSpeed = -.75;	//typical vertical intake speed
 	float fAdjustSpeed = .15;	//intake speed used when shifting cans
 
 	void OnStateChange();
