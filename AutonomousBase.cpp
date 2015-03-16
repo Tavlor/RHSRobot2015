@@ -3,7 +3,7 @@
  */
 
 //Local
-#include "AutonomousBase.h"
+#include "Autonomous.h"
 
 #include <iostream>
 #include <fstream>
@@ -14,61 +14,61 @@
 
 using namespace std;
 
-AutonomousBase::AutonomousBase()
+Autonomous::Autonomous()
 : ComponentBase(AUTONOMOUS_TASKNAME, AUTONOMOUS_QUEUE, AUTONOMOUS_PRIORITY)
 {
 	lineNumber = 0;
 	bInAutoMode = false;
-	iExecTaskID = -1;
-	LoadScriptFile();
+
+	pTask = new Task(AUTONOMOUS_TASKNAME, (FUNCPTR) &Autonomous::StartTask,
+		AUTONOMOUS_PRIORITY, AUTONOMOUS_STACKSIZE);
+	wpi_assert(pTask);
+	pTask->Start((int)this);
+
+	pScript = new Task(AUTOEXEC_TASKNAME, (FUNCPTR) &Autonomous::StartScript,
+			AUTOEXEC_PRIORITY, AUTOEXEC_STACKSIZE);
+	wpi_assert(pScript);
+	pScript->Start((int)this);
 }
 
-AutonomousBase::~AutonomousBase()	//Destructor
+Autonomous::~Autonomous()	//Destructor
 {
+	delete(pTask);
+	delete(pScript);
 }
 
-void AutonomousBase::Init()	//Initializes the autonomous component
+void Autonomous::Init()	//Initializes the autonomous component
 {
-	LoadScriptFile();
 }
  
-void AutonomousBase::OnStateChange()	//Handles state changes
+void Autonomous::OnStateChange()	//Handles state changes
 {
+	// to handle unexpected state changes before the auto script finishes (like in OKC last year)
+	// we will leave the script running - hope this works!
+
 	if(localMessage.command == COMMAND_ROBOT_STATE_AUTONOMOUS)
 	{
-		pTask = new Task(AUTOEXEC_TASKNAME, (FUNCPTR) &AutonomousBase::StartTask,
-				AUTOEXEC_PRIORITY, AUTOEXEC_STACKSIZE);
-		wpi_assert(pTask);
-		pTask->Start((int)this);
-	}	
-	else if((localMessage.command == COMMAND_ROBOT_STATE_TELEOPERATED) ||
-			(localMessage.command == COMMAND_ROBOT_STATE_DISABLED))
+		bPauseAutoMode = false;
+		bInAutoMode = true;
+	}
+	else if(localMessage.command == COMMAND_ROBOT_STATE_TELEOPERATED)
 	{
-		delete(pTask);
+		bPauseAutoMode = true;
+	}
+	else if(localMessage.command == COMMAND_ROBOT_STATE_TELEOPERATED)
+	{
+		bPauseAutoMode = true;
 	}
 }
 
-void AutonomousBase::Run()	//Autonomous logic
+void Autonomous::Run()
 {
 	switch(localMessage.command)
 	{
 		case COMMAND_AUTONOMOUS_RUN:
-			if(lineNumber < AUTONOMOUS_SCRIPT_LINES)
-			{
-				//printf("%i: \n",lineNumber);
-				if(script[lineNumber].empty() == false)
-				{
-					Evaluate(script[lineNumber]);
-					++lineNumber;
-				}
-			}
 			break;
+
 		case COMMAND_CHECKLIST_RUN:
-			if(lineNumber < AUTONOMOUS_CHECKLIST_LINES)
-			{
-				Evaluate(script[lineNumber]);
-				++lineNumber;
-			}
 			break;
 
 		default:
@@ -76,53 +76,94 @@ void AutonomousBase::Run()	//Autonomous logic
 	}
 }
 
-void AutonomousBase::LoadScriptFile()
+bool Autonomous::LoadScriptFile()
 {
-	printf("Auto Script Filepath: [%s]\n",AUTONOMOUS_SCRIPT_FILEPATH);
+	bool bReturn = true;
+	//printf("Auto Script Filepath: [%s]\n", AUTONOMOUS_SCRIPT_FILEPATH);
 	ifstream scriptStream;
 	scriptStream.open(AUTONOMOUS_SCRIPT_FILEPATH);
 	
 	if(scriptStream.is_open())//not working
 	{
-		if(bInAutoMode == false)
+		for(int i = 0; i < AUTONOMOUS_SCRIPT_LINES; ++i)
 		{
-			for(int i = 0; i < AUTONOMOUS_SCRIPT_LINES; ++i)
+			if(!scriptStream.eof())
 			{
-				if(!scriptStream.eof())
-				{
-					getline(scriptStream, script[i]);
-					cout << script[i] << endl;		
-				}
-				else
-				{
-					script[i].clear();
-				}
+				getline(scriptStream, script[i]);
+				//cout << script[i] << endl;
 			}
-			printf("Autonomous script loaded\n");
-		}
-		else
-		{
-			printf("Attempt to read script in auto mode\n");
+			else
+			{
+				script[i].clear();
+			}
 		}
 
+		//printf("Autonomous script loaded\n");
 		scriptStream.close();
 	}	
 	else
 	{
-		printf("No auto file found\n");
+		//printf("No auto file found\n");
+		bReturn = false;
 	}
+
+	return(bReturn);
 }
 
-void AutonomousBase::DoWork()
+void Autonomous::DoScript()
 {
-	lineNumber = 0;
+	printf("DoScript\n");
 	
-	while(lineNumber < AUTONOMOUS_SCRIPT_LINES)
+	while(true)
 	{
-		if(script[lineNumber].empty() == false)
+		lineNumber = 0;
+		SmartDashboard::PutNumber("Script Line Number", lineNumber);
+
+		if(LoadScriptFile() == false)
 		{
-			Evaluate(script[lineNumber]);
-			++lineNumber;
+			// wait a little and try again, really only useful if when practicing
+
+			SmartDashboard::PutBoolean("Script File Loaded", false);
+			Wait(1.0);
+		}
+		else
+		{
+			SmartDashboard::PutBoolean("Script File Loaded", true);
+
+			// if there is a script we will execute it some hell or high water!
+
+			while(bInAutoMode)
+			{
+				SmartDashboard::PutNumber("Script Line Number", lineNumber);
+
+				if (lineNumber < AUTONOMOUS_SCRIPT_LINES)
+				{
+					// can we have empty lines?  at the end I guess
+
+					if(script[lineNumber].empty() == false)
+					{
+						// handle pausing in the Evaluate method
+
+						SmartDashboard::PutString("Script Line", script[lineNumber].c_str());
+
+						if(Evaluate(script[lineNumber]))
+						{
+							break;
+						}
+					}
+
+					lineNumber++;
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			bInAutoMode = false;
+			Wait(5.0);
 		}
 	}
+
+	bInAutoMode = false;
 }

@@ -7,6 +7,10 @@
  * The task receives messages form the main robot class and runs the wheels.
  * Special commands use a gyro and quadrature encoder to drive straight X feet
  * or to turn X degrees.
+ *
+ * Motor orientations:
+ * left +
+ * right -
  */
 
 //Local
@@ -96,6 +100,7 @@ void Drivetrain::OnStateChange()			//Handles state changes
 	}
 }
 
+///left + , right -
 void Drivetrain::Run() {
 	switch(localMessage.command) {
 	case COMMAND_DRIVETRAIN_DRIVE_TANK:

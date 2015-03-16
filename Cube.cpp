@@ -4,7 +4,7 @@
  * This class is derived from the standard Component base class and includes
  * initialization for the devices used to control the cube's components.
  *
- * The task receives messages from the main robot class and controls three components:
+ * The task receives messages from the main robot class and controls two components:
  *
  * THE CLICKER
  * Raises or lowers the tote lifter which "clicks" into place, thus the name.
@@ -12,30 +12,17 @@
  *	Raise:positive (with CIM)
  *	Lower:negative (with CIM)
  *
- * THE CAN LIFT
- * Lifts the can onto the top of a stack of totes. It also has hall effect
- * sensors to stop motion at the top and bottom, as well as trigger other actions.
- * 	Raise: negative (with CIM)
- *	Lower: negative (with CIM)
- *
  * THE INTAKE
- * A roller which pulls totes into the cube from the chute (yes, chute). It is triggered
+ * A roller which pulls totes into the cube from the chute. It is triggered
  * by an IR beam break sensor.
  *	Run: negative (with BAG)
  */
 
 //Please DO NOT modify the +/- motor value notes above with out FULL TESTING
 #include "Cube.h"
-#include "WPILib.h"
-
-//Robot
-#include "ComponentBase.h"
-#include "RobotParams.h"
 
 Cube::Cube() :
 		ComponentBase(CUBE_TASKNAME, CUBE_QUEUE, CUBE_PRIORITY) {
-
-	// run the clicker motor in braking mode till it hits a limit switch
 
 	clickerMotor = new CANTalon(CAN_CUBE_CLICKER);
 	wpi_assert(clickerMotor);
@@ -53,30 +40,17 @@ Cube::Cube() :
 	intakeMotor->ConfigLimitMode(
 			CANSpeedController::kLimitMode_SwitchInputsOnly);
 
-	lifterMotor = new CANTalon(CAN_CUBE_BIN_LIFT);
-	wpi_assert(lifterMotor);
-	//lifterMotor->SetVoltageRampRate(120.0);
-	lifterMotor->ConfigNeutralMode(
-			CANSpeedController::NeutralMode::kNeutralMode_Brake);
-	lifterMotor->ConfigLimitMode(
-			CANSpeedController::kLimitMode_SwitchInputsOnly);
-
 	wpi_assert(clickerMotor->IsAlive());
 	wpi_assert(intakeMotor->IsAlive());
-	wpi_assert(lifterMotor->IsAlive());
 
 	clickerLastState = STATE_CLICKER_TOP;
-	lifterLastState = STATE_LIFTER_TOP;
 	bEnableAutoCycle = false;
-	bOkToRaiseCan = false;
+	bPrepareToRemove = false;
 	fClickerPaused = 0.0;
-	fLifterPaused = 0.0;
 
 	irBlocked = !intakeMotor->IsRevLimitSwitchClosed();
 	clickerHallEffectBottom = clickerMotor->IsRevLimitSwitchClosed();
 	clickerHallEffectTop = clickerMotor->IsFwdLimitSwitchClosed();
-	lifterHallEffectBottom = lifterMotor->IsFwdLimitSwitchClosed();
-	lifterHallEffectTop = lifterMotor->IsRevLimitSwitchClosed();
 
 	pSafetyTimer = new Timer();
 	pSafetyTimer->Start();
@@ -86,6 +60,8 @@ Cube::Cube() :
 	pRemoteUpdateTimer->Start();
 	pInterCycleTimer = new Timer();
 	pInterCycleTimer->Start();
+	pGateTimer = new Timer();
+	pGateTimer->Start();
 
 	pTask = new Task(CUBE_TASKNAME, (FUNCPTR) &Cube::StartTask, CUBE_PRIORITY,
 			CUBE_STACKSIZE);
@@ -97,30 +73,39 @@ Cube::~Cube() {
 	delete (pTask);
 	delete clickerMotor;
 	delete intakeMotor;
-	delete lifterMotor;
 	delete pSafetyTimer;
 }
 ;
 
 void Cube::OnStateChange() {
+	//be sure that bEnableAutoCycle will stick - is is possible to drop into DISABLED during auto
 	switch(localMessage.command) {
-	case COMMAND_ROBOT_STATE_AUTONOMOUS:
-	case COMMAND_ROBOT_STATE_TEST:
 	case COMMAND_ROBOT_STATE_TELEOPERATED:
-		intakeMotor->Set(fIntakeRun);//should always run in teleop
+		bEnableAutoCycle = true;
+		intakeMotor->Set(fIntakeRun);		//should always run in teleop
+		fClickerPaused = 0.0;
+		clickerLastState = STATE_CLICKER_RAISE;
+		intakeMotor->Set(fIntakeRun);
+		pSafetyTimer->Reset();
 		break;
+	case COMMAND_ROBOT_STATE_AUTONOMOUS:
 	case COMMAND_ROBOT_STATE_DISABLED:
+		pSafetyTimer->Reset();
+		break;
+	case COMMAND_ROBOT_STATE_TEST:
 	case COMMAND_ROBOT_STATE_UNKNOWN:
 	default:
-		intakeMotor->Set(fIntakeStop);
-		clickerMotor->Set(fClickerStop);
-		lifterMotor->Set(fLifterStop);
 		pSafetyTimer->Reset();
-		bEnableAutoCycle = false;
 		break;
 	}
 }
 
+/** \class Cube
+ * Cube behavior: Intake will always run unless the IR sensor is covered.
+ * The clicker can either be controlled by the second remote or will
+ * cycle through its state machine automatically.
+ * Autocycle should be started in the autonomous code.
+ */
 void Cube::Run() {
 	switch(localMessage.command)			//Reads the message command
 	{
@@ -157,43 +142,9 @@ void Cube::Run() {
 		}
 		break;
 
-	case COMMAND_CANLIFTER_RAISE:
-		if(!bEnableAutoCycle)
-		{
-			//SmartDashboard::PutString("Lifter Operation", "RAISE");
-			//SmartDashboard::PutString("Cube CMD", "CANLIFTER_RAISE");
-
-			lifterMotor->Set(fLifterRaise);
-			pSafetyTimer->Reset();
-		}
-		break;
-
-	case COMMAND_CANLIFTER_LOWER:
-		if(!bEnableAutoCycle)
-		{
-			//SmartDashboard::PutString("Lifter Operation", "LOWER");
-			//SmartDashboard::PutString("Cube CMD", "CANLIFTER_LOWER");
-
-			lifterMotor->Set(fLifterLower);
-			pSafetyTimer->Reset();
-		}
-		break;
-
-	case COMMAND_CANLIFTER_STOP:
-		if(!bEnableAutoCycle)
-		{
-			//SmartDashboard::PutString("Lifter Operation", "STOP");
-			//SmartDashboard::PutString("Cube CMD", "CANLIFTER_STOP");
-
-			lifterMotor->Set(fLifterStop);
-			pSafetyTimer->Reset();
-		}
-		break;
-
 	case COMMAND_CUBEINTAKE_RUN:
 		if(!bEnableAutoCycle)
 		{
-			//SmartDashboard::PutString("Intake Operation", "RUN");
 			//SmartDashboard::PutString("Cube CMD", "CUBEINTAKE_RUN");
 
 			intakeMotor->Set(fIntakeRun);
@@ -204,7 +155,6 @@ void Cube::Run() {
 	case COMMAND_CUBEINTAKE_STOP:
 		if(!bEnableAutoCycle)
 		{
-			//SmartDashboard::PutString("Intake Operation", "STOP");
 			//SmartDashboard::PutString("Cube CMD", "CUBEINTAKE_STOP");
 
 			//intakeMotor->Set(fIntakeStop);
@@ -219,9 +169,7 @@ void Cube::Run() {
 		{
 			//intakeMotor->Set(fIntakeStop);
 			clickerMotor->Set(fClickerStop);
-			lifterMotor->Set(fLifterStop);
 			fClickerPaused = 0.0;
-			fLifterPaused = 0.0;
 			pSafetyTimer->Reset();
 		}
 		break;
@@ -231,14 +179,9 @@ void Cube::Run() {
 		{
 			//SmartDashboard::PutString("Cube CMD", "CUBEAUTOCYCLE_START");
 			bEnableAutoCycle = true;
-			bOkToRaiseCan = false;
 			fClickerPaused = 0.0;
-			fLifterPaused = 0.0;
 			clickerLastState = STATE_CLICKER_RAISE;
-			lifterLastState = STATE_LIFTER_LOWER;
 			intakeMotor->Set(fIntakeRun);
-			iNumOfTotes = 0;
-			SmartDashboard::PutNumber("Number of Totes in Cube", iNumOfTotes);
 			pSafetyTimer->Reset();
 		}
 		break;
@@ -248,11 +191,8 @@ void Cube::Run() {
 		{
 			//SmartDashboard::PutString("Cube CMD", "CUBEAUTOCYCLE_STOP");
 			bEnableAutoCycle = false;
-			bOkToRaiseCan = false;
 			//intakeMotor->Set(fIntakeStop);
 			clickerMotor->Set(fClickerStop);
-			lifterMotor->Set(fLifterStop);
-			iNumOfTotes = 0;
 			pSafetyTimer->Reset();
 		}
 		break;
@@ -263,10 +203,8 @@ void Cube::Run() {
 			//SmartDashboard::PutString("Cube CMD", "CUBEAUTOCYCLE_PAUSE");
 			bEnableAutoCycle = false;
 			fClickerPaused = clickerMotor->Get();
-			fLifterPaused = lifterMotor->Get();
 			//intakeMotor->Set(fIntakeStop);
 			clickerMotor->Set(fClickerStop);
-			lifterMotor->Set(fLifterStop);
 			pSafetyTimer->Reset();
 		}
 		break;
@@ -276,31 +214,21 @@ void Cube::Run() {
 		{
 			//SmartDashboard::PutString("Cube CMD", "CUBEAUTOCYCLE_RESUME");
 			clickerMotor->Set(fClickerPaused);
-			lifterMotor->Set(fLifterPaused);
 			intakeMotor->Set(fIntakeRun);
 			bEnableAutoCycle = true;
 			pSafetyTimer->Reset();
 		}
 		break;
 
-	case COMMAND_CUBEAUTOCYCLE_OKTORAISECAN:
-		bOkToRaiseCan = true;
+	case COMMAND_CUBEAUTOCYCLE_HOLD:
+		if(bEnableAutoCycle)
+		{
+			bPrepareToRemove = true;
+		}
 		break;
 
-	case COMMAND_CUBEAUTOCYCLE_INCREMENT_COUNT:
-		if((iNumOfTotes >= 0) && (iNumOfTotes <= 4))
-		{
-			iNumOfTotes++;
-		}
-		SmartDashboard::PutNumber("Number of Totes in Cube", iNumOfTotes);
-		break;
-
-	case COMMAND_CUBEAUTOCYCLE_DECREMENT_COUNT:
-		if((iNumOfTotes > 0) && (iNumOfTotes <= 4))
-		{
-			iNumOfTotes--;
-		}
-		SmartDashboard::PutNumber("Number of Totes in Cube", iNumOfTotes);
+	case COMMAND_CUBEAUTOCYCLE_RELEASE:
+		bPrepareToRemove = false;
 		break;
 
 	case COMMAND_SYSTEM_MSGTIMEOUT:
@@ -315,27 +243,22 @@ void Cube::Run() {
 	{
 		//intakeMotor->Set(fIntakeStop);
 		clickerMotor->Set(fClickerStop);
-		lifterMotor->Set(fLifterStop);
 		pSafetyTimer->Reset();
 	}
 
 	// update the remote indicators periodically so we do not create too much CAN traffic
-
+	// or Smart Dashboard traffic either, for that matter (This is really what kills)
+	// NOTE: this segment runs only if we are NOT autocycling
 	if((pRemoteUpdateTimer->Get() > 0.5) && !bEnableAutoCycle)
 	{
 		pRemoteUpdateTimer->Reset();
 		irBlocked = !intakeMotor->IsRevLimitSwitchClosed();
 		clickerHallEffectBottom = clickerMotor->IsRevLimitSwitchClosed();
 		clickerHallEffectTop = clickerMotor->IsFwdLimitSwitchClosed();
-		lifterHallEffectBottom = lifterMotor->IsFwdLimitSwitchClosed();
-		lifterHallEffectTop = lifterMotor->IsRevLimitSwitchClosed();
 		SmartDashboard::PutBoolean("Cube IR", irBlocked);
-		SmartDashboard::PutBoolean("Lifter @ Top", lifterHallEffectTop);
-		SmartDashboard::PutBoolean("Lifter @ Bottom", lifterHallEffectBottom);
 		SmartDashboard::PutBoolean("Clicker @ Top", clickerHallEffectTop);
 		SmartDashboard::PutBoolean("Clicker @ Bottom", clickerHallEffectBottom);
-		//SmartDashboard::PutNumber("Clicker Voltage", clickerMotor->GetBusVoltage());
-		//SmartDashboard::PutNumber("Lifter Voltage", lifterMotor->GetBusVoltage());
+		SmartDashboard::PutNumber("Clicker Voltage", clickerMotor->GetBusVoltage());
 		SmartDashboard::PutBoolean("Cube Autocycle", bEnableAutoCycle);
 	}
 
@@ -345,10 +268,8 @@ void Cube::Run() {
 	{
 		pAutoTimer->Reset();
 		pSafetyTimer->Reset();
-		//Voltage reporting
-		//SmartDashboard::PutNumber("Clicker Voltage", clickerMotor->GetBusVoltage());
-		//SmartDashboard::PutNumber("Lifter Voltage", lifterMotor->GetBusVoltage());
 		SmartDashboard::PutBoolean("Cube Autocycle", bEnableAutoCycle);
+		SmartDashboard::PutNumber("Clicker Voltage", clickerMotor->GetBusVoltage());
 
 		switch(clickerLastState) {
 
@@ -357,21 +278,12 @@ void Cube::Run() {
 			irBlocked = !intakeMotor->IsRevLimitSwitchClosed();
 			SmartDashboard::PutBoolean("Cube IR", irBlocked);
 
-			if(irBlocked)
+			if(irBlocked || bPrepareToRemove)
 			{
-				// if the beam is broken, lower the clicker
+				// if the beam is broken (ie tote detected), lower the clicker
 
-				if(++iNumOfTotes == 5)
-				{
-					// let the can lifter raise if the driver hits a key
-
-					lifterLastState = STATE_LIFTER_WAITTILLRAISE;
-					bOkToRaiseCan = false;
-				}
-
-				SmartDashboard::PutNumber("Number of Totes in Cube", iNumOfTotes);
-
-				clickerLastState = STATE_CLICKER_LOWER;
+				pGateTimer->Reset();
+				clickerLastState = STATE_CLICKER_GATEDELAY;
 				clickerMotor->Set(fClickerLower);
 			}
 			else
@@ -379,6 +291,13 @@ void Cube::Run() {
 				// the beam is open, keep the clicker up (must apply power)
 				clickerLastState = STATE_CLICKER_TOP;
 				clickerMotor->Set(fClickerTopHold);
+			}
+			break;
+
+		case STATE_CLICKER_GATEDELAY:
+			if(pGateTimer->Get() > 0.25)
+			{
+				clickerLastState = STATE_CLICKER_LOWER;
 			}
 			break;
 
@@ -406,22 +325,12 @@ void Cube::Run() {
 		case STATE_CLICKER_BOTTOM:
 			//SmartDashboard::PutString("Cube Clicker State", "BOTTOM");
 
-			if(iNumOfTotes == 5)
+			if(bPrepareToRemove)
 			{
-				//waits until can is on top - can hall effect
-
-				clickerLastState = STATE_CLICKER_BOTTOMHOLD;
-			}
-			else if(iNumOfTotes == 6)
-			{
-				//waits until totes removed - IR
-
 				clickerLastState = STATE_CLICKER_BOTTOMHOLD;
 			}
 			else
 			{
-				//  raise clicker so we can load another tote
-
 				clickerLastState = STATE_CLICKER_RAISE;
 				clickerMotor->Set(fClickerRaise);
 			}
@@ -432,18 +341,14 @@ void Cube::Run() {
 			irBlocked = !intakeMotor->IsRevLimitSwitchClosed();
 			SmartDashboard::PutBoolean("Cube IR", irBlocked);
 
-			if(!irBlocked && iNumOfTotes == 6)
+			if(!irBlocked)
 			{
 				// if all totes removed, start again
 
-				iNumOfTotes = 0;
-				SmartDashboard::PutNumber("Number of Totes in Cube", iNumOfTotes);
+				bPrepareToRemove = false;
 				clickerLastState = STATE_CLICKER_DELAYAFTERCYLE;
+				//Do not raise the clicker right away, risk of clipping stack
 				pInterCycleTimer->Reset();
-			}
-			else if((lifterLastState == STATE_LIFTER_TOP) && (iNumOfTotes == 5))
-			{
-				clickerLastState = STATE_CLICKER_RAISE;
 			}
 			else
 			{
@@ -454,10 +359,9 @@ void Cube::Run() {
 			break;
 
 		case STATE_CLICKER_DELAYAFTERCYLE:
-			if(pInterCycleTimer->Get() > 2.5)
+			if(pInterCycleTimer->Get() > 1.0)
 			{
 				clickerLastState = STATE_CLICKER_RAISE;
-				lifterLastState = STATE_LIFTER_LOWER;
 			}
 			break;
 
@@ -482,72 +386,6 @@ void Cube::Run() {
 			}
 			break;
 		}	//End of clicker state machine
-
-
-		//Begin of lifter state machine
-		switch(lifterLastState) {
-		case STATE_LIFTER_BOTTOM:
-			//SmartDashboard::PutString("Cube Lifter State", "BOTTOM");
-			lifterMotor->Set(0.0);
-			break;
-
-		case STATE_LIFTER_RAISE:
-			//SmartDashboard::PutString("Cube Lifter State", "RAISE");
-			lifterHallEffectTop = lifterMotor->IsRevLimitSwitchClosed();
-			SmartDashboard::PutBoolean("Lifter @ Top", lifterHallEffectTop);
-
-			if(lifterHallEffectTop)
-			{
-				// we are at the top now
-
-				lifterLastState = STATE_LIFTER_TOP;
-				lifterMotor->Set(0.0);
-			}
-			else
-			{
-				// keep moving up
-
-				lifterMotor->Set(fLifterRaise);
-			}
-			break;
-
-		case STATE_LIFTER_WAITTILLRAISE:
-			if(bOkToRaiseCan)
-			{
-				// the driver has the can in place, go on up
-				bOkToRaiseCan = false;
-				lifterLastState = STATE_LIFTER_RAISE;
-			}
-			break;
-
-		case STATE_LIFTER_TOP:
-			//SmartDashboard::PutString("Cube Lifter State", "TOP");
-
-			// just stay here till the clicker state machine catches up
-
-			lifterMotor->Set(0.0);
-			break;
-
-		case STATE_LIFTER_LOWER:
-			//SmartDashboard::PutString("Cube Lifter State", "LOWER");
-			lifterHallEffectBottom = lifterMotor->IsFwdLimitSwitchClosed();
-			SmartDashboard::PutBoolean("Lifter @ Bottom", lifterHallEffectBottom);
-
-			if(lifterHallEffectBottom)
-			{
-				// we are at the bottom, turn it off
-
-				lifterLastState = STATE_LIFTER_BOTTOM;
-				lifterMotor->Set(0.0);
-			}
-			else
-			{
-				// we have not arrive yet, keep going down
-
-				lifterMotor->Set(fLifterLower);
-			}
-			break;
-		}	//End of lifter state machine
 	}
 }
 

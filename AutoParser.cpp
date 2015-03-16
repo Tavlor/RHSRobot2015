@@ -27,20 +27,28 @@ const char *szTokens[] = {
 		"MOVE",
 		"MMOVE",
 		"TURN",
-		"ADDTOTE"
+		"TOTEUP",
+		"TOTEDOWN",
+		"CLAWOPEN",
+		"CLAWCLOSE",
+		"CLICKERUP",
+		"CLICKERDOWN",
+		"CUBEAUTO",
 		"NOP" };
 
-void Autonomous::Evaluate(std::string rStatement) {
+
+bool Autonomous::Evaluate(std::string rStatement) {
 	char *pToken;
 	char *pCurrLinePos;
 	int iCommand;
 	float fParam1;
+	bool bReturn = false;
 
 	string rStatus;
 
 	if(rStatement.empty()) {
 		printf("statement is empty");
-		return;
+		return (bReturn);
 	}
 
 	// process the autonomous motion
@@ -49,9 +57,8 @@ void Autonomous::Evaluate(std::string rStatement) {
 	printf("%s\n", rStatement.c_str());
 
 	if(*pCurrLinePos == sComment) {
-		rStatus.append("comment");
 		printf("%s\n", rStatus.c_str());
-		return;
+		return (bReturn);
 	}
 
 	// find first token
@@ -72,7 +79,14 @@ void Autonomous::Evaluate(std::string rStatement) {
 		// no valid token found
 		rStatus.append("no tokens");
 		printf("%s\n", rStatus.c_str());
-		return;
+		return (bReturn);
+	}
+
+	// if we are paused wait here before executing a real command
+
+	while(bPauseAutoMode)
+	{
+		Wait(0.02);
 	}
 
 	// execute the proper command
@@ -84,6 +98,7 @@ void Autonomous::Evaluate(std::string rStatement) {
 
 	case AUTO_TOKEN_END:
 		rStatus.append("done");
+		bReturn = true;
 		break;
 
 	case AUTO_TOKEN_DELAY:
@@ -95,20 +110,20 @@ void Autonomous::Evaluate(std::string rStatement) {
 		else {
 			fParam1 = atof(pToken);
 			rStatus.append("wait");
-			Wait(fParam1);
+
 			// break out if auto mode is over
 
-			//for(fWait = 0.0; fWait < fParam1; fWait += 0.01)
-			//{
-			//	if(bInAutoMode)
-			//	{
-			//		Wait(0.01);
-			//	}
-			//	else
-			//	{
-			//		break;
-			//	}
-			//}
+			for(double fWait = 0.0; fWait < fParam1; fWait += 0.01)
+			{
+				// if we are paused break the delay into pieces
+
+				while(bPauseAutoMode)
+				{
+					Wait(0.02);
+				}
+
+				Wait(0.01);
+			}
 		}
 		break;
 	case AUTO_TOKEN_MOVE:
@@ -136,11 +151,42 @@ void Autonomous::Evaluate(std::string rStatement) {
 		}
 		break;
 
+	case AUTO_TOKEN_LIFT_TOTE:
+		break;
+
+	case AUTO_TOKEN_LOWER_TOTE:
+		break;
+
+	case AUTO_TOKEN_CLAW_OPEN:
+		Message.command = COMMAND_CLAW_OPEN;
+		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
+		break;
+
+	case AUTO_TOKEN_CLAW_CLOSE:
+		Message.command = COMMAND_CLAW_CLOSE;
+		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
+		break;
+
+	case AUTO_TOKEN_CLICKER_UP:
+		break;
+
+	case AUTO_TOKEN_CLICKER_DOWN:
+		break;
+
+	case AUTO_TOKEN_CUBE_AUTO:
+		if(!CubeAuto(pCurrLinePos)) {
+			rStatus.append("cube auto error");
+		}
+		else {
+			rStatus.append("cube auto");
+		}
+		break;
+
 	default:
 		rStatus.append("unknown token");
 		break;
-		;
 	}
 
 	printf("%s\n", rStatus.c_str());
+	return (bReturn);
 }

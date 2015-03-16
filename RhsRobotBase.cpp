@@ -21,7 +21,7 @@
 RhsRobotBase::RhsRobotBase()			//Constructor
 {
 	cpu_set_t  mask;
-	struct sched_param param;
+	//struct sched_param param;
 
 	printf("\n\t\t%s \"%s\"\n\tVersion %s built %s at %s\n\n", ROBOT_NAME, ROBOT_NICKNAME, ROBOT_VERSION, __DATE__, __TIME__);
 
@@ -31,8 +31,8 @@ RhsRobotBase::RhsRobotBase()			//Constructor
 	CPU_SET(1, &mask);
 	sched_setaffinity(0, sizeof(mask), &mask);
 
-    param.sched_priority = 10;
-    printf("did this work %d\n", sched_setscheduler(0, SCHED_FIFO, &param));
+    //param.sched_priority = 10;
+    //printf("did this work %d\n", sched_setscheduler(0, SCHED_FIFO, &param));
 
 	// what are our priority limits?
 

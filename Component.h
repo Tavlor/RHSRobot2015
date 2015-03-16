@@ -8,6 +8,9 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 
+/**
+	A template class for creating new components
+ */
 #include <pthread.h>
 
 //Robot

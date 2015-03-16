@@ -1,8 +1,11 @@
-/*
- * ButtonListener.h
+/**
+ * The JoystickListener class monitors the inputs of a joystick
+ * and can be used to register when a button was pressed or released.
  *
- *  Created on: Feb 17, 2015
- *      Author: Cyber
+ * the input's ID is 1 greater than its representative location in
+ * the vector, which is accounted for in the code.
+ *
+ * NOTE: the axis movement feature currently does not work.
  */
 
 #ifndef RHS_2015_WORKSPACE_2_SRC_JOYSTICKLISTENER_H_
@@ -14,7 +17,7 @@ class JoystickListener
 public:
 	JoystickListener(Joystick*);
 	~JoystickListener();
-	void FinalUpdate();///Call at the END of the run function
+	void FinalUpdate();
 	bool ButtonPressed(unsigned int);
 	bool ButtonReleased(unsigned int);
 	bool AxisMoved(unsigned int);

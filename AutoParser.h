@@ -19,11 +19,15 @@ typedef enum AUTO_COMMAND_TOKENS
 	AUTO_TOKEN_MOVE,		// move (left & right PWM - float)
 	AUTO_TOKEN_MMOVE,		// mmove (speed) (inches - float)
 	AUTO_TOKEN_TURN,		// turn (degrees - float)
-	AUTO_TOKEN_FLING_CAN,// set rollers spin to fling can to right
-	AUTO_TOKEN_ADD_TOTE,// rollers spin in until IR
-	AUTO_TOKEN_LIFT_TOTE,//tote lift raises tote stack
-	AUTO_TOKEN_LOWER_TOTE,//tote lift drops tote stack
+	AUTO_TOKEN_LIFT_TOTE,	// tote lift raises tote stack
+	AUTO_TOKEN_LOWER_TOTE,	// tote lift drops tote stack
+	AUTO_TOKEN_CLAW_OPEN,	// open the can lifter claw
+	AUTO_TOKEN_CLAW_CLOSE,	// close the can lifter claw
+	AUTO_TOKEN_CLICKER_UP,	// raise the tote clicker in the Cube
+	AUTO_TOKEN_CLICKER_DOWN,// lower the tote clicker in the Cube
+	AUTO_TOKEN_CUBE_AUTO,	// start the automated behaviour of the clicker
 	AUTO_TOKEN_LAST
 } AUTO_COMMAND_TOKENS;
 
 #endif  // AUTOPARSER_H
+

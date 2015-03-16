@@ -7,8 +7,7 @@
 
 #ifndef CONVEYOR_H
 #define CONVEYOR_H
-
-#include <pthread.h>
+///Controls the conveyor on the pallet jack.
 
 //Robot
 #include "WPILib.h"
@@ -28,13 +27,7 @@ public:
 
 private:
 	CANTalon *conveyorMotor;
-	CANTalon *intakeLeftMotor;
-	CANTalon *intakeRightMotor;
-
 	float fConveyorSpeed = .5;
-
-	float fIntakeSpeed = -.75;	//typical vertical intake speed
-	float fAdjustSpeed = .15;	//intake speed used when shifting cans
 
 	void OnStateChange();
 	void Run();

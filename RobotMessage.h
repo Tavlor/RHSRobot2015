@@ -20,7 +20,6 @@
  check [label="Check\nList"],
  drive [label="Drive\nTrain"],
  conveyor [label="Conveyor"],
- jclick [label="Pallet Jack\nClicker"],
  cclick [label="Cube\nClicker"],
  can [label="Pallet Jack\nCan Lifter"],
  test [label="Component\nExample"];
@@ -34,26 +33,14 @@
  robot=>* [label="STATE_UNKNOWN"];
  robot=>auto [label="RUN"];
  robot=>check [label="RUN"];
+ robot=>drive [label="STOP"];
+ robot=>drive [label="DRIVE_TANK"];
+ robot=>drive [label="DRIVE_ARCADE"];
+ auto=>drive [label="DRIVE_STRAIGHT"];
+ auto=>drive [label="TURN"];
  robot=>conveyor [label="RUN_FWD"];
  robot=>conveyor [label="RUN_BCK"];
  robot=>conveyor [label="STOP"];
- robot=>conveyor [label="INTAKELEFT_IN"];
- robot=>conveyor [label="INTAKELEFT_OUT"];
- robot=>conveyor [label="INTAKELEFT_STOP"];
- robot=>conveyor [label="INTAKERIGHT_IN"];
- robot=>conveyor [label="INTAKERIGHT_OUT"];
- robot=>conveyor [label="INTAKERIGHT_STOP"];
- robot=>conveyor [label="INTAKEBOTH_IN"];
- robot=>conveyor [label="INTAKEBOTH_OUT"];
- robot=>conveyor [label="INTAKEBOTH_STOP"];
- robot=>conveyor [label="CONVEYOR_CANADJUST_LEFT"];
- robot=>conveyor [label="CONVEYOR_CANADJUST_RIGHT"];
- robot=>conveyor [label="CONVEYOR_CANADJUST_BOTH"];
- robot=>conveyor [label="CONVEYOR_INTAKES_CW"];
- robot=>conveyor [label="CONVEYOR_INTAKES_CCW"];
- robot=>jclick [label="RAISE"];
- robot=>jclick [label="LOWER"];
- robot=>jclick [label="STOP"];
  robot=>cclick [label="RAISE"];
  robot=>cclick [label="LOWER"];
  robot=>cclick [label="STOP"];
@@ -64,113 +51,111 @@
  robot=>can[label="RAISE"];
  robot=>can[label="LOWER"];
  robot=>can[label="STOP"];
+ robot=>can[label="OPEN"];
+ robot=>can[label="CLOSE"];
  robot=>test[label="TEST"];
  \endmsc
+
+
  */
 
 enum MessageCommand {
-	COMMAND_UNKNOWN,                  //!< COMMAND_UNKNOWN
-	COMMAND_SYSTEM_MSGTIMEOUT,        //!< COMMAND_SYSTEM_MSGTIMEOUT
-	COMMAND_SYSTEM_OK,                //!< COMMAND_SYSTEM_OK
-	COMMAND_SYSTEM_ERROR,             //!< COMMAND_SYSTEM_ERROR
+	COMMAND_UNKNOWN,					//!< COMMAND_UNKNOWN
+	COMMAND_SYSTEM_MSGTIMEOUT,			//!< COMMAND_SYSTEM_MSGTIMEOUT
+	COMMAND_SYSTEM_OK,					//!< COMMAND_SYSTEM_OK
+	COMMAND_SYSTEM_ERROR,				//!< COMMAND_SYSTEM_ERROR
 
-	COMMAND_ROBOT_STATE_DISABLED,     //!< COMMAND_ROBOT_STATE_DISABLED
-	COMMAND_ROBOT_STATE_AUTONOMOUS,   //!< COMMAND_ROBOT_STATE_AUTONOMOUS
-	COMMAND_ROBOT_STATE_TELEOPERATED, //!< COMMAND_ROBOT_STATE_TELEOPERATED
-	COMMAND_ROBOT_STATE_TEST,         //!< COMMAND_ROBOT_STATE_TEST
-	COMMAND_ROBOT_STATE_UNKNOWN,      //!< COMMAND_ROBOT_STATE_UNKNOWN
+	COMMAND_ROBOT_STATE_DISABLED,		//!< Tells all components that the robot is disabled
+	COMMAND_ROBOT_STATE_AUTONOMOUS,		//!< Tells all components that the robot is in auto
+	COMMAND_ROBOT_STATE_TELEOPERATED,	//!< Tells all components that the robot is in teleop
+	COMMAND_ROBOT_STATE_TEST,			//!< Tells all components that the robot is in test
+	COMMAND_ROBOT_STATE_UNKNOWN,		//!< Tells all components that the robot's state is unknown
 
-	COMMAND_AUTONOMOUS_RUN,           //!< COMMAND_AUTONOMOUS_RUN
-	COMMAND_CHECKLIST_RUN,            //!< COMMAND_CHECKLIST_RUN
+	COMMAND_AUTONOMOUS_RUN,				//!< Tells Autonomous to run
+	COMMAND_CHECKLIST_RUN,				//!< Tells CheckList to run
 
-	COMMAND_DRIVETRAIN_STOP,			//!< COMMAND_DRIVETRAIN_STOP
-	COMMAND_DRIVETRAIN_DRIVE_TANK,		//!< COMMAND_DRIVETRAIN_DRIVE_TANK
-	COMMAND_DRIVETRAIN_DRIVE_ARCADE,	//!< COMMAND_DRIVETRAIN_DRIVE_ARCADE
-	COMMAND_DRIVETRAIN_DRIVE_STRAIGHT,	//!< COMMAND_DRIVETRAIN_DRIVE_STRAIGHT
-	COMMAND_DRIVETRAIN_TURN,			//!< COMMAND_DRIVETRAIN_TURN
+	COMMAND_DRIVETRAIN_STOP,			//!< Tells Drivetrain to stop moving
+	COMMAND_DRIVETRAIN_DRIVE_TANK,		//!< Tells Drivetrain to use tank drive
+	COMMAND_DRIVETRAIN_DRIVE_ARCADE,	//!< Tells Drivetrain to use arcade drive
+	COMMAND_DRIVETRAIN_DRIVE_STRAIGHT,	//!< Tells Drivetrain to drive straight, used by Autonomous
+	COMMAND_DRIVETRAIN_TURN,			//!< Tells Drivetrain to turn, used by Autonomous
 
-	COMMAND_CONVEYOR_RUN_FWD,         //!< COMMAND_CONVEYOR_RUN_FWD
-	COMMAND_CONVEYOR_RUN_BCK,         //!< COMMAND_CONVEYOR_RUN_BCK
-	COMMAND_CONVEYOR_STOP,            //!< COMMAND_CONVEYOR_STOP
-	COMMAND_CONVEYOR_INTAKELEFT_IN,   //!< COMMAND_CONVEYOR_INTAKELEFT_IN
-	COMMAND_CONVEYOR_INTAKELEFT_OUT,  //!< COMMAND_CONVEYOR_INTAKELEFT_OUT
-	COMMAND_CONVEYOR_INTAKELEFT_STOP, //!< COMMAND_CONVEYOR_INTAKELEFT_STOP
-	COMMAND_CONVEYOR_INTAKERIGHT_IN,  //!< COMMAND_CONVEYOR_INTAKERIGHT_IN
-	COMMAND_CONVEYOR_INTAKERIGHT_OUT, //!< COMMAND_CONVEYOR_INTAKERIGHT_OUT
-	COMMAND_CONVEYOR_INTAKERIGHT_STOP, //!< COMMAND_CONVEYOR_INTAKERIGHT_STOP
-	COMMAND_CONVEYOR_INTAKEBOTH_IN,   //!< COMMAND_CONVEYOR_INTAKEBOTH_IN
-	COMMAND_CONVEYOR_INTAKEBOTH_OUT,  //!< COMMAND_CONVEYOR_INTAKEBOTH_OUT
-	COMMAND_CONVEYOR_INTAKEBOTH_STOP, //!< COMMAND_CONVEYOR_INTAKEBOTH_STOP
-	COMMAND_CONVEYOR_CANADJUST_LEFT, //!< COMMAND_CONVEYOR_CANADJUST_LEFT
-	COMMAND_CONVEYOR_CANADJUST_RIGHT, //!< COMMAND_CONVEYOR_CANADJUST_RIGHT
-	COMMAND_CONVEYOR_CANADJUST_BOTH, //!< COMMAND_CONVEYOR_CANADJUST_BOTH
-	COMMAND_CONVEYOR_INTAKES_CW,
-	COMMAND_CONVEYOR_INTAKES_CCW,
+	COMMAND_CONVEYOR_RUN_FWD,			//!< Tells Conveyor to run the rollers forward
+	COMMAND_CONVEYOR_RUN_BCK,			//!< Tells Conveyor to run the rollers backwards
+	COMMAND_CONVEYOR_STOP,				//!< Tells Conveyor to stop the rollers
 
-	COMMAND_CONVEYOR_RUNALL_FWD,      //!< COMMAND_CONVEYOR_RUNALL_FWD
-	COMMAND_CONVEYOR_RUNALL_BCK,      //!< COMMAND_CONVEYOR_RUNALL_BCK
-	COMMAND_CONVEYOR_RUNALL_STOP,     //!< COMMAND_CONVEYOR_RUNALL_STOP
+	COMMAND_CONVEYOR_RUNALL_FWD,		//!< Tells Conveyor to run all components forward
+	COMMAND_CONVEYOR_RUNALL_BCK,		//!< Tells Conveyor to run all components backwards
+	COMMAND_CONVEYOR_RUNALL_STOP,		//!< Tells Conveyor to stop all components
 
-	COMMAND_JACKCLICKER_RAISE,        //!< COMMAND_JACKCLICKER_RAISE
-	COMMAND_JACKCLICKER_LOWER,        //!< COMMAND_JACKCLICKER_LOWER
-	COMMAND_JACKCLICKER_STOP,         //!< COMMAND_JACKCLICKER_STOP
+	COMMAND_CANLIFTER_RAISE,			//!< Tells CanLifter to raise the lift
+	COMMAND_CANLIFTER_LOWER,			//!< Tells CanLifter to lower the lift
+	COMMAND_CANLIFTER_HOVER,			//!< Tells CanLifter to hold the lift where it is
+	COMMAND_CANLIFTER_STOP,				//!< Tells CanLifter to stop the lift
+	COMMAND_CANLIFTER_LIFTTOTE,			//!< Tells CanLifter to lift a tote, used by Autonomous
+	COMMAND_CANLIFTER_SETTOTE,			//!< Tells CanLifter to set down a tote, used by Autonomous
+	COMMAND_CLAW_OPEN,					//!< Tells CanLifter to open the claw
+	COMMAND_CLAW_CLOSE,					//!< Tells CanLifter to close the claw
+	COMMAND_CLAW_STOP,					//!< Tells CanLifter to stop the claw
 
-	COMMAND_CUBECLICKER_RAISE,        //!< COMMAND_CUBECLICKER_RAISE
-	COMMAND_CUBECLICKER_LOWER,        //!< COMMAND_CUBECLICKER_LOWER
-	COMMAND_CUBECLICKER_STOP,         //!< COMMAND_CUBECLICKER_STOP
-	COMMAND_CUBEINTAKE_RUN,           //!< COMMAND_CUBEINTAKE_RUN
-	COMMAND_CUBEINTAKE_STOP,          //!< COMMAND_CUBEINTAKE_STOP
-	COMMAND_CUBEAUTOCYCLE_START,      //!< COMMAND_CUBEAUTOCYCLE_START
-	COMMAND_CUBEAUTOCYCLE_STOP,       //!< COMMAND_CUBEAUTOCYCLE_STOP
-	COMMAND_CUBEAUTOCYCLE_PAUSE,      //!< COMMAND_CUBEAUTOCYCLE_PAUSE
-	COMMAND_CUBEAUTOCYCLE_RESUME,	  //!< COMMAND_CUBEAUTOCYCLE_RESUME
-	COMMAND_CUBEAUTOCYCLE_OKTORAISECAN,
-	COMMAND_CUBEAUTOCYCLE_DECREMENT_COUNT,
-	COMMAND_CUBEAUTOCYCLE_INCREMENT_COUNT,
+	COMMAND_CUBECLICKER_RAISE,			//!< Tells Cube to raise the clicker
+	COMMAND_CUBECLICKER_LOWER,			//!< Tells Cube to lower the clicker
+	COMMAND_CUBECLICKER_STOP,			//!< Tells Cube to stop the clicker
+	COMMAND_CUBEINTAKE_RUN,				//!< Tells Cube to start the intake
+	COMMAND_CUBEINTAKE_STOP,			//!< Tells Cube to stop the intake (not used)
 
-	COMMAND_CANLIFTER_RAISE,          //!< COMMAND_CANLIFTER_RAISE
-	COMMAND_CANLIFTER_LOWER,          //!< COMMAND_CANLIFTER_LOWER
-	COMMAND_CANLIFTER_STOP,           //!< COMMAND_CANLIFTER_STOP
-	COMMAND_CUBE_STOP,		           //!< COMMAND_CUBE_STOP
+	COMMAND_CUBEAUTOCYCLE_START,		//!< Tells Cube to start autocycle
+	COMMAND_CUBEAUTOCYCLE_STOP,			//!< Tells Cube to stop autocycle
+	COMMAND_CUBEAUTOCYCLE_PAUSE,		//!< Tells Cube to pause autocycle
+	COMMAND_CUBEAUTOCYCLE_RESUME,		//!< Tells Cube to resume autocycle
+	COMMAND_CUBEAUTOCYCLE_HOLD, 		//!< Tells Cube to prepare for pallet jack to remove stack
+	COMMAND_CUBEAUTOCYCLE_RELEASE, 		//!< Tells Cube to continue normal autocycle
+	COMMAND_CUBE_STOP,					//!< Tells Cube to stop all components
 
-	COMMAND_COMPONENT_TEST,           //!< COMMAND_COMPONENT_TEST
+	COMMAND_COMPONENT_TEST,				//!< COMMAND_COMPONENT_TEST
 
 	COMMAND_LAST                      //!< COMMAND_LAST 
 };
-
+///Used to deliver joystick readings to Drivetrain
 struct TankDriveParams {
 	float left;
 	float right;
 };
 
+///Used to deliver joystick readings to Drivetrain
+struct ArcadeDriveParams {
+	float x;
+	float y;
+};
+
+///Used to deliver joystick readings to Conveyor
 struct ConveyorParams {
 	bool bButtonWentDownEvent;
 	float right;
 	float intakeSpeed;
 };
 
-struct ArcadeDriveParams {
-	float x;
-	float y;
-};
-
+///Used to deliver autonomous values to Drivetrain
 struct AutonomousParams {
 	unsigned uMode;
 	unsigned uDelay;
-	//used by drivetrain for straight driving
+	///used by drivetrain for straight driving
 	float driveSpeed;
 	float driveDistance;
 	float turnSpeed;
 	float turnAngle;
 };
 
+///Contains all the parameter structures contained in a message
 union MessageParams {
 	TankDriveParams tankDrive;
 	ArcadeDriveParams arcadeDrive;
 	ConveyorParams conveyorParams;
+	float lifterSpeed;
 	AutonomousParams autonomous;
 };
 
+///A structure containing a command, a set of parameters, and a reply id, sent between components
 struct RobotMessage {
 	MessageCommand command;
 	const char* replyQ;

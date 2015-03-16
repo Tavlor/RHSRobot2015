@@ -1,60 +1,70 @@
 /** \file
- * Class for our autonomous behaviours
+ * The AutonomousBase component class handles basic autonomous functionality.
  */
 
-#ifndef AUTONOMOUS_H
-#define AUTONOMOUS_H
+#ifndef AUTONOMOUS_BASE_H
+#define AUTONOMOUS_BASE_H
 
-#include <iostream>
-#include <fstream>
+//Robot
 #include <string>
 
 #include "WPILib.h"
-#include "RobotMessage.h"
-#include "RobotParams.h"
-#include "AutonomousBase.h"
+
+#include "ComponentBase.h" //For the ComponentBase class
+#include "RobotParams.h" //For various robot parameters
+
+const int AUTONOMOUS_SCRIPT_LINES = 64;
+const int AUTONOMOUS_CHECKLIST_LINES = 64;
+const char* const AUTONOMOUS_SCRIPT_FILEPATH = "/home/lvuser/RhsScript.txt";
 
 //from 2014
 const float MAX_VELOCITY_PARAM = 1.0;
 const float MAX_DISTANCE_PARAM = 100.0;
-#define WAIT_FOR_AUTOREPLYMSG  (sysClkRateGet() * 10)
 
-class Autonomous: public AutonomousBase {
+class Autonomous : public ComponentBase
+{
 public:
 	Autonomous();
-	virtual ~Autonomous();
-	static void *StartTask(void *pThis) {
-		((Autonomous *) pThis)->DoWork();
-		return (NULL);
+	~Autonomous();
+	void DoScript();
+
+	static void *StartTask(void *pThis)
+	{
+		((Autonomous *)pThis)->DoWork();
+		return(NULL);
 	}
 
-private:
-	void Evaluate(std::string rStatement);
+	static void *StartScript(void *pThis)
+	{
+		((Autonomous *)pThis)->DoScript();
+		return(NULL);
+	}
 
-	//from 2014
-	double fCurrAccX;
-	double fCurrAccY;
-	double fVelocityX;
-	double fVelocityY;
-	double fLastAccX;
-	double fLastAccY;
-	double fDistanceX;
-	double fDistanceY;
-	float fGyroDrift;
-	bool bCalibrated;
-	int iMotionTaskID;
-	int iPiTaskID;
+protected:
+	bool Evaluate(std::string statement);	//Evaluates an autonomous script statement
+	RobotMessage Message;
+	bool bInAutoMode;
+	bool bPauseAutoMode;
+
+private:
+	std::string script[AUTONOMOUS_SCRIPT_LINES];	//Autonomous script
+	int lineNumber;	//Current line number
+	Task *pScript;
 
 	bool Move(char *);
 	bool Stop(char *);
 	bool MeasuredMove(char *);
 	bool TimedMove(char *);
 	bool Turn(char *);
+	bool CubeAuto(char *);
 
 	bool CommandResponse(const char *szQueueName);
 	bool CommandNoResponse(const char *szQueueName);
 
+	void Init();
+	void OnStateChange();
+	void Run();
+	bool LoadScriptFile();
 };
 
-#endif // AUTONOMOUS_H
-
+#endif //AUTONOMOUS_BASE_H

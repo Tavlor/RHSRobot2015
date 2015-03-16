@@ -22,7 +22,7 @@ RhsRobot::RhsRobot() {
 	autonomous = NULL;
 	conveyor = NULL;
 	cube = NULL;
-	jackclicker = NULL;
+	canlifter = NULL;
 
 	bLastConveyorButtonDown = false;
 
@@ -46,20 +46,20 @@ RhsRobot::~RhsRobot() {
 void RhsRobot::Init() {
 	/* 
 	 * Set all pointers to null and then allocate memory and construct objects
-	 * EXAMPLE:	drivetrain = NULL;
-	 * 			drivetrain = new Drivetrain();
+	 * EXAMPLE:	drivetrain = NULL; (in constructor)
+	 * 			drivetrain = new Drivetrain(); (in RhsRobot::Init())
 	 */
 	Controller_1 = new Joystick(0);
 	Controller_2 = new Joystick(1);
 	ControllerListen_1 = new JoystickListener(Controller_1);
 	ControllerListen_2 = new JoystickListener(Controller_2);
-	//ControllerListen_1->SetAxisTolerance(.1);
-	//ControllerListen_2->SetAxisTolerance(.1);
+	ControllerListen_1->SetAxisTolerance(.05);
+	ControllerListen_2->SetAxisTolerance(.05);
 	drivetrain = new Drivetrain();
 	conveyor = new Conveyor();
+	canlifter = new CanLifter();
 	cube = new Cube();
-	jackclicker = new JackClicker();
-	//autonomous = new Autonomous();
+	autonomous = new Autonomous();
 
 	std::vector<ComponentBase *>::iterator nextComponent = ComponentSet.begin();
 
@@ -78,9 +78,9 @@ void RhsRobot::Init() {
 		nextComponent = ComponentSet.insert(nextComponent, cube);
 	}
 
-	if(jackclicker)
+	if(canlifter)
 	{
-		nextComponent = ComponentSet.insert(nextComponent, jackclicker);
+		nextComponent = ComponentSet.insert(nextComponent, canlifter);
 	}
 
 	if(autonomous)
@@ -113,8 +113,6 @@ void RhsRobot::Run() {
 	{
 		if(GetCurrentRobotState() == ROBOT_STATE_AUTONOMOUS)
 		{
-			robotMessage.command = COMMAND_AUTONOMOUS_RUN;
-			autonomous->SendMessage(&robotMessage);
 			// all messages to components will come from the autonomous task
 			return;
 		}
@@ -171,24 +169,6 @@ void RhsRobot::Run() {
 		}
 
 		conveyor->SendMessage(&robotMessage);
-
-		if(CONVEYOR_INTAKES_CW > .1)
-		{
-			robotMessage.command = COMMAND_CONVEYOR_INTAKES_CW;
-			robotMessage.params.conveyorParams.intakeSpeed = -CONVEYOR_INTAKES_CW;
-			conveyor->SendMessage(&robotMessage);
-		}
-
-		else if(CONVEYOR_INTAKES_CCW > .1)
-		{
-			robotMessage.command = COMMAND_CONVEYOR_INTAKES_CCW;
-			robotMessage.params.conveyorParams.intakeSpeed = CONVEYOR_INTAKES_CCW;
-			conveyor->SendMessage(&robotMessage);
-		}
-		else
-		{
-			robotMessage.params.conveyorParams.intakeSpeed = 0;
-		}
 	}
 
 	if(cube)
@@ -208,7 +188,7 @@ void RhsRobot::Run() {
 			robotMessage.command = COMMAND_CUBEAUTOCYCLE_STOP;
 			cube->SendMessage(&robotMessage);
 		}
-		else if(ControllerListen_1->ButtonPressed(CUBEAUTO_PAUSE_ID) ||
+		/*else if(ControllerListen_1->ButtonPressed(CUBEAUTO_PAUSE_ID) ||
 				ControllerListen_2->ButtonPressed(CUBEAUTO_PAUSE_ID))
 		{
 			//SmartDashboard::PutString("Robot->Cube", "Auto Pause");
@@ -221,24 +201,19 @@ void RhsRobot::Run() {
 			//SmartDashboard::PutString("Robot->Cube", "Auto Resume");
 			robotMessage.command = COMMAND_CUBEAUTOCYCLE_RESUME;
 			cube->SendMessage(&robotMessage);
-		}
-		else if(CANAUTO_OKTORAISE)
+		}*/
+		else if(ControllerListen_1->ButtonPressed(CUBEAUTO_HOLD_ID) ||
+				ControllerListen_2->ButtonPressed(CUBEAUTO_HOLD_ID))
 		{
-			//SmartDashboard::PutString("Robot->Cube", "Can OK");
-			robotMessage.command = COMMAND_CUBEAUTOCYCLE_OKTORAISECAN;
+			//SmartDashboard::PutString("Robot->Cube", "Hold");
+			robotMessage.command = COMMAND_CUBEAUTOCYCLE_HOLD;
 			cube->SendMessage(&robotMessage);
 		}
-
-		if(ControllerListen_1->ButtonPressed(CUBEAUTO_INCREMENT_ID))
+		else if(ControllerListen_1->ButtonPressed(CUBEAUTO_RELEASE_ID) ||
+				ControllerListen_2->ButtonPressed(CUBEAUTO_RELEASE_ID))
 		{
-			//SmartDashboard::PutString("Robot->Cube", "Increment");
-			robotMessage.command = COMMAND_CUBEAUTOCYCLE_INCREMENT_COUNT;
-			cube->SendMessage(&robotMessage);
-		}
-		else if(ControllerListen_1->ButtonPressed(CUBEAUTO_DECREMENT_ID))
-		{
-			//SmartDashboard::PutString("Robot->Cube", "Decrement");
-			robotMessage.command = COMMAND_CUBEAUTOCYCLE_DECREMENT_COUNT;
+			//SmartDashboard::PutString("Robot->Cube", "Release");
+			robotMessage.command = COMMAND_CUBEAUTOCYCLE_RELEASE;
 			cube->SendMessage(&robotMessage);
 		}
 
@@ -257,21 +232,6 @@ void RhsRobot::Run() {
 
 		cube->SendMessage(&robotMessage);
 
-		if(CANLIFTER_RAISE)
-		{
-			robotMessage.command = COMMAND_CANLIFTER_RAISE;
-		}
-		else if(CANLIFTER_LOWER)
-		{
-			robotMessage.command = COMMAND_CANLIFTER_LOWER;
-		}
-		else
-		{
-			robotMessage.command = COMMAND_CANLIFTER_STOP;
-		}
-
-		cube->SendMessage(&robotMessage);
-
 		//Intake should always run
 		/*if(CUBEINTAKE_RUN)
 		{
@@ -285,9 +245,39 @@ void RhsRobot::Run() {
 		cube->SendMessage(&robotMessage);*/
 	}
 
-	if(jackclicker)
+	if(canlifter)
 	{
-		//TODO: assign input controls to the pallet jack clicker
+		if(CANLIFTER_RAISE > .1)
+		{
+			robotMessage.command = COMMAND_CANLIFTER_RAISE;
+			robotMessage.params.lifterSpeed = CANLIFTER_RAISE;
+		}
+		else if(CANLIFTER_LOWER > .1)
+		{
+			robotMessage.command = COMMAND_CANLIFTER_LOWER;
+			robotMessage.params.lifterSpeed = CANLIFTER_LOWER;
+		}
+		else if(ControllerListen_1->ButtonPressed(CANLIFTER_HOVER_ID))
+		{
+			robotMessage.command = COMMAND_CANLIFTER_HOVER;
+		}
+		else
+		{
+			robotMessage.command = COMMAND_CANLIFTER_STOP;
+		}
+
+		canlifter->SendMessage(&robotMessage);
+
+		if(ControllerListen_1->ButtonPressed(CLAW_OPEN_ID))
+		{
+			robotMessage.command = COMMAND_CLAW_OPEN;
+		}
+		else if(ControllerListen_1->ButtonPressed(CLAW_CLOSE_ID))
+		{
+			robotMessage.command = COMMAND_CLAW_CLOSE;
+		}
+
+		canlifter->SendMessage(&robotMessage);
 	}
 
 	ControllerListen_1->FinalUpdate();

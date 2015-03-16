@@ -5,14 +5,21 @@
 #MMOVE <speed> <distance:inches>
 #TURN <speed> <degrees>
 #FLINGCAN <speed> <distance:inches>
-#ADDTOTE <speed> <distance:inches>
-#LIFTTOTE
-#LOWERTOTE
+#TOTEUP
+#TOTEDOWN
+#CLAWOPEN
+#CLAWCLOSE
+#CLICKERUP
+#CLICKERDOWN
+#CUBEAUTO
 #DELAY <seconds>
 #
 BEGIN
-#DELAY 1.0
-#ADDTOTE .3, 20
-#MMOVE .3 30
-#DELAY 3.0
+CLAWOPEN
+DELAY 3.00
+CLAWCLOSE
+DELAY 3.00
+CLAWOPEN
+DELAY 3.00
+CLAWCLOSE
 END

@@ -4,7 +4,13 @@
  * The RhsRobot class is the main robot class. It inherits from RhsRobotBase and MUST define the Init() function, the Run() function, and
  * the OnStateChange() function.  Messages from the DS are processed and commands.
  */
-
+/** \mainpage
+ * 	Welcome to the documentation for team 1296's 2015 robot code! Here are some pages of interest:\n
+ * 	\ref joysticks \n
+ * 	\ref motorID \n
+ * 	\ref Cube \n
+ * 	\ref RobotMessage.h
+ */
 #ifndef RHS_ROBOT_H
 #define RHS_ROBOT_H
 
@@ -14,7 +20,7 @@
 #include "Autonomous.h"
 #include "Conveyor.h"
 #include "Drivetrain.h"
-#include "JackClicker.h"
+#include "CanLifter.h"
 #include "RhsRobotBase.h"
 #include "JoystickListener.h"
 
@@ -33,7 +39,7 @@ private:
 	Autonomous* autonomous;
 	Conveyor* conveyor;
 	Cube* cube;
-	JackClicker* jackclicker;
+	CanLifter* canlifter;
 
 	std::vector <ComponentBase *> ComponentSet;
 	
