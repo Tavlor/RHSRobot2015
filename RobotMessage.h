@@ -72,11 +72,13 @@ enum MessageCommand {
 	COMMAND_ROBOT_STATE_UNKNOWN,		//!< Tells all components that the robot's state is unknown
 
 	COMMAND_AUTONOMOUS_RUN,				//!< Tells Autonomous to run
+	COMMAND_AUTONOMOUS_COMPLETE,		//!< Tells all components that Autonomous is done running the script
 	COMMAND_CHECKLIST_RUN,				//!< Tells CheckList to run
 
 	COMMAND_DRIVETRAIN_STOP,			//!< Tells Drivetrain to stop moving
 	COMMAND_DRIVETRAIN_DRIVE_TANK,		//!< Tells Drivetrain to use tank drive
 	COMMAND_DRIVETRAIN_DRIVE_ARCADE,	//!< Tells Drivetrain to use arcade drive
+	COMMAND_DRIVETRAIN_AUTO_MOVE,		//!< Tells Drivetrain to move motors, used by Autonomous
 	COMMAND_DRIVETRAIN_DRIVE_STRAIGHT,	//!< Tells Drivetrain to drive straight, used by Autonomous
 	COMMAND_DRIVETRAIN_TURN,			//!< Tells Drivetrain to turn, used by Autonomous
 

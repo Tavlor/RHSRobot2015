@@ -31,26 +31,36 @@ public:
 		return(NULL);
 	}
 private:
+
 	CANTalon* leftMotor;
 	CANTalon* rightMotor;
 	ADXRS453Z *gyro;
 	Encoder *encoder;
 	BuiltInAccelerometer accelerometer;
-	MessageCommand lastCommand;
-	float left, right; //motor values
+	Timer *pAutoTimer; //watches autonomous time and disables it if needed.
+	bool bIsAuto = false;
+	//AutoMode autoMode = AUTO_DRIVETRAIN_STOP;
+	//stores motor values during autonomous
+	float left = 0;
+	float right = 0;
 
+	const float fAutoLength = 15.0; //number of seconds for autonomous
 	//how strong direction recovery is, lower = stronger
 	const float recoverStrength = 15;
 	//how far from goal the robot can be before stopping
 	const float distError = 1;//inches
 	const float angleError = 3;//degrees
+	const float turnSpeedLimit = .3;
+	const float fEncoderRatio = 0.023009;
+	//diameter*pi/encoder_resolution : 1.875 * 3.14 / 256
 
 	void OnStateChange();
 	void Run();
 	void Put();//for SmartDashboard
 	void ArcadeDrive(float, float);
 	void MeasuredMove(float,float);
-	void Turn(float, float);
+	void Turn(float);
+	void StraightDrive(float);
 };
 
 #endif			//DRIVETRAIN_H

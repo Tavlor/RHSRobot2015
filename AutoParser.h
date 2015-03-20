@@ -19,6 +19,7 @@ typedef enum AUTO_COMMAND_TOKENS
 	AUTO_TOKEN_MOVE,		// move (left & right PWM - float)
 	AUTO_TOKEN_MMOVE,		// mmove (speed) (inches - float)
 	AUTO_TOKEN_TURN,		// turn (degrees - float)
+	AUTO_TOKEN_STRAIGHT,	// straight (speed)
 	AUTO_TOKEN_LIFT_TOTE,	// tote lift raises tote stack
 	AUTO_TOKEN_LOWER_TOTE,	// tote lift drops tote stack
 	AUTO_TOKEN_CLAW_OPEN,	// open the can lifter claw

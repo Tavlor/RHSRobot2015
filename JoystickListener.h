@@ -12,8 +12,7 @@
 #define RHS_2015_WORKSPACE_2_SRC_JOYSTICKLISTENER_H_
 
 #include "WPILib.h"
-class JoystickListener
-{
+class JoystickListener {
 public:
 	JoystickListener(Joystick*);
 	~JoystickListener();
@@ -29,7 +28,5 @@ private:
 	std::vector<float> axisValues;
 	float axisTolerance;
 };
-
-
 
 #endif /* RHS_2015_WORKSPACE_2_SRC_JOYSTICKLISTENER_H_ */

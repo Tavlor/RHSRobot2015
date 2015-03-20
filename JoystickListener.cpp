@@ -8,11 +8,11 @@ JoystickListener::JoystickListener(Joystick *j) {
 	stick = j;
 	axisTolerance = .0001;
 
-	for(int i = 0; i < JOYSTICK_BUTTON_COUNT; i++)
+	for (int i = 0; i < JOYSTICK_BUTTON_COUNT; i++)
 	{
 		buttonsDown.push_back(stick->GetRawButton(i + 1));
 	}
-	for(int i = 0; i < JOYSTICK_AXIS_COUNT; i++)
+	for (int i = 0; i < JOYSTICK_AXIS_COUNT; i++)
 	{
 		//the ID is 1 greater than the location in the vector
 		axisValues.push_back(stick->GetRawAxis(i + 1));
@@ -27,11 +27,11 @@ JoystickListener::~JoystickListener() {
  * Be sure to call this at the END of the run function so that you have these values during the next cycle.
  */
 void JoystickListener::FinalUpdate() {
-	for(unsigned int i = 0; i < buttonsDown.size(); i++)
+	for (unsigned int i = 0; i < buttonsDown.size(); i++)
 	{
 		buttonsDown[i] = stick->GetRawButton(i + 1);
 	}
-	for(unsigned int i = 0; i < axisValues.size(); i++)
+	for (unsigned int i = 0; i < axisValues.size(); i++)
 	{
 		axisValues[i] = stick->GetRawAxis(i + 1);
 	}
@@ -39,8 +39,8 @@ void JoystickListener::FinalUpdate() {
 
 ///Returns true if the target button was up in the previous cycle but is down in the current cycle.
 bool JoystickListener::ButtonPressed(unsigned int button) {
-	if(button > 0 && button <= buttonsDown.size() && stick->GetRawButton(button)
-			&& !buttonsDown[button - 1])
+	if (button > 0 && button <= buttonsDown.size()
+			&& stick->GetRawButton(button) && !buttonsDown[button - 1])
 	{
 		return true;
 	}
@@ -49,7 +49,7 @@ bool JoystickListener::ButtonPressed(unsigned int button) {
 
 ///Returns true if the target button was down in the previous cycle but is up in the current cycle.
 bool JoystickListener::ButtonReleased(unsigned int button) {
-	if(button > 0 && button <= buttonsDown.size()
+	if (button > 0 && button <= buttonsDown.size()
 			&& !stick->GetRawButton(button) && buttonsDown[button - 1])
 	{
 		return true;
@@ -59,7 +59,7 @@ bool JoystickListener::ButtonReleased(unsigned int button) {
 
 ///Returns true if given axis moved at least the tolerated distance between the cycles.
 bool JoystickListener::AxisMoved(unsigned int axis) {
-	if(axis > 0 && axis <= axisValues.size()
+	if (axis > 0 && axis <= axisValues.size()
 			&& std::abs(stick->GetRawAxis(axis) - axisValues[axis - 1])
 					> axisTolerance)
 	{

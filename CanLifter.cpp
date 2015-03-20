@@ -6,7 +6,7 @@
  *
  * Lifts the can onto the top of a stack of totes. It also has hall effect
  * sensors to stop motion at the top and bottom, as well as trigger other actions.
- * 	Raise: negative (with CIM)
+ * 	Raise: positive (with CIM)
  *	Lower: negative (with CIM)
  *
  */
@@ -30,15 +30,6 @@ CanLifter::CanLifter() :
 
 	wpi_assert(lifterMotor->IsAlive());
 
-	clawMotor = new CANTalon(CAN_PALLET_JACK_CLAW);
-	wpi_assert(clawMotor);
-	lifterMotor->SetVoltageRampRate(120.0);
-	clawMotor->ConfigNeutralMode(
-			CANSpeedController::NeutralMode::kNeutralMode_Brake);
-	clawMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
-
-	wpi_assert(clawMotor->IsAlive());
-
 	lifterHallEffectBottom = lifterMotor->IsRevLimitSwitchClosed();
 	lifterHallEffectTop = lifterMotor->IsFwdLimitSwitchClosed();
 
@@ -46,8 +37,6 @@ CanLifter::CanLifter() :
 	pSafetyTimer->Start();
 	pUpdateTimer = new Timer();
 	pUpdateTimer->Start();
-	pClawTimer = new Timer();
-	pClawTimer->Start();
 
 	pTask = new Task(CANLIFTER_TASKNAME, (FUNCPTR) &CanLifter::StartTask,
 			CANLIFTER_PRIORITY, CANLIFTER_STACKSIZE);
@@ -58,7 +47,6 @@ CanLifter::CanLifter() :
 CanLifter::~CanLifter() {
 	delete (pTask);
 	delete lifterMotor;
-	delete clawMotor;
 	delete pSafetyTimer;
 }
 ;
@@ -108,53 +96,18 @@ void CanLifter::Run() {
 			}
 			pSafetyTimer->Reset();
 		break;
-
-		case COMMAND_CLAW_OPEN:
-			pClawTimer->Reset();
-			if (clawMotor->GetOutputCurrent() < fClawMotorCurrentMax)
-			{
-				clawMotor->Set(fClawOpen);
-			}
-			else
-			{
-				clawMotor->Set(fClawStop);
-			}
-			pSafetyTimer->Reset();
-		break;
-
-		case COMMAND_CLAW_CLOSE:
-			pClawTimer->Reset();
-			if (clawMotor->GetOutputCurrent() < fClawMotorCurrentMax)
-			{
-				clawMotor->Set(fClawClose);
-			}
-			else
-			{
-				clawMotor->Set(fClawStop);
-			}
-			pSafetyTimer->Reset();
-		break;
-
-		case COMMAND_CLAW_STOP:
-			clawMotor->Set(fClawStop);
-			pSafetyTimer->Reset();
-		break;
-
 		default:
 		break;
 	}	//end of command switch
 
-	// a timer is used to allow the claw to move
-	if(pClawTimer->Get() > 2.0)
+	if(lifterHallEffectBottom)
 	{
-		clawMotor->Set(fClawStop);
+		//TODO send return message to robot
 	}
-
 	//if the connection times out, shut everything off
 	if (pSafetyTimer->Get() > 30.0)
 	{
 		lifterMotor->Set(fLifterStop);
-		clawMotor->Set(fClawStop);
 		pSafetyTimer->Reset();
 	}
 

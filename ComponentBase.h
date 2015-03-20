@@ -24,6 +24,7 @@ using namespace std;
 
 //Robot
 #include "RobotMessage.h"			//For the RobotMessage struct
+#include "RobotTypes.h"
 
 class ComponentBase
 {
@@ -41,6 +42,7 @@ public:
 protected:
 	Task *pTask;
 	RobotMessage localMessage;
+	//ComponentOpMode currentRobotState = ROBOT_STATE_UNKNOWN;
 	int iLoop;
 	
 	virtual void OnStateChange() = 0;

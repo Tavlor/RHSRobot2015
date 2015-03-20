@@ -41,6 +41,7 @@ bool Autonomous::CommandResponse(const char *szQueueName) {
 
 	// wait for a response
 	iPipeRcv = open(AUTOPARSER_QUEUE, O_WRONLY);
+	printf("iPipeRcv%i\n",iPipeRcv);
 	wpi_assert(iPipeRcv > 0);
 
 	if (read(iPipeRcv, (char*) &Message, sizeof(RobotMessage)) <= 0)
@@ -48,7 +49,6 @@ bool Autonomous::CommandResponse(const char *szQueueName) {
 		bReturn = false;
 	}
 	close(iPipeRcv);
-
 	if (Message.command != COMMAND_SYSTEM_OK)
 	{
 		bReturn = false;
@@ -66,6 +66,22 @@ bool Autonomous::CommandNoResponse(const char *szQueueName) {
 	close(iPipeXmt);
 	return (true);
 }
+
+bool Autonomous::Begin(char *pCurrLinePos)
+{
+	//tell all the components who may need to know that auto is beginning
+	Message.command = COMMAND_AUTONOMOUS_RUN;
+	return (CommandNoResponse(DRIVETRAIN_QUEUE));
+}
+
+bool Autonomous::End(char *pCurrLinePos)
+{
+	//tell all the components who may need to know that auto is beginning
+	Message.command = COMMAND_AUTONOMOUS_COMPLETE;
+	CommandNoResponse(DRIVETRAIN_QUEUE);
+	return (true);
+}
+
 
 bool Autonomous::Move(char *pCurrLinePos) {
 	char *pToken;
@@ -85,7 +101,7 @@ bool Autonomous::Move(char *pCurrLinePos) {
 	{
 		return (false);
 	}
-	Message.command = COMMAND_DRIVETRAIN_DRIVE_TANK;
+	Message.command = COMMAND_DRIVETRAIN_AUTO_MOVE;
 	Message.params.tankDrive.left = fLeft;
 	Message.params.tankDrive.right = fRight;
 
@@ -93,10 +109,8 @@ bool Autonomous::Move(char *pCurrLinePos) {
 }
 
 bool Autonomous::Stop(char *pCurrLinePos) {
-	Message.command = COMMAND_DRIVETRAIN_DRIVE_TANK;
-	Message.params.tankDrive.left = 0.0;
-	Message.params.tankDrive.right = 0.0;
-
+	//tell those who need to know that the autonomous behavior is over - reset variables
+	Message.command = COMMAND_DRIVETRAIN_STOP;
 	return (CommandNoResponse(DRIVETRAIN_QUEUE));
 }
 
@@ -151,6 +165,21 @@ bool Autonomous::TimedMove(char *pCurrLinePos) {
 bool Autonomous::Turn(char *pCurrLinePos) {
 	char *pToken;
 	float fAngle;
+
+	// parse remainder of line to get length to move
+
+	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+	fAngle = atof(pToken);
+
+	// send the message to the drive train
+	Message.command = COMMAND_DRIVETRAIN_TURN;
+	Message.params.autonomous.turnAngle = fAngle;
+	//return (CommandResponse(DRIVETRAIN_QUEUE));
+	return (CommandNoResponse(DRIVETRAIN_QUEUE));
+}
+
+bool Autonomous::Straight(char *pCurrLinePos) {
+	char *pToken;
 	float fSpeed;
 
 	// parse remainder of line to get length to move
@@ -158,16 +187,11 @@ bool Autonomous::Turn(char *pCurrLinePos) {
 	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
 	fSpeed = atof(pToken);
 
-	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
-	fAngle = atof(pToken);
-
 	// send the message to the drive train
-
-	Message.command = COMMAND_DRIVETRAIN_TURN;
-	Message.params.autonomous.turnSpeed = fSpeed;
-	Message.params.autonomous.turnAngle = fAngle;
-
-	return (CommandResponse(DRIVETRAIN_QUEUE));
+	Message.command = COMMAND_DRIVETRAIN_DRIVE_STRAIGHT;
+	Message.params.autonomous.driveSpeed = fSpeed;
+	//return (CommandResponse(DRIVETRAIN_QUEUE));
+	return (CommandNoResponse(DRIVETRAIN_QUEUE));
 }
 
 bool Autonomous::CubeAuto(char *pCurrLinePos){

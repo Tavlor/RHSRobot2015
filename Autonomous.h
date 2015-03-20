@@ -51,11 +51,14 @@ private:
 	int lineNumber;	//Current line number
 	Task *pScript;
 
+	bool Begin(char *);
+	bool End(char *);
 	bool Move(char *);
 	bool Stop(char *);
 	bool MeasuredMove(char *);
 	bool TimedMove(char *);
 	bool Turn(char *);
+	bool Straight(char *);
 	bool CubeAuto(char *);
 
 	bool CommandResponse(const char *szQueueName);

@@ -12,7 +12,9 @@
 //Robot
 #include <WPILib.h>			//For the RobotBase class
 #include "RobotMessage.h"
+#include "RobotTypes.h"
 
+//TODO: move this to a file accessable to all and put stuff in ComponentBase so components know the state
 typedef enum eRobotOpMode
 {
 	ROBOT_STATE_DISABLED,

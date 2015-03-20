@@ -21,6 +21,7 @@
 #include "Conveyor.h"
 #include "Drivetrain.h"
 #include "CanLifter.h"
+#include "Claw.h"
 #include "RhsRobotBase.h"
 #include "JoystickListener.h"
 
@@ -40,6 +41,7 @@ private:
 	Conveyor* conveyor;
 	Cube* cube;
 	CanLifter* canlifter;
+	Claw* claw;
 
 	std::vector <ComponentBase *> ComponentSet;
 	
@@ -50,6 +52,7 @@ private:
 	bool CheckButtonReleased(bool, bool);
 
 	bool bLastConveyorButtonDown;
+	const float fDriveReduction = .5;
 	int iLoop;
 };
 

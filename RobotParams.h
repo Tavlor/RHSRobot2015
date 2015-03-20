@@ -12,9 +12,9 @@
 #include "JoystickLayouts.h"			//For joystick layouts
 
 //Robot Params
-const char* const ROBOT_NAME =		"RhsRobot2015 Alamo";			//Formal name
-const char* const ROBOT_NICKNAME =   "The Blues Brothers";   //Nickname
-const char* const ROBOT_VERSION =	"2.0";			//Version
+const char* const ROBOT_NAME =		"RhsRobot2015 Oklahoma";	//Formal name
+const char* const ROBOT_NICKNAME =   "The Blues Brothers";		//Nickname
+const char* const ROBOT_VERSION =	"2.0";						//Version
 
 //Task Params - Defines component task priorites relative to the default priority.
 //EXAMPLE: const int DRIVETRAIN_PRIORITY = DEFAULT_PRIORITY -2;
@@ -28,6 +28,7 @@ const int CONVEYOR_PRIORITY 	= DEFAULT_PRIORITY;
 const int CUBE_PRIORITY 		= DEFAULT_PRIORITY;
 //const int JACKCLICKER_PRIORITY 	= DEFAULT_PRIORITY;
 const int CANLIFTER_PRIORITY 	= DEFAULT_PRIORITY;
+const int CLAW_PRIORITY 		= DEFAULT_PRIORITY;
 
 //Task Names - Used when you view the task list but used by the operating system
 //EXAMPLE: const char* DRIVETRAIN_TASKNAME = "tDrive";
@@ -40,6 +41,7 @@ const char* const CONVEYOR_TASKNAME		= "tConveyor";
 const char* const CUBE_TASKNAME			= "tCube";
 //const char* const JACKCLICKER_TASKNAME	= "tJackClick";
 const char* const CANLIFTER_TASKNAME	= "tCanLift";
+const char* const CLAW_TASKNAME			= "tClaw";
 
 const int COMPONENT_STACKSIZE	= 0x10000;
 const int DRIVETRAIN_STACKSIZE	= 0x10000;
@@ -50,6 +52,7 @@ const int CONVEYOR_STACKSIZE	= 0x10000;
 const int CUBE_STACKSIZE		= 0x10000;
 //const int JACKCLICKER_STACKSIZE	= 0x10000;
 const int CANLIFTER_STACKSIZE	= 0x10000;
+const int CLAW_STACKSIZE		= 0x10000;
 
 //TODO change these variables throughout the code to PIPE or whatever instead  of QUEUE
 //Queue Names - Used when you want to open the message queue for any task
@@ -63,6 +66,7 @@ const char* const CONVEYOR_QUEUE	= "/tmp/qConvey";
 const char* const CUBE_QUEUE		= "/tmp/qCube";
 //const char* const JACKCLICKER_QUEUE	= "/tmp/qJackClick";
 const char* const CANLIFTER_QUEUE	= "/tmp/qCanLift";
+const char* const CLAW_QUEUE		= "/tmp/qClaw";
 
 //PWM Channels - Assigns names to PWM ports 1-10 on the Roborio
 //EXAMPLE: const int PWM_DRIVETRAIN_FRONT_LEFT_MOTOR = 1;
@@ -189,8 +193,8 @@ const int POV_STILL = -1;
 #define CUBEAUTO_HOLD_ID			L310_BUTTON_X		//Used on both controllers
 #define CUBEAUTO_RELEASE_ID			L310_BUTTON_Y		//Used on both controllers
 
-#define TANK_DRIVE_LEFT				-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y)
-#define TANK_DRIVE_RIGHT			-Controller_1->GetRawAxis(L310_THUMBSTICK_RIGHT_Y)
+#define TANK_DRIVE_LEFT				pow(-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y),3)
+#define TANK_DRIVE_RIGHT			pow(-Controller_1->GetRawAxis(L310_THUMBSTICK_RIGHT_Y),3)
 #define ARCADE_DRIVE_X				Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_X)
 #define ARCADE_DRIVE_Y				-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y)
 #define CONVEYOR_FWD				Controller_1->GetRawButton(L310_BUTTON_BUMPER_LEFT)

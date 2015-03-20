@@ -23,6 +23,7 @@ RhsRobot::RhsRobot() {
 	conveyor = NULL;
 	cube = NULL;
 	canlifter = NULL;
+	claw = NULL;
 
 	bLastConveyorButtonDown = false;
 
@@ -56,9 +57,10 @@ void RhsRobot::Init() {
 	ControllerListen_1->SetAxisTolerance(.05);
 	ControllerListen_2->SetAxisTolerance(.05);
 	drivetrain = new Drivetrain();
-	conveyor = new Conveyor();
-	canlifter = new CanLifter();
-	cube = new Cube();
+	//conveyor = new Conveyor();
+	//canlifter = new CanLifter();
+	//claw = new Claw();
+	//cube = new Cube();
 	autonomous = new Autonomous();
 
 	std::vector<ComponentBase *>::iterator nextComponent = ComponentSet.begin();
@@ -81,6 +83,11 @@ void RhsRobot::Init() {
 	if(canlifter)
 	{
 		nextComponent = ComponentSet.insert(nextComponent, canlifter);
+	}
+
+	if(claw)
+	{
+		nextComponent = ComponentSet.insert(nextComponent, claw);
 	}
 
 	if(autonomous)
@@ -118,14 +125,18 @@ void RhsRobot::Run() {
 		}
 	}
 
-	if(drivetrain)
+	if (drivetrain)
 	{
+		//preprocessing is used to make my life easier
+#if 1
 		robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_TANK;
-		robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT;
-		robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT;
-		//robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_ARCADE;
-		//robotMessage.params.arcadeDrive.x = ARCADE_DRIVE_X;
-		//robotMessage.params.arcadeDrive.y = ARCADE_DRIVE_Y;
+		robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT * .5;
+		robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT * .5;
+#else
+		robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_ARCADE;
+		robotMessage.params.arcadeDrive.x = ARCADE_DRIVE_X * .5;
+		robotMessage.params.arcadeDrive.y = ARCADE_DRIVE_Y * .5;
+#endif
 		drivetrain->SendMessage(&robotMessage);
 	}
 
@@ -267,18 +278,23 @@ void RhsRobot::Run() {
 		}
 
 		canlifter->SendMessage(&robotMessage);
-
-		if(ControllerListen_1->ButtonPressed(CLAW_OPEN_ID))
-		{
-			robotMessage.command = COMMAND_CLAW_OPEN;
-		}
-		else if(ControllerListen_1->ButtonPressed(CLAW_CLOSE_ID))
-		{
-			robotMessage.command = COMMAND_CLAW_CLOSE;
-		}
-
-		canlifter->SendMessage(&robotMessage);
 	}
+
+	if(claw)
+		{
+			claw->SendMessage(&robotMessage);
+
+			if(ControllerListen_1->ButtonPressed(CLAW_OPEN_ID))
+			{
+				robotMessage.command = COMMAND_CLAW_OPEN;
+			}
+			else if(ControllerListen_1->ButtonPressed(CLAW_CLOSE_ID))
+			{
+				robotMessage.command = COMMAND_CLAW_CLOSE;
+			}
+
+			claw->SendMessage(&robotMessage);
+		}
 
 	ControllerListen_1->FinalUpdate();
 	ControllerListen_2->FinalUpdate();

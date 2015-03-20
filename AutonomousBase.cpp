@@ -1,7 +1,8 @@
 /** \file
- * The AutonomousBase component class handles basic autonomous functionallity.
+ * The AutonomousBase component class handles basic autonomous functionality.
  */
 
+#include "WPILib.h"
 //Local
 #include "Autonomous.h"
 
@@ -55,7 +56,7 @@ void Autonomous::OnStateChange()	//Handles state changes
 	{
 		bPauseAutoMode = true;
 	}
-	else if(localMessage.command == COMMAND_ROBOT_STATE_TELEOPERATED)
+	else if(localMessage.command == COMMAND_ROBOT_STATE_DISABLED)
 	{
 		bPauseAutoMode = true;
 	}
@@ -132,31 +133,36 @@ void Autonomous::DoScript()
 
 			// if there is a script we will execute it some hell or high water!
 
-			while(bInAutoMode)
+			while (bInAutoMode)
 			{
+
 				SmartDashboard::PutNumber("Script Line Number", lineNumber);
 
-				if (lineNumber < AUTONOMOUS_SCRIPT_LINES)
+				if (!bPauseAutoMode)
 				{
-					// can we have empty lines?  at the end I guess
-
-					if(script[lineNumber].empty() == false)
+					if (lineNumber < AUTONOMOUS_SCRIPT_LINES)
 					{
-						// handle pausing in the Evaluate method
+						// can we have empty lines?  at the end I guess
 
-						SmartDashboard::PutString("Script Line", script[lineNumber].c_str());
-
-						if(Evaluate(script[lineNumber]))
+						if (script[lineNumber].empty() == false)
 						{
-							break;
-						}
-					}
+							// handle pausing in the Evaluate method
 
-					lineNumber++;
-				}
-				else
-				{
-					break;
+							SmartDashboard::PutString("Script Line",
+									script[lineNumber].c_str());
+
+							if (Evaluate(script[lineNumber]))
+							{
+								break;
+							}
+						}
+
+						lineNumber++;
+					}
+					else
+					{
+						break;
+					}
 				}
 			}
 

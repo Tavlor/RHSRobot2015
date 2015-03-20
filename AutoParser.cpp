@@ -27,6 +27,7 @@ const char *szTokens[] = {
 		"MOVE",
 		"MMOVE",
 		"TURN",
+		"STRAIGHT",
 		"TOTEUP",
 		"TOTEDOWN",
 		"CLAWOPEN",
@@ -93,10 +94,12 @@ bool Autonomous::Evaluate(std::string rStatement) {
 
 	switch(iCommand) {
 	case AUTO_TOKEN_BEGIN:
+		Begin(pCurrLinePos);
 		rStatus.append("start");
 		break;
 
 	case AUTO_TOKEN_END:
+		End(pCurrLinePos);
 		rStatus.append("done");
 		bReturn = true;
 		break;
@@ -144,10 +147,19 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		break;
 	case AUTO_TOKEN_TURN:
 		if(!Turn(pCurrLinePos)) {
-			rStatus.append("move error");
+			rStatus.append("turn error");
 		}
 		else {
-			rStatus.append("move");
+			rStatus.append("turn");
+		}
+		break;
+
+	case AUTO_TOKEN_STRAIGHT:
+		if(!Straight(pCurrLinePos)) {
+			rStatus.append("straight error");
+		}
+		else {
+			rStatus.append("straight");
 		}
 		break;
 
