@@ -40,22 +40,28 @@ public:
 	int GetLoop() { return(iLoop); };
 
 protected:
-	//Timer safetyTimer;
-	//Timer updateTimer;
+	//Timer *safetyTimer;
+	Timer *pRemoteUpdateTimer;
 	Task *pTask;
 	RobotMessage localMessage;
 	int iLoop;
 	
 	virtual void OnStateChange() = 0;
 	virtual void Run() = 0;
+	//virtual void SmartDashboardUpdate() = 0;
+	//incorperate this later
+	///used to send a message back to autonomous or whatever to notify completion of a function
+	void SendCommandResponse(MessageCommand);
 
 private:
 	char* componentName;
 	string queueLocal;
 	int iPipeRcv;
 	int iPipeXmt;
+	int iPipeRpt;
 
 	void ReceiveMessage();
+	void ReportMessage();
 };
 
 #endif //COMPONENT_BASE_H

@@ -50,6 +50,8 @@ private:
 	std::string script[AUTONOMOUS_SCRIPT_LINES];	//Autonomous script
 	int lineNumber;	//Current line number
 	Task *pScript;
+	bool bReceivedCommandResponse;
+	MessageCommand ReceivedCommand;
 
 	bool Begin(char *);
 	bool End(char *);

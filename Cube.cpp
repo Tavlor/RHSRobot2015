@@ -56,8 +56,6 @@ Cube::Cube() :
 	pSafetyTimer->Start();
 	pAutoTimer = new Timer();
 	pAutoTimer->Start();
-	pRemoteUpdateTimer = new Timer();
-	pRemoteUpdateTimer->Start();
 	pInterCycleTimer = new Timer();
 	pInterCycleTimer->Start();
 	pGateTimer = new Timer();

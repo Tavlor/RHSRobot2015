@@ -31,6 +31,8 @@ public:
 		((Drivetrain *)pThis)->DoWork();
 		return(NULL);
 	}
+
+	bool GetToteSensor();
 private:
 
 	CANTalon* leftMotor;
@@ -48,8 +50,9 @@ private:
 	///Speed for tote seeking
 	float fToteSeekSpeed = .3;
 	///how strong direction recovery is in straight drive, higher = stronger
-	const float recoverStrength = .03;
+	const float recoverStrength = .05;
 	const float fMaxRecoverSpeed = .3;
+	const float fMaxRecoverAngle = 30; //used to keep straight drive recovery from becoming to violent
 	///how far from goal the robot can be before stopping
 	const float distError = 1;//inches
 	const float angleError = 3;//degrees

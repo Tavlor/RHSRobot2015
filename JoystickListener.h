@@ -8,8 +8,8 @@
  * NOTE: the axis movement feature currently does not work.
  */
 
-#ifndef RHS_2015_WORKSPACE_2_SRC_JOYSTICKLISTENER_H_
-#define RHS_2015_WORKSPACE_2_SRC_JOYSTICKLISTENER_H_
+#ifndef JOYSTICKLISTENER_H_
+#define JOYSTICKLISTENER_H_
 
 #include "WPILib.h"
 class JoystickListener {
@@ -29,4 +29,4 @@ private:
 	float axisTolerance;
 };
 
-#endif /* RHS_2015_WORKSPACE_2_SRC_JOYSTICKLISTENER_H_ */
+#endif /* JOYSTICKLISTENER_H_ */

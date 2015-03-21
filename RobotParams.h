@@ -26,7 +26,6 @@ const int AUTOEXEC_PRIORITY 	= DEFAULT_PRIORITY;
 const int AUTOPARSER_PRIORITY 	= DEFAULT_PRIORITY;
 const int CONVEYOR_PRIORITY 	= DEFAULT_PRIORITY;
 const int CUBE_PRIORITY 		= DEFAULT_PRIORITY;
-//const int JACKCLICKER_PRIORITY 	= DEFAULT_PRIORITY;
 const int CANLIFTER_PRIORITY 	= DEFAULT_PRIORITY;
 const int CLAW_PRIORITY 		= DEFAULT_PRIORITY;
 
@@ -39,7 +38,6 @@ const char* const AUTOEXEC_TASKNAME		= "tAutoEx";
 const char* const AUTOPARSER_TASKNAME	= "tParse";
 const char* const CONVEYOR_TASKNAME		= "tConveyor";
 const char* const CUBE_TASKNAME			= "tCube";
-//const char* const JACKCLICKER_TASKNAME	= "tJackClick";
 const char* const CANLIFTER_TASKNAME	= "tCanLift";
 const char* const CLAW_TASKNAME			= "tClaw";
 
@@ -50,7 +48,6 @@ const int AUTOEXEC_STACKSIZE	= 0x10000;
 const int AUTOPARSER_STACKSIZE	= 0x10000;
 const int CONVEYOR_STACKSIZE	= 0x10000;
 const int CUBE_STACKSIZE		= 0x10000;
-//const int JACKCLICKER_STACKSIZE	= 0x10000;
 const int CANLIFTER_STACKSIZE	= 0x10000;
 const int CLAW_STACKSIZE		= 0x10000;
 
@@ -64,7 +61,6 @@ const char* const AUTONOMOUS_QUEUE 	= "/tmp/qAuto";
 const char* const AUTOPARSER_QUEUE 	= "/tmp/qParse";
 const char* const CONVEYOR_QUEUE	= "/tmp/qConvey";
 const char* const CUBE_QUEUE		= "/tmp/qCube";
-//const char* const JACKCLICKER_QUEUE	= "/tmp/qJackClick";
 const char* const CANLIFTER_QUEUE	= "/tmp/qCanLift";
 const char* const CLAW_QUEUE		= "/tmp/qClaw";
 
@@ -104,10 +100,9 @@ const int CAN_CUBE_CLICKER = 9;
 const int CUBECLICKER_MAX_TOTES = 6;
 
 //Digital I/O - Assigns names to Digital I/O ports 1-14 on the Roborio
-//EXAMPLE: const int PWM_DRIVETRAIN_ENCODER_RIGHT_A = 1;
+//EXAMPLE: const int DIO_DRIVETRAIN_BEAM_BREAK = 0;
 const int DIO_DRIVETRAIN_BEAM_BREAK = 0;
-const int PWM_DRIVETRAIN_ENCODER_A = 1;
-const int PWM_DRIVETRAIN_ENCODER_B = 2;
+const int DIO_CANLIFTER_MID_HALL_EFFECT = 1;
 
 //Solenoid - Assigns names to Solenoid ports 1-8 on the 9403
 //EXAMPLE: const int SOL_DRIVETRAIN_SOLENOID_SHIFT_IN = 1;

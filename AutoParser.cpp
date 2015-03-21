@@ -158,6 +158,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 			if (!SeekTote(pCurrLinePos))
 			{
 				rStatus.append("seekTote error");
+				bReturn = true;
 			}
 			else
 			{

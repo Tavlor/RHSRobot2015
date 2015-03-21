@@ -22,6 +22,7 @@
  conveyor [label="Conveyor"],
  cclick [label="Cube\nClicker"],
  can [label="Pallet Jack\nCan Lifter"],
+ claw [label="Pallet Jack\nClaw"],
  test [label="Component\nExample"];
  robot=>* [label="SYSTEM_MSGTIMEOUT"];
  robot=>* [label="SYSTEM_OK"];
@@ -38,6 +39,9 @@
  robot=>drive [label="DRIVE_ARCADE"];
  auto=>drive [label="DRIVE_STRAIGHT"];
  auto=>drive [label="TURN"];
+ auto=>drive [label="SEEK_TOTE"];
+ drive=>auto [label="AUTONOMOUS_RESPONSE_OK"]
+ drive=>auto [label="AUTONOMOUS_RESPONSE_ERROR"]
  robot=>conveyor [label="RUN_FWD"];
  robot=>conveyor [label="RUN_BCK"];
  robot=>conveyor [label="STOP"];
@@ -48,21 +52,22 @@
  robot=>cclick [label="CUBEINTAKE_STOP"];
  robot=>cclick [label="CUBEAUTOCYCLE_START"];
  robot=>cclick [label="CUBEAUTOCYCLE_STOP"];
+ robot=>cclick [label="CUBEAUTOCYCLE_HOLD"];
+ robot=>cclick [label="CUBEAUTOCYCLE_RELEASE"];
  robot=>can[label="RAISE"];
  robot=>can[label="LOWER"];
  robot=>can[label="STOP"];
- robot=>can[label="OPEN"];
- robot=>can[label="CLOSE"];
+ robot=>claw[label="OPEN"];
+ robot=>claw[label="CLOSE"];
  robot=>test[label="TEST"];
  \endmsc
-
 
  */
 
 enum MessageCommand {
 	COMMAND_UNKNOWN,					//!< COMMAND_UNKNOWN
 	COMMAND_SYSTEM_MSGTIMEOUT,			//!< COMMAND_SYSTEM_MSGTIMEOUT
-	COMMAND_SYSTEM_OK,					//!< Tells Autonomous that a command is finished running
+	COMMAND_SYSTEM_OK,					//!< COMMAND_SYSTEM_OK
 	COMMAND_SYSTEM_ERROR,				//!< COMMAND_SYSTEM_ERROR
 
 	COMMAND_ROBOT_STATE_DISABLED,		//!< Tells all components that the robot is disabled
@@ -73,6 +78,8 @@ enum MessageCommand {
 
 	COMMAND_AUTONOMOUS_RUN,				//!< Tells Autonomous to run
 	COMMAND_AUTONOMOUS_COMPLETE,		//!< Tells all components that Autonomous is done running the script
+	COMMAND_AUTONOMOUS_RESPONSE_OK,		//!< Tells Autonomous that a command finished running successfully
+	COMMAND_AUTONOMOUS_RESPONSE_ERROR,	//!< Tells Autonomous that a command had a error while running
 	COMMAND_CHECKLIST_RUN,				//!< Tells CheckList to run
 
 	COMMAND_DRIVETRAIN_STOP,			//!< Tells Drivetrain to stop moving

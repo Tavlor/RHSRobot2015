@@ -16,8 +16,9 @@ digraph Cube {
 	label="Clicker State Machine";
 	START -> CLICKER_RAISE [label = "COMMAND_CUBEAUTOCYCLE_START"];
 	CLICKER_RAISE -> CLICKER_TOP [label = "Top Sensor TRUE"];
-	CLICKER_TOP -> CLICKER_LOWER [label = "IR Sensor TRUE"];
-	CLICKER_TOP -> CLICKER_LOWER [label = "Driver Ready\nto Remove"];
+	CLICKER_TOP -> CLICKER_GATEDELAY [label = "IR Sensor TRUE"];
+	CLICKER_TOP -> CLICKER_GATEDELAY [label = "Driver Ready\nto Remove"];
+	CLICKER_GATEDELAY -> CLICKER_LOWER [label = "Delay Expired"];
 	CLICKER_LOWER -> CLICKER_BOTTOM [label = "Bottom Sensor TRUE"];
 	CLICKER_BOTTOM -> CLICKER_BOTTOMHOLD [label = "Driver Ready\nto Remove"];
 	CLICKER_BOTTOM -> CLICKER_RAISE [label = "Driver Not Ready"];
@@ -58,7 +59,7 @@ private:
 	CANTalon *intakeMotor;
 	Timer *pSafetyTimer;
 	Timer *pAutoTimer;
-	Timer *pRemoteUpdateTimer;
+	//Timer *pRemoteUpdateTimer;
 	Timer *pInterCycleTimer;
 	Timer *pGateTimer;
 

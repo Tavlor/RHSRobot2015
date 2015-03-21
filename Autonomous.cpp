@@ -29,7 +29,6 @@ extern "C" {
 
 bool Autonomous::CommandResponse(const char *szQueueName) {
 	int iPipeXmt;
-	int iPipeRcv;
 	bool bReturn = true;
 
 	iPipeXmt = open(szQueueName, O_WRONLY);
@@ -39,20 +38,25 @@ bool Autonomous::CommandResponse(const char *szQueueName) {
 	write(iPipeXmt, (char*) &Message, sizeof(RobotMessage));
 	close(iPipeXmt);
 
-	// TODO:wait for a response
-	iPipeRcv = open(AUTONOMOUS_QUEUE, O_WRONLY);
-	printf("iPipeRcv %i\n",iPipeRcv);
-	wpi_assert(iPipeRcv > 0);
+	bReceivedCommandResponse = false;
 
-	if (read(iPipeRcv, (char*) &Message, sizeof(RobotMessage)) <= 0)
+	while (!bReceivedCommandResponse)
 	{
+		//purposefully empty
+	}
+	printf("Response received\n");
+
+	if (ReceivedCommand == COMMAND_AUTONOMOUS_RESPONSE_OK)
+	{
+		printf("auto is ok\n");
+		bReturn = true;
+	}
+	else if (ReceivedCommand == COMMAND_AUTONOMOUS_RESPONSE_ERROR)
+	{
+		printf("auto is not ok\n");
 		bReturn = false;
 	}
-	close(iPipeRcv);
-	if (Message.command != COMMAND_SYSTEM_OK)
-	{
-		bReturn = false;
-	}
+
 	return bReturn;
 }
 
@@ -167,8 +171,7 @@ bool Autonomous::Turn(char *pCurrLinePos) {
 	float fAngle;
 	float fTimeout;
 
-	// parse remainder of line to get length to move
-
+	// parse remainder of line to get target angle and timeout
 	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
 	fAngle = atof(pToken);
 

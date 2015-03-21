@@ -28,6 +28,9 @@ ComponentBase::ComponentBase(const char* componentName, const char *queueName, i
 	iPipeXmt = -1;
 	pTask = NULL;
 
+	pRemoteUpdateTimer = new Timer();
+	pRemoteUpdateTimer->Start();
+
 	mkfifo(queueName, 0666);
 	queueLocal = queueName;
 	//printf("COMPONENT: %s\n",componentName); //Added by Talyor for debugging
@@ -54,7 +57,7 @@ void ComponentBase::ReceiveMessage()			//Receives a message and copies it into l
 
 	if(iPipeRcv < 0)
 	{
-		printf("ComponentBase opening pipe\n");
+		//printf("ComponentBase opening pipe\n");
 		iPipeRcv = open(queueLocal.c_str(), O_RDONLY);
 		assert(iPipeRcv > 0);
 	}
@@ -113,4 +116,15 @@ void ComponentBase::DoWork()
 		Run();			//Component logic
 		iLoop++;
 	}
+}
+void ComponentBase::SendCommandResponse(MessageCommand command)
+{
+	RobotMessage replyMessage;
+		replyMessage.command = command;
+		//Send a message back to auto to tell it that code is done.
+		int iPipeXmt = open(localMessage.replyQ, O_WRONLY);
+		assert(iPipeXmt > 0);
+
+		write(iPipeXmt, (char*) &replyMessage, sizeof(RobotMessage));
+		close(iPipeXmt);
 }

@@ -20,6 +20,8 @@ Autonomous::Autonomous()
 {
 	lineNumber = 0;
 	bInAutoMode = false;
+	bReceivedCommandResponse = false;
+	ReceivedCommand = COMMAND_UNKNOWN;
 
 	pTask = new Task(AUTONOMOUS_TASKNAME, (FUNCPTR) &Autonomous::StartTask,
 		AUTONOMOUS_PRIORITY, AUTONOMOUS_STACKSIZE);
@@ -70,6 +72,16 @@ void Autonomous::Run()
 			break;
 
 		case COMMAND_CHECKLIST_RUN:
+			break;
+
+		case COMMAND_AUTONOMOUS_RESPONSE_OK:
+			bReceivedCommandResponse = true;
+			ReceivedCommand = COMMAND_AUTONOMOUS_RESPONSE_OK;
+			break;
+
+		case COMMAND_AUTONOMOUS_RESPONSE_ERROR:
+			bReceivedCommandResponse = true;
+			ReceivedCommand = COMMAND_AUTONOMOUS_RESPONSE_ERROR;
 			break;
 
 		default:
@@ -153,6 +165,7 @@ void Autonomous::DoScript()
 
 							if (Evaluate(script[lineNumber]))
 							{
+								SmartDashboard::PutString("Script Line", "<NOT RUNNING>");
 								break;
 							}
 						}

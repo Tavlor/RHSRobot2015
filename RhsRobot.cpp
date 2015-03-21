@@ -26,6 +26,7 @@ RhsRobot::RhsRobot() {
 	claw = NULL;
 
 	bLastConveyorButtonDown = false;
+	bCanlifterNearBottom = false;
 
 	iLoop = 0;
 }
@@ -57,10 +58,10 @@ void RhsRobot::Init() {
 	ControllerListen_1->SetAxisTolerance(.05);
 	ControllerListen_2->SetAxisTolerance(.05);
 	drivetrain = new Drivetrain();
-	//conveyor = new Conveyor();
-	//canlifter = new CanLifter();
-	//claw = new Claw();
-	//cube = new Cube();
+	conveyor = new Conveyor();
+	canlifter = new CanLifter();
+	claw = new Claw();
+	cube = new Cube();
 	autonomous = new Autonomous();
 
 	std::vector<ComponentBase *>::iterator nextComponent = ComponentSet.begin();
@@ -128,14 +129,22 @@ void RhsRobot::Run() {
 	if (drivetrain)
 	{
 		//preprocessing is used to make my life easier
+#if 0
+		float reduction = .5;
+		if(bCanlifterNearBottom)
+		{
+			reduction = 1.0;
+		}
+#endif
+		float reduction = 1.0;
 #if 1
 		robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_TANK;
-		robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT * .5;
-		robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT * .5;
+		robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT * reduction;
+		robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT * reduction;
 #else
 		robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_ARCADE;
-		robotMessage.params.arcadeDrive.x = ARCADE_DRIVE_X * .5;
-		robotMessage.params.arcadeDrive.y = ARCADE_DRIVE_Y * .5;
+		robotMessage.params.arcadeDrive.x = ARCADE_DRIVE_X * reduction;
+		robotMessage.params.arcadeDrive.y = ARCADE_DRIVE_Y * reduction;
 #endif
 		drivetrain->SendMessage(&robotMessage);
 	}
@@ -183,7 +192,6 @@ void RhsRobot::Run() {
 	}
 
 	if(cube)
-	//TODO add a change-detector for cube commands to reduce number sent?
 	{
 		if(ControllerListen_1->ButtonPressed(CUBEAUTO_START_ID) ||
 				ControllerListen_2->ButtonPressed(CUBEAUTO_START_ID))
@@ -199,20 +207,6 @@ void RhsRobot::Run() {
 			robotMessage.command = COMMAND_CUBEAUTOCYCLE_STOP;
 			cube->SendMessage(&robotMessage);
 		}
-		/*else if(ControllerListen_1->ButtonPressed(CUBEAUTO_PAUSE_ID) ||
-				ControllerListen_2->ButtonPressed(CUBEAUTO_PAUSE_ID))
-		{
-			//SmartDashboard::PutString("Robot->Cube", "Auto Pause");
-			robotMessage.command = COMMAND_CUBEAUTOCYCLE_PAUSE;
-			cube->SendMessage(&robotMessage);
-		}
-		else if(ControllerListen_1->ButtonPressed(CUBEAUTO_RESUME_ID) ||
-				ControllerListen_2->ButtonPressed(CUBEAUTO_RESUME_ID))
-		{
-			//SmartDashboard::PutString("Robot->Cube", "Auto Resume");
-			robotMessage.command = COMMAND_CUBEAUTOCYCLE_RESUME;
-			cube->SendMessage(&robotMessage);
-		}*/
 		else if(ControllerListen_1->ButtonPressed(CUBEAUTO_HOLD_ID) ||
 				ControllerListen_2->ButtonPressed(CUBEAUTO_HOLD_ID))
 		{
@@ -258,6 +252,20 @@ void RhsRobot::Run() {
 
 	if(canlifter)
 	{
+		if (canlifter->GetHallEffectBottom()
+				|| (canlifter->GetHallEffectMiddle() && CANLIFTER_LOWER > .1))
+		{
+			//if lift is at bottom or lowering past the middle hall effect
+			bCanlifterNearBottom = true;
+		}
+		if (canlifter->GetHallEffectTop()
+				|| (canlifter->GetHallEffectMiddle() && CANLIFTER_RAISE > .1))
+		{
+			//if lift is at top or raising past the middle hall effect
+			bCanlifterNearBottom = false;
+		}
+
+		SmartDashboard::PutBoolean("Can Lift near bottom", bCanlifterNearBottom);
 		if(CANLIFTER_RAISE > .1)
 		{
 			robotMessage.command = COMMAND_CANLIFTER_RAISE;

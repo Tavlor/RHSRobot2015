@@ -9,7 +9,8 @@
  * 	\ref joysticks \n
  * 	\ref motorID \n
  * 	\ref Cube \n
- * 	\ref RobotMessage.h
+ * 	\ref RobotMessage.h \n
+ * 	\ref Component
  */
 #ifndef RHS_ROBOT_H
 #define RHS_ROBOT_H
@@ -52,6 +53,7 @@ private:
 	bool CheckButtonReleased(bool, bool);
 
 	bool bLastConveyorButtonDown;
+	bool bCanlifterNearBottom; //used for speed changes in driving
 	const float fDriveReduction = .5;
 	int iLoop;
 };

@@ -30,13 +30,12 @@ CanLifter::CanLifter() :
 
 	wpi_assert(lifterMotor->IsAlive());
 
+	midHallEffect = new DigitalInput(DIO_CANLIFTER_MID_HALL_EFFECT);
 	lifterHallEffectBottom = lifterMotor->IsRevLimitSwitchClosed();
 	lifterHallEffectTop = lifterMotor->IsFwdLimitSwitchClosed();
 
 	pSafetyTimer = new Timer();
 	pSafetyTimer->Start();
-	pUpdateTimer = new Timer();
-	pUpdateTimer->Start();
 
 	pTask = new Task(CANLIFTER_TASKNAME, (FUNCPTR) &CanLifter::StartTask,
 			CANLIFTER_PRIORITY, CANLIFTER_STACKSIZE);
@@ -112,9 +111,9 @@ void CanLifter::Run() {
 	}
 
 	// update the Smart Dashboard periodically to reduce traffic
-	if (pUpdateTimer->Get() > 0.2)
+	if (pRemoteUpdateTimer->Get() > 0.2)
 	{
-		pUpdateTimer->Reset();
+		pRemoteUpdateTimer->Reset();
 		SmartDashboard::PutNumber("Lift Current", lifterMotor->GetOutputCurrent());
 		lifterHallEffectBottom = lifterMotor->IsRevLimitSwitchClosed();
 		lifterHallEffectTop = lifterMotor->IsFwdLimitSwitchClosed();
@@ -122,5 +121,18 @@ void CanLifter::Run() {
 		SmartDashboard::PutBoolean("Lifter @ Bottom", lifterHallEffectBottom);
 		SmartDashboard::PutBoolean("Lifter Hover", bHover);
 	}
+}
+
+bool CanLifter::GetHallEffectTop()
+{
+	return lifterMotor->IsFwdLimitSwitchClosed();
+}
+bool CanLifter::GetHallEffectMiddle()
+{
+	return midHallEffect->Get();
+}
+bool CanLifter::GetHallEffectBottom()
+{
+	return lifterMotor->IsRevLimitSwitchClosed();
 }
 

@@ -24,12 +24,17 @@ public:
 		((CanLifter *)pThis)->DoWork();
 		return(NULL);
 	}
+	bool GetHallEffectTop();
+	bool GetHallEffectMiddle();
+	bool GetHallEffectBottom();
+
 
 private:
 
 	CANTalon *lifterMotor;
+	DigitalInput *midHallEffect;
 	Timer *pSafetyTimer;
-	Timer *pUpdateTimer;
+	//Timer *pUpdateTimer;
 
 
 	/* CANLIFTER  (using bag, not CIM)
