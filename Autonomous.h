@@ -58,6 +58,7 @@ private:
 	bool MeasuredMove(char *);
 	bool TimedMove(char *);
 	bool Turn(char *);
+	bool SeekTote(char *);
 	bool Straight(char *);
 	bool CubeAuto(char *);
 

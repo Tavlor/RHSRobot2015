@@ -18,6 +18,7 @@ class ADXRS453Z {
 		float GetRate();
 		float GetAngle();
 		void Reset();
+		void Zero(); //added by Taylor Smith
 		void Update();
 		float Offset();
 		void Start();

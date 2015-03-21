@@ -109,22 +109,27 @@ void RhsRobotBase::StartCompetition()			//Robot's main function
 			case ROBOT_STATE_DISABLED:
 				printf("ROBOT_STATE_DISABLED\n");
 				robotMessage.command = COMMAND_ROBOT_STATE_DISABLED;
+				robotMessage.robotMode = ROBOT_STATE_DISABLED;
 				break;
 			case ROBOT_STATE_AUTONOMOUS:
 				printf("ROBOT_STATE_AUTONOMOUS\n");
 				robotMessage.command = COMMAND_ROBOT_STATE_AUTONOMOUS;
+				robotMessage.robotMode = ROBOT_STATE_AUTONOMOUS;
 				break;
 			case ROBOT_STATE_TELEOPERATED:
 				printf("ROBOT_STATE_TELEOPERATED\n");
 				robotMessage.command = COMMAND_ROBOT_STATE_TELEOPERATED;
+				robotMessage.robotMode = ROBOT_STATE_TELEOPERATED;
 				break;
 			case ROBOT_STATE_TEST:
 				printf("ROBOT_STATE_TEST\n");
 				robotMessage.command = COMMAND_ROBOT_STATE_TEST;
+				robotMessage.robotMode = ROBOT_STATE_TEST;
 				break;
 			case ROBOT_STATE_UNKNOWN:
 				printf("ROBOT_STATE_UNKNOWN\n");
 				robotMessage.command = COMMAND_ROBOT_STATE_UNKNOWN;
+				robotMessage.robotMode = ROBOT_STATE_UNKNOWN;
 				break;
 			}
 

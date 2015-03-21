@@ -105,6 +105,7 @@ const int CUBECLICKER_MAX_TOTES = 6;
 
 //Digital I/O - Assigns names to Digital I/O ports 1-14 on the Roborio
 //EXAMPLE: const int PWM_DRIVETRAIN_ENCODER_RIGHT_A = 1;
+const int DIO_DRIVETRAIN_BEAM_BREAK = 0;
 const int PWM_DRIVETRAIN_ENCODER_A = 1;
 const int PWM_DRIVETRAIN_ENCODER_B = 2;
 

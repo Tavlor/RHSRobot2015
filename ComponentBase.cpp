@@ -101,30 +101,6 @@ void ComponentBase::DoWork()
 	{
 		ReceiveMessage();		//Receives a message and copies it into localMessage
 
-		//Checks the current state of the robot
-		/*switch (localMessage.command)
-		{
-			case COMMAND_ROBOT_STATE_DISABLED:
-				currentRobotState = ROBOT_STATE_DISABLED;
-			break;
-
-			case COMMAND_ROBOT_STATE_AUTONOMOUS:
-				currentRobotState = ROBOT_STATE_AUTONOMOUS;
-			break;
-
-			case COMMAND_ROBOT_STATE_TELEOPERATED:
-				currentRobotState = ROBOT_STATE_TELEOPERATED;
-			break;
-
-			case COMMAND_ROBOT_STATE_TEST:
-				currentRobotState = ROBOT_STATE_TEST;
-			break;
-
-			default:
-				currentRobotState = ROBOT_STATE_UNKNOWN;
-			break;
-		}*/
-
 		if(localMessage.command == COMMAND_ROBOT_STATE_DISABLED ||			//Tests for state change messages
 				localMessage.command == COMMAND_ROBOT_STATE_AUTONOMOUS ||
 				localMessage.command == COMMAND_ROBOT_STATE_TELEOPERATED ||

@@ -2,8 +2,8 @@
 #BEGIN
 #END
 #MOVE <left speed> <right speed>
-#MMOVE <speed> <distance:inches>
-#TURN <degrees>
+#MMOVE <speed> <distance:inches> <timeout>
+#TURN <degrees> <timeout>
 #FLINGCAN <speed> <distance:inches>
 #TOTEUP
 #TOTEDOWN

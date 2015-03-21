@@ -62,7 +62,7 @@
 enum MessageCommand {
 	COMMAND_UNKNOWN,					//!< COMMAND_UNKNOWN
 	COMMAND_SYSTEM_MSGTIMEOUT,			//!< COMMAND_SYSTEM_MSGTIMEOUT
-	COMMAND_SYSTEM_OK,					//!< COMMAND_SYSTEM_OK
+	COMMAND_SYSTEM_OK,					//!< Tells Autonomous that a command is finished running
 	COMMAND_SYSTEM_ERROR,				//!< COMMAND_SYSTEM_ERROR
 
 	COMMAND_ROBOT_STATE_DISABLED,		//!< Tells all components that the robot is disabled
@@ -81,6 +81,7 @@ enum MessageCommand {
 	COMMAND_DRIVETRAIN_AUTO_MOVE,		//!< Tells Drivetrain to move motors, used by Autonomous
 	COMMAND_DRIVETRAIN_DRIVE_STRAIGHT,	//!< Tells Drivetrain to drive straight, used by Autonomous
 	COMMAND_DRIVETRAIN_TURN,			//!< Tells Drivetrain to turn, used by Autonomous
+	COMMAND_DRIVETRAIN_SEEK_TOTE,		//!< Tells Drivetrain to seek the next tote, used by Autonomous
 
 	COMMAND_CONVEYOR_RUN_FWD,			//!< Tells Conveyor to run the rollers forward
 	COMMAND_CONVEYOR_RUN_BCK,			//!< Tells Conveyor to run the rollers backwards
@@ -141,10 +142,11 @@ struct ConveyorParams {
 struct AutonomousParams {
 	unsigned uMode;
 	unsigned uDelay;
+	///how long a function can run, maximum
+	float timeout;
 	///used by drivetrain for straight driving
 	float driveSpeed;
 	float driveDistance;
-	float turnSpeed;
 	float turnAngle;
 };
 
@@ -157,11 +159,22 @@ union MessageParams {
 	AutonomousParams autonomous;
 };
 
+///Used by components to register what state the robot is in.
+typedef enum eRobotOpMode
+{
+	ROBOT_STATE_DISABLED,
+	ROBOT_STATE_AUTONOMOUS,
+	ROBOT_STATE_TELEOPERATED,
+	ROBOT_STATE_TEST,
+	ROBOT_STATE_UNKNOWN
+} RobotOpMode;
+
 ///A structure containing a command, a set of parameters, and a reply id, sent between components
 struct RobotMessage {
 	MessageCommand command;
 	const char* replyQ;
 	MessageParams params;
+	RobotOpMode robotMode;
 };
 
 #endif //ROBOT_MESSAGE_H

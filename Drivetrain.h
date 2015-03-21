@@ -9,6 +9,7 @@
 #define DRIVETRAIN_H
 
 #include <pthread.h>
+//#include <unistd.h>
 
 //Robot
 #include "WPILib.h"
@@ -37,20 +38,22 @@ private:
 	ADXRS453Z *gyro;
 	Encoder *encoder;
 	BuiltInAccelerometer accelerometer;
+	DigitalInput *toteSensor;
 	Timer *pAutoTimer; //watches autonomous time and disables it if needed.
-	bool bIsAuto = false;
 	//AutoMode autoMode = AUTO_DRIVETRAIN_STOP;
 	//stores motor values during autonomous
 	float left = 0;
 	float right = 0;
 
-	const float fAutoLength = 15.0; //number of seconds for autonomous
-	//how strong direction recovery is, lower = stronger
-	const float recoverStrength = 15;
-	//how far from goal the robot can be before stopping
+	///Speed for tote seeking
+	float fToteSeekSpeed = .3;
+	///how strong direction recovery is in straight drive, higher = stronger
+	const float recoverStrength = .03;
+	const float fMaxRecoverSpeed = .3;
+	///how far from goal the robot can be before stopping
 	const float distError = 1;//inches
 	const float angleError = 3;//degrees
-	const float turnSpeedLimit = .3;
+	const float turnSpeedLimit = .2;
 	const float fEncoderRatio = 0.023009;
 	//diameter*pi/encoder_resolution : 1.875 * 3.14 / 256
 
@@ -59,7 +62,8 @@ private:
 	void Put();//for SmartDashboard
 	void ArcadeDrive(float, float);
 	void MeasuredMove(float,float);
-	void Turn(float);
+	void Turn(float,float);
+	void SeekTote(float);
 	void StraightDrive(float);
 };
 

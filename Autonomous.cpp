@@ -35,13 +35,13 @@ bool Autonomous::CommandResponse(const char *szQueueName) {
 	iPipeXmt = open(szQueueName, O_WRONLY);
 	wpi_assert(iPipeXmt > 0);
 
-	Message.replyQ = AUTOPARSER_QUEUE;
+	Message.replyQ = AUTONOMOUS_QUEUE;
 	write(iPipeXmt, (char*) &Message, sizeof(RobotMessage));
 	close(iPipeXmt);
 
-	// wait for a response
-	iPipeRcv = open(AUTOPARSER_QUEUE, O_WRONLY);
-	printf("iPipeRcv%i\n",iPipeRcv);
+	// TODO:wait for a response
+	iPipeRcv = open(AUTONOMOUS_QUEUE, O_WRONLY);
+	printf("iPipeRcv %i\n",iPipeRcv);
 	wpi_assert(iPipeRcv > 0);
 
 	if (read(iPipeRcv, (char*) &Message, sizeof(RobotMessage)) <= 0)
@@ -165,17 +165,35 @@ bool Autonomous::TimedMove(char *pCurrLinePos) {
 bool Autonomous::Turn(char *pCurrLinePos) {
 	char *pToken;
 	float fAngle;
+	float fTimeout;
 
 	// parse remainder of line to get length to move
 
 	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
 	fAngle = atof(pToken);
 
+	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+	fTimeout = atof(pToken);
+
 	// send the message to the drive train
 	Message.command = COMMAND_DRIVETRAIN_TURN;
 	Message.params.autonomous.turnAngle = fAngle;
-	//return (CommandResponse(DRIVETRAIN_QUEUE));
-	return (CommandNoResponse(DRIVETRAIN_QUEUE));
+	Message.params.autonomous.timeout = fTimeout;
+	return (CommandResponse(DRIVETRAIN_QUEUE));
+}
+
+bool Autonomous::SeekTote(char *pCurrLinePos) {
+	char *pToken;
+	float fTimeout;
+
+	// parse remainder of line to get timeout
+	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+	fTimeout = atof(pToken);
+
+	// send the message to the drive train
+	Message.command = COMMAND_DRIVETRAIN_SEEK_TOTE;
+	Message.params.autonomous.timeout = fTimeout;
+	return (CommandResponse(DRIVETRAIN_QUEUE));
 }
 
 bool Autonomous::Straight(char *pCurrLinePos) {
@@ -190,8 +208,7 @@ bool Autonomous::Straight(char *pCurrLinePos) {
 	// send the message to the drive train
 	Message.command = COMMAND_DRIVETRAIN_DRIVE_STRAIGHT;
 	Message.params.autonomous.driveSpeed = fSpeed;
-	//return (CommandResponse(DRIVETRAIN_QUEUE));
-	return (CommandNoResponse(DRIVETRAIN_QUEUE));
+	return (CommandResponse(DRIVETRAIN_QUEUE));
 }
 
 bool Autonomous::CubeAuto(char *pCurrLinePos){

@@ -27,6 +27,7 @@ const char *szTokens[] = {
 		"MOVE",
 		"MMOVE",
 		"TURN",
+		"SEEKTOTE",
 		"STRAIGHT",
 		"TOTEUP",
 		"TOTEDOWN",
@@ -153,7 +154,16 @@ bool Autonomous::Evaluate(std::string rStatement) {
 			rStatus.append("turn");
 		}
 		break;
-
+		case AUTO_TOKEN_SEEK_TOTE:
+			if (!SeekTote(pCurrLinePos))
+			{
+				rStatus.append("seekTote error");
+			}
+			else
+			{
+				rStatus.append("seekTote");
+			}
+		break;
 	case AUTO_TOKEN_STRAIGHT:
 		if(!Straight(pCurrLinePos)) {
 			rStatus.append("straight error");

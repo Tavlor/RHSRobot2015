@@ -1,5 +1,6 @@
 /** \file
  * Gyro classes borrowed from the Rat Pack!
+ * The gyro can take up to 15 seconds to become usable.
  */
 
 #include "ADXRS453Z.h"
@@ -137,6 +138,13 @@ void ADXRS453Z::Reset() {
 
 	//update_timer->Stop();
 	update_timer->Reset();
+}
+
+//a function to simply zero the gyro rather than reset & calibrate. Added by Taylor Smith
+void ADXRS453Z::Zero()
+{
+	current_rate = 0.0;
+	accumulated_angle = 0.0;
 }
 
 short ADXRS453Z::assemble_sensor_data(unsigned char * data) {

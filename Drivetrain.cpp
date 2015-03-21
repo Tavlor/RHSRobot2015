@@ -33,7 +33,9 @@ Drivetrain::Drivetrain() :
 
 	leftMotor = new CANTalon(CAN_DRIVETRAIN_LEFT_MOTOR);
 	rightMotor = new CANTalon(CAN_DRIVETRAIN_RIGHT_MOTOR);
+
 	wpi_assert(leftMotor && rightMotor);
+
 	leftMotor->SetControlMode(CANSpeedController::kPercentVbus);
 	rightMotor->SetControlMode(CANSpeedController::kPercentVbus);
 	leftMotor->SetVoltageRampRate(120.0);
@@ -41,6 +43,8 @@ Drivetrain::Drivetrain() :
 
 	wpi_assert(leftMotor->IsAlive());
 	wpi_assert(rightMotor->IsAlive());
+
+	toteSensor = new DigitalInput(DIO_DRIVETRAIN_BEAM_BREAK);
 
 	pAutoTimer = new Timer();
 		pAutoTimer->Start();
@@ -71,40 +75,35 @@ void Drivetrain::OnStateChange()			//Handles state changes
 {
 	switch(localMessage.command) {
 	case COMMAND_ROBOT_STATE_AUTONOMOUS:
+		//restore motor values
 		leftMotor->Set(left);
 		rightMotor->Set(right);
-		bIsAuto = true;
 		//gyro->Reset();
 		//encoder->Reset();
 		//gyro should be reset by a message from autonomous
 		break;
 
 	case COMMAND_ROBOT_STATE_TEST:
-		bIsAuto = false;
 		leftMotor->Set(0.0);
 		rightMotor->Set(0.0);
 		break;
 
 	case COMMAND_ROBOT_STATE_TELEOPERATED:
-		bIsAuto = false;
 		leftMotor->Set(0.0);
 		rightMotor->Set(0.0);
 		break;
 
 	case COMMAND_ROBOT_STATE_DISABLED:
-		bIsAuto = false;
 		leftMotor->Set(0.0);
 		rightMotor->Set(0.0);
 		break;
 
 	case COMMAND_ROBOT_STATE_UNKNOWN:
-		bIsAuto = false;
 		leftMotor->Set(0.0);
 		rightMotor->Set(0.0);
 		break;
 
 	default:
-		bIsAuto = false;
 		leftMotor->Set(0.0);
 		rightMotor->Set(0.0);
 		break;
@@ -113,7 +112,6 @@ void Drivetrain::OnStateChange()			//Handles state changes
 
 ///left + , right -
 void Drivetrain::Run() {
-	printf("DRIVETRAINCOMMAND : %d\n");
 	switch(localMessage.command) {
 	case COMMAND_DRIVETRAIN_DRIVE_TANK:
 		//SmartDashboard::PutString("Drivetrain CMD", "DRIVETRAIN_DRIVE_TANK");
@@ -128,7 +126,6 @@ void Drivetrain::Run() {
 		break;
 
 	case COMMAND_DRIVETRAIN_DRIVE_STRAIGHT:
-		printf("executing straightDrive\n");
 		//SmartDashboard::PutString("Drivetrain CMD", "DRIVETRAIN_DRIVE_STRAIGHT");
 		StraightDrive(localMessage.params.autonomous.driveSpeed);
 		break;
@@ -139,7 +136,7 @@ void Drivetrain::Run() {
 		left = 0;
 		right = 0;
 		pAutoTimer->Reset();
-		gyro->Reset();
+		gyro->Zero();
 		break;
 
 	case COMMAND_AUTONOMOUS_COMPLETE:
@@ -149,7 +146,7 @@ void Drivetrain::Run() {
 		right = 0;
 		leftMotor->Set(left);
 		rightMotor->Set(right);
-		gyro->Reset();
+		gyro->Zero();
 	break;
 
 	case COMMAND_DRIVETRAIN_AUTO_MOVE:
@@ -163,7 +160,11 @@ void Drivetrain::Run() {
 
 	case COMMAND_DRIVETRAIN_TURN:
 		//SmartDashboard::PutString("Drivetrain CMD", "DRIVETRAIN_TURN");
-		Turn(localMessage.params.autonomous.turnAngle);
+		Turn(localMessage.params.autonomous.turnAngle,localMessage.params.autonomous.timeout);
+		break;
+
+	case COMMAND_DRIVETRAIN_SEEK_TOTE:
+		SeekTote(localMessage.params.autonomous.timeout);
 		break;
 
 		case COMMAND_DRIVETRAIN_STOP:
@@ -187,7 +188,7 @@ void Drivetrain::Run() {
 		rightMotor->Set(right);
 	}*/
 	//Put out information
-	//SmartDashboard::PutNumber("Gyro Angle", gyro->GetAngle());
+	SmartDashboard::PutNumber("Gyro Angle", gyro->GetAngle());
 }
 
 void Drivetrain::ArcadeDrive(float x, float y) {
@@ -236,11 +237,38 @@ void Drivetrain::MeasuredMove(float speed, float targetDist) {
 #endif
 }
 
-void Drivetrain::Turn(float targetAngle) {
+void Drivetrain::SeekTote(float timeout)
+{
+	RobotMessage replyMessage;
+		while (pAutoTimer->Get() < timeout && RobotBase::getInstance().IsAutonomous())
+		{
+			if(toteSensor->Get())
+			{
+				printf("Tote reached.\n");
+				break;
+			}
+			StraightDrive(fToteSeekSpeed);
+		}
+		leftMotor->Set(0);
+		rightMotor->Set(0);
+
+		replyMessage.command = COMMAND_SYSTEM_OK;
+		//Send a message back to auto to tell it that code is done.
+		int replyPipe = open(localMessage.replyQ, O_WRONLY);
+		wpi_assert(replyPipe > 0);
+
+		write(replyPipe, (char*) &replyMessage, sizeof(RobotMessage));
+		close(replyPipe);
+}
+
+void Drivetrain::Turn(float targetAngle, float timeout) {
 #if 1
-	gyro->Reset();
-	//TODO: is it ok to reset the gryo ever? We may want to know rotation relative to initial position at all times
-	while (pAutoTimer->Get() < fAutoLength)//robotState == COMPONENT_STATE_AUTONOMOUS)
+	RobotMessage replyMessage;
+	//gyro->Reset();
+	targetAngle += gyro->GetAngle();
+	pAutoTimer->Reset();
+	//Resetting the gyro takes up to 15 seconds.
+	while (pAutoTimer->Get() < timeout && RobotBase::getInstance().IsAutonomous())
 	{
 		//if you don't disable this during non-auto, it will keep trying to turn during teleop. Not fun.
 		float degreesLeft = targetAngle - gyro->GetAngle();
@@ -260,7 +288,18 @@ void Drivetrain::Turn(float targetAngle) {
 	rightMotor->Set(0);
 	SmartDashboard::PutNumber("Remaining Degrees", 0.0);
 	SmartDashboard::PutNumber("Turn Speed", 0.0);
-	printf("Finished turning %f degrees", targetAngle);
+	printf("Finished turning %f degrees\n", targetAngle);
+
+	replyMessage.command = COMMAND_SYSTEM_OK;
+
+	//Send a message back to auto to tell it that code is done.
+	int replyPipe = open(localMessage.replyQ, O_WRONLY);
+	wpi_assert(replyPipe > 0);
+
+	write(replyPipe, (char*) &replyMessage, sizeof(RobotMessage));
+	close(replyPipe);
+
+
 #endif
 }
 
@@ -274,8 +313,7 @@ void Drivetrain::StraightDrive(float speed) {
 		speed = -1;
 	}
 
-	gyro->Reset();
-	float adjustment = gyro->GetAngle() / recoverStrength;
+	float adjustment = std::min(gyro->GetAngle(), 30.0f) * recoverStrength;
 	//glorified arcade drive
 	if (speed > 0)
 	{
