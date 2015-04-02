@@ -66,8 +66,9 @@ private:
 	void ArcadeDrive(float, float);
 	void MeasuredMove(float,float);
 	void Turn(float,float);
-	void SeekTote(float);
-	void StraightDrive(float);
+	void SeekTote(float,float);
+	void StraightDrive(float, float);
+	void StraightDriveLoop(float);
 };
 
 #endif			//DRIVETRAIN_H

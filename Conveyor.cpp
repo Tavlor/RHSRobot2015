@@ -18,6 +18,8 @@
 Conveyor::Conveyor() :
 		ComponentBase(CONVEYOR_TASKNAME, CONVEYOR_QUEUE,
 				CONVEYOR_PRIORITY) {
+	bBackStopEnable = true;
+
 	conveyorMotor = new CANTalon(CAN_PALLET_JACK_CONVEYOR);
 	wpi_assert(conveyorMotor);
 	conveyorMotor->SetControlMode(CANSpeedController::kPercentVbus);
@@ -57,7 +59,7 @@ void Conveyor::Run() {
 	{
 	case COMMAND_CONVEYOR_RUN_FWD:
 		//SmartDashboard::PutString("Conveyor CMD", "CONVEYOR_RUN_FWD");
-		conveyorMotor->Set(-fConveyorSpeed);
+		conveyorMotor->Set(-fConveyorSpeedBack);
 		break;
 	case COMMAND_CONVEYOR_RUN_BCK:
 		//SmartDashboard::PutString("Conveyor CMD", "CONVEYOR_RUN_BCK");
@@ -85,32 +87,37 @@ void Conveyor::Run() {
 
 	case COMMAND_CONVEYOR_RUNALL_FWD:
 		//SmartDashboard::PutString("Conveyor CMD", "CONVEYOR_RUNALL_FWD");
-		conveyorMotor->Set(-fConveyorSpeed);
+		conveyorMotor->Set(-fConveyorSpeedBack);
 		break;
 
 	case COMMAND_CONVEYOR_RUNALL_BCK:
 		//SmartDashboard::PutString("Conveyor CMD", "CONVEYOR_RUNALL_BCK");
-		if(localMessage.params.conveyorParams.bButtonWentDownEvent)
-		{
+		//if(localMessage.params.conveyorParams.bButtonWentDownEvent)
+		//{
 			if(!conveyorMotor->IsFwdLimitSwitchClosed())
 			{
-				//printf("button down: closed, disable switch\n");
-				conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
-				conveyorMotor->Set(fConveyorSpeed);
+				if(!bBackStopEnable)
+				{
+					//printf("button down: closed, disable switch\n");
+					conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
+					conveyorMotor->Set(fConveyorSpeed);
+				}
 			}
 			else
 			{
 				//printf("button down: open, enable switch\n");
 				conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 				conveyorMotor->Set(fConveyorSpeed);
+				bBackStopEnable = true;
 			}
-		}
-		conveyorMotor->Set(fConveyorSpeed);
+		//}
+		//conveyorMotor->Set(fConveyorSpeed);
 		break;
 
 	case COMMAND_CONVEYOR_RUNALL_STOP:
 		//SmartDashboard::PutString("Conveyor CMD", "CONVEYOR_RUNALL_STOP");
 		conveyorMotor->Set(0.0);
+		bBackStopEnable = false;
 		break;
 
 	case COMMAND_SYSTEM_MSGTIMEOUT:

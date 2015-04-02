@@ -13,7 +13,6 @@
  * right -
  */
 
-//Local
 #include "Drivetrain.h"			//For the local header file
 
 #include <math.h>
@@ -38,8 +37,8 @@ Drivetrain::Drivetrain() :
 
 	leftMotor->SetControlMode(CANSpeedController::kPercentVbus);
 	rightMotor->SetControlMode(CANSpeedController::kPercentVbus);
-	leftMotor->SetVoltageRampRate(120.0);
-	rightMotor->SetVoltageRampRate(120.0);
+	leftMotor->SetVoltageRampRate(60.0);
+	rightMotor->SetVoltageRampRate(60.0);
 
 	wpi_assert(leftMotor->IsAlive());
 	wpi_assert(rightMotor->IsAlive());
@@ -50,11 +49,12 @@ Drivetrain::Drivetrain() :
 		pAutoTimer->Start();
 
 	gyro = new ADXRS453Z;
+	wpi_assert(gyro);
+	gyro->Start();
+
 	//encoder = new Encoder(0, 1, false, Encoder::k4X);
 	//encoder->SetDistancePerPulse(fEncoderRatio); //diameter*pi/encoder_resolution
-	wpi_assert(gyro);
 	//wpi_assert(encoder);
-	gyro->Start();
 
 	pTask = new Task(DRIVETRAIN_TASKNAME, (FUNCPTR) &Drivetrain::StartTask,
 			DRIVETRAIN_PRIORITY, DRIVETRAIN_STACKSIZE);
@@ -127,7 +127,7 @@ void Drivetrain::Run() {
 
 	case COMMAND_DRIVETRAIN_DRIVE_STRAIGHT:
 		//SmartDashboard::PutString("Drivetrain CMD", "DRIVETRAIN_DRIVE_STRAIGHT");
-		StraightDrive(localMessage.params.autonomous.driveSpeed);
+		StraightDrive(localMessage.params.autonomous.driveSpeed, localMessage.params.autonomous.driveTime);
 		break;
 
 	case COMMAND_AUTONOMOUS_RUN:	//when auto starts
@@ -164,7 +164,7 @@ void Drivetrain::Run() {
 		break;
 
 	case COMMAND_DRIVETRAIN_SEEK_TOTE:
-		SeekTote(localMessage.params.autonomous.timeout);
+		SeekTote(localMessage.params.autonomous.timein,localMessage.params.autonomous.timeout);
 		break;
 
 		case COMMAND_DRIVETRAIN_STOP:
@@ -243,27 +243,29 @@ void Drivetrain::MeasuredMove(float speed, float targetDist) {
 #endif
 }
 
-void Drivetrain::SeekTote(float timeout) {
+void Drivetrain::SeekTote(float timein, float timeout) {
 	MessageCommand command = COMMAND_AUTONOMOUS_RESPONSE_ERROR;
 	pAutoTimer->Reset();
 
-	while (pAutoTimer->Get() < timeout
+	while ((pAutoTimer->Get() < timeout)
 			&& RobotBase::getInstance().IsAutonomous())
 	{
-		if (toteSensor->Get())
+		if (toteSensor->Get() && pAutoTimer->Get() > timein)
 		{
 			printf("Tote reached.\n");
 			command = COMMAND_AUTONOMOUS_RESPONSE_OK;
 			break;
 		}
+
 		SmartDashboard::PutNumber("Gyro Angle", gyro->GetAngle());
-		StraightDrive(fToteSeekSpeed);
+		StraightDriveLoop(fToteSeekSpeed);
+		Wait(0.01);
 	}
 
 	left = 0;
 	right = 0;
-	leftMotor->Set(left);
-	rightMotor->Set(right);
+	leftMotor->Set(0.0);
+	rightMotor->Set(0.0);
 
 	SendCommandResponse(command);
 }
@@ -299,41 +301,62 @@ void Drivetrain::Turn(float targetAngle, float timeout) {
 	SendCommandResponse(command);
 }
 
-void Drivetrain::StraightDrive(float speed) {
+void Drivetrain::StraightDrive(float speed, float time) {
+	MessageCommand command = COMMAND_AUTONOMOUS_RESPONSE_OK;
+	pAutoTimer->Reset();
+
+	while ((pAutoTimer->Get() < time)
+			&& RobotBase::getInstance().IsAutonomous())
+	{
+		StraightDriveLoop(speed);
+		Wait(0.01);
+	}
+
+	left = 0;
+	right = 0;
+	leftMotor->Set(0.0);
+	rightMotor->Set(0.0);
+
+	SendCommandResponse(command);
+}
+
+
+void Drivetrain::StraightDriveLoop(float speed) {
 	if(speed > 1.0)
 	{
-		speed = 1;
+		speed = 1.0;
 	}
 	else if(speed < -1.0)
 	{
-		speed = -1;
+		speed = -1.0;
 	}
 
 	//keep the reference angle between -30 and 30 degrees
 	//float angle = std::max(std::min(gyro->GetAngle(),fMaxRecoverAngle),-fMaxRecoverAngle);
 	float adjustment = gyro->GetAngle() * recoverStrength;
 	//glorified arcade drive
-	if (speed > 0)
+	if (speed > 0.0)
 	{
 		//if headed in positive direction
-		left = (1 - adjustment) * speed;
-		right = (-1 - adjustment) * speed;
+		left = (1.0 - adjustment) * speed;
+		right = (-1.0 - adjustment) * speed;
 	}
-	else if (speed < 0)
+	else if (speed < 0.0)
 	{
 		//if headed in negative direction
-		left = (-1 + adjustment) * speed;
-		right = (1 + adjustment) * speed;
+		left = (-1.0 + adjustment) * speed;
+		right = (1.0 + adjustment) * speed;
 	}
 	else
 	{
-		left = 0;
-		right = 0;
+		left = 0.0;
+		right = 0.0;
 	}
 	leftMotor->Set(left);
 	rightMotor->Set(right);
 	SmartDashboard::PutNumber("Angle Adjustment", adjustment);
 }
+
 bool Drivetrain::GetToteSensor()
 {
 	return toteSensor->Get();

@@ -29,6 +29,8 @@ const char *szTokens[] = {
 		"TURN",
 		"SEEKTOTE",
 		"STRAIGHT",
+		"TOTEEXTEND",
+		"TOTERETRACT",
 		"TOTEUP",
 		"TOTEDOWN",
 		"CLAWOPEN",
@@ -38,14 +40,13 @@ const char *szTokens[] = {
 		"CUBEAUTO",
 		"NOP" };
 
-
 bool Autonomous::Evaluate(std::string rStatement) {
 	char *pToken;
 	char *pCurrLinePos;
 	int iCommand;
 	float fParam1;
+	int iParam1;
 	bool bReturn = false;
-
 	string rStatus;
 
 	if(rStatement.empty()) {
@@ -174,20 +175,42 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		}
 		break;
 
-	case AUTO_TOKEN_LIFT_TOTE:
+	case AUTO_TOKEN_EXTEND_TOTE:
+		Message.command = COMMAND_TOTELIFTER_EXTEND;
+		bReturn = !CommandNoResponse(TOTELIFTER_QUEUE);
+		break;
+
+	case AUTO_TOKEN_RETRACT_TOTE:
+		Message.command = COMMAND_TOTELIFTER_RETRACT;
+		bReturn = !CommandNoResponse(TOTELIFTER_QUEUE);
+		break;
+
+	case AUTO_TOKEN_RAISE_TOTE:
+		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+		iParam1 = atoi(pToken);
+
+		Message.command = COMMAND_CANLIFTER_RAISETOTES;
+		Message.params.canLifterParams.iNumTotes = iParam1;
+		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
 		break;
 
 	case AUTO_TOKEN_LOWER_TOTE:
+		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+		iParam1 = atoi(pToken);
+
+		Message.command = COMMAND_CANLIFTER_LOWERTOTES;
+		Message.params.canLifterParams.iNumTotes = iParam1;
+		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
 		break;
 
 	case AUTO_TOKEN_CLAW_OPEN:
 		Message.command = COMMAND_CLAW_OPEN;
-		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
+		bReturn = !CommandNoResponse(CLAW_QUEUE);
 		break;
 
 	case AUTO_TOKEN_CLAW_CLOSE:
 		Message.command = COMMAND_CLAW_CLOSE;
-		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
+		bReturn = !CommandNoResponse(CLAW_QUEUE);
 		break;
 
 	case AUTO_TOKEN_CLICKER_UP:

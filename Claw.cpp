@@ -101,7 +101,7 @@ void Claw::Run() {
 	}	//end of command switch
 
 	// a timer is used to allow the claw to move
-	if(pClawTimer->Get() > 2.0)
+	if(pClawTimer->Get() > .75f)
 	{
 		clawMotor->Set(fClawStop);
 	}

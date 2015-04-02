@@ -24,17 +24,19 @@ public:
 		((CanLifter *)pThis)->DoWork();
 		return(NULL);
 	}
-	bool GetHallEffectTop();
-	bool GetHallEffectMiddle();
-	bool GetHallEffectBottom();
 
+	bool GetHallEffectTop() { return lifterMotor->IsFwdLimitSwitchClosed();	}
+	bool GetHallEffectMiddle() { return midHallEffect->Get(); }
+	bool GetHallEffectBottom() { return lifterMotor->IsRevLimitSwitchClosed(); }
+	bool GetGoingUp() { return(bGoingUp);}
+	bool GetGoingDown() { return(bGoingDown);}
 
 private:
 
 	CANTalon *lifterMotor;
 	DigitalInput *midHallEffect;
+	Counter *midDetect;
 	Timer *pSafetyTimer;
-	//Timer *pUpdateTimer;
 
 
 	/* CANLIFTER  (using bag, not CIM)
@@ -43,12 +45,32 @@ private:
 	 */
 	const float fLifterRaise = 1.0;		//not needed
 	const float fLifterLower = -1.0;	//not needed
-	const float fLifterHover = .15;
+
+	const float fLifterHoverNoTotes = .15;
+	const float fLifterHoverOneTotes = .20;
+	const float fLifterHoverTwoTotes = .25;
+	const float fLifterHoverThreeTotes = .30;
+
+	const float fLifterLiftNoTotes = 0.50;
+	const float fLifterLiftOneTotes = 0.60;
+	const float fLifterLiftTwoTotes = 0.70;
+	const float fLifterLiftThreeTotes = 0.80;
+
+	const float fLifterLowerNoTotes = -0.25;
+	const float fLifterLowerOneTotes = -0.20;
+	const float fLifterLowerTwoTotes = -0.15;
+	const float fLifterLowerThreeTotes = -0.10;
+
 	const float fLifterStop = 0.0;
 
 	bool lifterHallEffectBottom;
 	bool lifterHallEffectTop;
-	bool bHover;					//should the lift keep itself at a constant height?
+	bool bHover;
+	bool bMiddleHover;
+	bool bGoingUp;
+	bool bGoingDown;
+	int iToteLoad;
+
 
 	void OnStateChange();
 	void Run();

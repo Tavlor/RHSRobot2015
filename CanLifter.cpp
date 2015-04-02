@@ -21,6 +21,12 @@
 CanLifter::CanLifter() :
 		ComponentBase(CANLIFTER_TASKNAME, CANLIFTER_QUEUE, CANLIFTER_PRIORITY) {
 
+	bHover = false;
+	bMiddleHover = false;
+	bGoingUp = false;
+	bGoingDown = false;
+	iToteLoad = 0;
+
 	lifterMotor = new CANTalon(CAN_PALLET_JACK_BIN_LIFT);
 	wpi_assert(lifterMotor);
 	lifterMotor->SetVoltageRampRate(120.0);
@@ -33,6 +39,9 @@ CanLifter::CanLifter() :
 	midHallEffect = new DigitalInput(DIO_CANLIFTER_MID_HALL_EFFECT);
 	lifterHallEffectBottom = lifterMotor->IsRevLimitSwitchClosed();
 	lifterHallEffectTop = lifterMotor->IsFwdLimitSwitchClosed();
+
+	midDetect = new Counter(midHallEffect);
+	midDetect->Reset();
 
 	pSafetyTimer = new Timer();
 	pSafetyTimer->Start();
@@ -47,6 +56,7 @@ CanLifter::~CanLifter() {
 	delete (pTask);
 	delete lifterMotor;
 	delete pSafetyTimer;
+	delete midHallEffect;
 }
 ;
 
@@ -61,7 +71,7 @@ void CanLifter::OnStateChange() {
 		default:
 			lifterMotor->Set(fLifterStop);
 			pSafetyTimer->Reset();
-		break;
+			break;
 	}
 }
 
@@ -69,40 +79,90 @@ void CanLifter::Run() {
 	switch (localMessage.command)
 	{
 		case COMMAND_CANLIFTER_RAISE:
-			lifterMotor->Set(localMessage.params.lifterSpeed);
+			lifterMotor->Set(localMessage.params.canLifterParams.lifterSpeed);
 			bHover = false;
+			bMiddleHover = false;
 			pSafetyTimer->Reset();
-		break;
+			break;
 
 		case COMMAND_CANLIFTER_LOWER:
-			lifterMotor->Set(-localMessage.params.lifterSpeed);
+			lifterMotor->Set(-localMessage.params.canLifterParams.lifterSpeed);
 			bHover = false;
+			bMiddleHover = false;
 			pSafetyTimer->Reset();
-		break;
+			break;
+
 		case COMMAND_CANLIFTER_HOVER:
-			lifterMotor->Set(fLifterHover);
+			lifterMotor->Set(fLifterHoverNoTotes);
 			bHover = true;
 			pSafetyTimer->Reset();
-		break;
-		case COMMAND_CANLIFTER_STOP:
-			if(bHover)
+			break;
+
+		case COMMAND_CANLIFTER_RAISETOTES:
+			bMiddleHover = true;
+			iToteLoad = localMessage.params.canLifterParams.iNumTotes;
+
+			if(iToteLoad == 1)
 			{
-				lifterMotor->Set(fLifterHover);
+				lifterMotor->Set(fLifterLiftOneTotes);
+			}
+			else if(iToteLoad == 2)
+			{
+				lifterMotor->Set(fLifterLiftTwoTotes);
+			}
+			else if(iToteLoad == 3)
+			{
+				lifterMotor->Set(fLifterLiftThreeTotes);
 			}
 			else
 			{
-			lifterMotor->Set(fLifterStop);
+				lifterMotor->Set(fLifterLiftNoTotes);
 			}
+			break;
+
+		case COMMAND_CANLIFTER_LOWERTOTES:
+			bMiddleHover = false;
+
+			if(iToteLoad == 1)
+			{
+				lifterMotor->Set(fLifterLowerOneTotes);
+			}
+			else if(iToteLoad == 2)
+			{
+				lifterMotor->Set(fLifterLowerTwoTotes);
+			}
+			else if(iToteLoad == 3)
+			{
+				lifterMotor->Set(fLifterLowerThreeTotes);
+			}
+			else
+			{
+				lifterMotor->Set(fLifterLowerNoTotes);
+			}
+			break;
+
+		case COMMAND_CANLIFTER_STOP:
+			if(bHover)
+			{
+				// stop but with enough juice to hold the carriage in place
+
+				lifterMotor->Set(fLifterHoverNoTotes);
+			}
+			else if(!bMiddleHover)
+			{
+				// stop if we are not hovering with a tote
+
+				lifterMotor->Set(fLifterStop);
+			}
+
 			pSafetyTimer->Reset();
-		break;
+			break;
+
 		default:
-		break;
+			break;
+
 	}	//end of command switch
 
-	if(lifterHallEffectBottom)
-	{
-		//TODO send return message to robot
-	}
 	//if the connection times out, shut everything off
 	if (pSafetyTimer->Get() > 30.0)
 	{
@@ -110,29 +170,66 @@ void CanLifter::Run() {
 		pSafetyTimer->Reset();
 	}
 
+	// if the middle sensor is tripped were we moving up or down or should we hover holding a tote?
+
+	if(midDetect->Get())
+	{
+		midDetect->Reset();
+
+		if(bMiddleHover)
+		{
+			// hover here with enough juice to hold steady
+
+			if(iToteLoad == 1)
+			{
+				lifterMotor->Set(fLifterHoverOneTotes);
+			}
+			else if(iToteLoad == 2)
+			{
+				lifterMotor->Set(fLifterHoverTwoTotes);
+			}
+			else if(iToteLoad == 3)
+			{
+				lifterMotor->Set(fLifterHoverThreeTotes);
+			}
+			else
+			{
+				lifterMotor->Set(fLifterHoverNoTotes);
+			}
+		}
+		else
+		{
+			// not holding a tote, just normal can up and down motions
+
+			if(lifterMotor->Get() > 0.0)
+			{
+				// was on the way up
+
+				bGoingUp = true;
+				bGoingDown = false;
+			}
+			else if(lifterMotor->Get() < 0.0)
+			{
+				// was on the way down
+
+				bGoingUp = false;
+				bGoingDown = true;
+			}
+		}
+	}
+
 	// update the Smart Dashboard periodically to reduce traffic
 	if (pRemoteUpdateTimer->Get() > 0.2)
 	{
 		pRemoteUpdateTimer->Reset();
-		SmartDashboard::PutNumber("Lift Current", lifterMotor->GetOutputCurrent());
 		lifterHallEffectBottom = lifterMotor->IsRevLimitSwitchClosed();
 		lifterHallEffectTop = lifterMotor->IsFwdLimitSwitchClosed();
+
+		SmartDashboard::PutNumber("Lift Current", lifterMotor->GetOutputCurrent());
 		SmartDashboard::PutBoolean("Lifter @ Top", lifterHallEffectTop);
 		SmartDashboard::PutBoolean("Lifter @ Bottom", lifterHallEffectBottom);
 		SmartDashboard::PutBoolean("Lifter Hover", bHover);
 	}
 }
 
-bool CanLifter::GetHallEffectTop()
-{
-	return lifterMotor->IsFwdLimitSwitchClosed();
-}
-bool CanLifter::GetHallEffectMiddle()
-{
-	return midHallEffect->Get();
-}
-bool CanLifter::GetHallEffectBottom()
-{
-	return lifterMotor->IsRevLimitSwitchClosed();
-}
 

@@ -128,23 +128,32 @@ void RhsRobot::Run() {
 
 	if (drivetrain)
 	{
-		//preprocessing is used to make my life easier
-#if 0
-		float reduction = .5;
-		if(bCanlifterNearBottom)
-		{
-			reduction = 1.0;
-		}
-#endif
-		float reduction = 1.0;
 #if 1
 		robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_TANK;
-		robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT * reduction;
-		robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT * reduction;
+
+		// limit the speed if the can lifter is NOT at the bottom
+
+		if(!canlifter->GetHallEffectBottom())
+		{
+			robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT * fDriveReduction;
+			robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT * fDriveReduction;
+		}
+		else
+		{
+			robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT * fDriveMax;
+			robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT * fDriveMax;
+		}
+
 #else
 		robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_ARCADE;
-		robotMessage.params.arcadeDrive.x = ARCADE_DRIVE_X * reduction;
-		robotMessage.params.arcadeDrive.y = ARCADE_DRIVE_Y * reduction;
+		robotMessage.params.arcadeDrive.x = ARCADE_DRIVE_X;
+		robotMessage.params.arcadeDrive.y = ARCADE_DRIVE_Y;
+
+		if(!canlifter->GetHallEffectBottom())
+		{
+			robotMessage.params.arcadeDrive.x *= fDriveReduction;
+			robotMessage.params.arcadeDrive.y *= fDriveReduction;
+		}
 #endif
 		drivetrain->SendMessage(&robotMessage);
 	}
@@ -155,37 +164,37 @@ void RhsRobot::Run() {
 		{ //only used for autonomous and depositing cans
 			//SmartDashboard::PutString("Conveyor Mode", "Output Front");
 			robotMessage.command = COMMAND_CONVEYOR_RUNALL_FWD;
-			if(!bLastConveyorButtonDown)
-			{
-				robotMessage.params.conveyorParams.bButtonWentDownEvent = true;
-				bLastConveyorButtonDown = true;
-			}
-			else
-			{
-				robotMessage.params.conveyorParams.bButtonWentDownEvent = false;
-			}
+			//if(!bLastConveyorButtonDown)
+			//{
+			//	robotMessage.params.conveyorParams.bButtonWentDownEvent = true;
+			//	bLastConveyorButtonDown = true;
+			//}
+			//else
+			//{
+			//	robotMessage.params.conveyorParams.bButtonWentDownEvent = false;
+			//}
 		}
 		else if(CONVEYOR_BCK)
 		{ //used to intake and deposit totes
 			//SmartDashboard::PutString("Conveyor Mode", "Output Back");
 			robotMessage.command = COMMAND_CONVEYOR_RUNALL_BCK;
 
-			if(!bLastConveyorButtonDown)
-			{
-				robotMessage.params.conveyorParams.bButtonWentDownEvent = true;
-				bLastConveyorButtonDown = true;
-			}
-			else
-			{
-				robotMessage.params.conveyorParams.bButtonWentDownEvent = false;
-			}
+			//if(!bLastConveyorButtonDown)
+			//{
+			//	robotMessage.params.conveyorParams.bButtonWentDownEvent = true;
+			//	bLastConveyorButtonDown = true;
+			//}
+			//else
+			//{
+			//	robotMessage.params.conveyorParams.bButtonWentDownEvent = false;
+			//}
 		}
 		else
 		{
 			//SmartDashboard::PutString("Conveyor Mode", "Stopped");
 			robotMessage.command = COMMAND_CONVEYOR_RUNALL_STOP;
-			robotMessage.params.conveyorParams.bButtonWentDownEvent = false;
-			bLastConveyorButtonDown = false;
+			//robotMessage.params.conveyorParams.bButtonWentDownEvent = false;
+			//bLastConveyorButtonDown = false;
 		}
 
 		conveyor->SendMessage(&robotMessage);
@@ -269,12 +278,12 @@ void RhsRobot::Run() {
 		if(CANLIFTER_RAISE > .1)
 		{
 			robotMessage.command = COMMAND_CANLIFTER_RAISE;
-			robotMessage.params.lifterSpeed = CANLIFTER_RAISE;
+			robotMessage.params.canLifterParams.lifterSpeed = CANLIFTER_RAISE;
 		}
 		else if(CANLIFTER_LOWER > .1)
 		{
 			robotMessage.command = COMMAND_CANLIFTER_LOWER;
-			robotMessage.params.lifterSpeed = CANLIFTER_LOWER;
+			robotMessage.params.canLifterParams.lifterSpeed = CANLIFTER_LOWER;
 		}
 		else if(ControllerListen_1->ButtonPressed(CANLIFTER_HOVER_ID))
 		{

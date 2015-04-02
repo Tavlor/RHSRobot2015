@@ -27,7 +27,9 @@ public:
 
 private:
 	CANTalon *conveyorMotor;
-	float fConveyorSpeed = .5;
+	const float fConveyorSpeed = 1.0;
+	const float fConveyorSpeedBack = 0.5;
+	bool bBackStopEnable;
 
 	void OnStateChange();
 	void Run();

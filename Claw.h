@@ -37,8 +37,8 @@ private:
 	 *	Open: -
 	 *	Lower: +
 	 */
-	const float fClawOpen = -.25;
-	const float fClawClose = .75;
+	const float fClawOpen = -1.00;
+	const float fClawClose = .50;
 	const float fClawStop = 0.0;
 	const float fClawMotorCurrentMax = 30.0;
 

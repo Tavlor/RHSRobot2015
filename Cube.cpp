@@ -47,6 +47,7 @@ Cube::Cube() :
 	bEnableAutoCycle = false;
 	bPrepareToRemove = false;
 	fClickerPaused = 0.0;
+	bFirstTote = true;
 
 	irBlocked = !intakeMotor->IsRevLimitSwitchClosed();
 	clickerHallEffectBottom = clickerMotor->IsRevLimitSwitchClosed();
@@ -276,13 +277,28 @@ void Cube::Run() {
 			irBlocked = !intakeMotor->IsRevLimitSwitchClosed();
 			SmartDashboard::PutBoolean("Cube IR", irBlocked);
 
+			topIR = clickerMotor->GetPinStateQuadB();
+			SmartDashboard::PutNumber("top IR", topIR);
+
+			if(topIR == 1 && irBlocked){
+				bPrepareToRemove = true;
+			}
+
 			if(irBlocked || bPrepareToRemove)
 			{
 				// if the beam is broken (ie tote detected), lower the clicker
 
-				pGateTimer->Reset();
-				clickerLastState = STATE_CLICKER_GATEDELAY;
-				clickerMotor->Set(fClickerLower);
+				if(bFirstTote)
+				{
+				  clickerMotor->Set(fClickerTopHold);
+				  clickerLastState = STATE_CLICKER_FIRSTTOTEDELAY;
+				}
+				else
+				{
+					pGateTimer->Reset();
+					clickerLastState = STATE_CLICKER_GATEDELAY;
+					clickerMotor->Set(fClickerLower);
+				}
 			}
 			else
 			{
@@ -296,6 +312,16 @@ void Cube::Run() {
 			if(pGateTimer->Get() > 0.25)
 			{
 				clickerLastState = STATE_CLICKER_LOWER;
+			}
+			break;
+
+		case STATE_CLICKER_FIRSTTOTEDELAY:
+			irBlocked = !intakeMotor->IsRevLimitSwitchClosed();
+
+			if(!irBlocked)
+			{
+				bFirstTote = false;
+				clickerLastState = STATE_CLICKER_TOP;
 			}
 			break;
 
@@ -343,6 +369,7 @@ void Cube::Run() {
 			{
 				// if all totes removed, start again
 
+				bFirstTote = true;
 				bPrepareToRemove = false;
 				clickerLastState = STATE_CLICKER_DELAYAFTERCYLE;
 				//Do not raise the clicker right away, risk of clipping stack

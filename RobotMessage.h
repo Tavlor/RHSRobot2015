@@ -101,12 +101,16 @@ enum MessageCommand {
 	COMMAND_CANLIFTER_RAISE,			//!< Tells CanLifter to raise the lift
 	COMMAND_CANLIFTER_LOWER,			//!< Tells CanLifter to lower the lift
 	COMMAND_CANLIFTER_HOVER,			//!< Tells CanLifter to hold the lift where it is
+	COMMAND_CANLIFTER_RAISETOTES,		//!< Tells CanLifter to raise to middle position
+	COMMAND_CANLIFTER_LOWERTOTES,		//!< Tells CanLifter to lower when holding totes
 	COMMAND_CANLIFTER_STOP,				//!< Tells CanLifter to stop the lift
-	COMMAND_CANLIFTER_LIFTTOTE,			//!< Tells CanLifter to lift a tote, used by Autonomous
-	COMMAND_CANLIFTER_SETTOTE,			//!< Tells CanLifter to set down a tote, used by Autonomous
+
 	COMMAND_CLAW_OPEN,					//!< Tells CanLifter to open the claw
 	COMMAND_CLAW_CLOSE,					//!< Tells CanLifter to close the claw
 	COMMAND_CLAW_STOP,					//!< Tells CanLifter to stop the claw
+
+	COMMAND_TOTELIFTER_EXTEND,			//!< Tells ToteLifter to extend tote arm, used by Autonomous
+	COMMAND_TOTELIFTER_RETRACT,			//!< Tells ToteLifter to retract tote arm, used by Autonomous
 
 	COMMAND_CUBECLICKER_RAISE,			//!< Tells Cube to raise the clicker
 	COMMAND_CUBECLICKER_LOWER,			//!< Tells Cube to lower the clicker
@@ -145,16 +149,26 @@ struct ConveyorParams {
 	float intakeSpeed;
 };
 
+///Used to deliver can lifter params
+struct CanLifterParams {
+	float lifterSpeed;
+	int iNumTotes;
+};
+
 ///Used to deliver autonomous values to Drivetrain
 struct AutonomousParams {
 	unsigned uMode;
 	unsigned uDelay;
 	///how long a function can run, maximum
 	float timeout;
+	///how long until a function performs
+	float timein;
+
 	///used by drivetrain for straight driving
 	float driveSpeed;
 	float driveDistance;
 	float turnAngle;
+	float driveTime;
 };
 
 ///Contains all the parameter structures contained in a message
@@ -162,7 +176,7 @@ union MessageParams {
 	TankDriveParams tankDrive;
 	ArcadeDriveParams arcadeDrive;
 	ConveyorParams conveyorParams;
-	float lifterSpeed;
+	CanLifterParams canLifterParams;
 	AutonomousParams autonomous;
 };
 

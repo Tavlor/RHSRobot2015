@@ -48,12 +48,13 @@ bool Autonomous::CommandResponse(const char *szQueueName) {
 
 	if (ReceivedCommand == COMMAND_AUTONOMOUS_RESPONSE_OK)
 	{
-		printf("auto is ok\n");
+		SmartDashboard::PutString("Auto Status","auto ok");
 		bReturn = true;
 	}
 	else if (ReceivedCommand == COMMAND_AUTONOMOUS_RESPONSE_ERROR)
 	{
-		printf("auto is not ok\n");
+		SmartDashboard::PutString("Auto Status","auto died, tell programmers");
+		//TODO: if auto quits abnormally, signal the drivers via SD or something
 		bReturn = false;
 	}
 
@@ -187,8 +188,11 @@ bool Autonomous::Turn(char *pCurrLinePos) {
 
 bool Autonomous::SeekTote(char *pCurrLinePos) {
 	char *pToken;
+	float fTimein;
 	float fTimeout;
 
+	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+	fTimein = atof(pToken);
 	// parse remainder of line to get timeout
 	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
 	fTimeout = atof(pToken);
@@ -196,21 +200,26 @@ bool Autonomous::SeekTote(char *pCurrLinePos) {
 	// send the message to the drive train
 	Message.command = COMMAND_DRIVETRAIN_SEEK_TOTE;
 	Message.params.autonomous.timeout = fTimeout;
+	Message.params.autonomous.timein = fTimein;
 	return (CommandResponse(DRIVETRAIN_QUEUE));
 }
 
 bool Autonomous::Straight(char *pCurrLinePos) {
 	char *pToken;
 	float fSpeed;
+	float fTime;
 
 	// parse remainder of line to get length to move
 
 	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
 	fSpeed = atof(pToken);
+	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+	fTime = atof(pToken);
 
 	// send the message to the drive train
 	Message.command = COMMAND_DRIVETRAIN_DRIVE_STRAIGHT;
 	Message.params.autonomous.driveSpeed = fSpeed;
+	Message.params.autonomous.driveTime = fTime;
 	return (CommandResponse(DRIVETRAIN_QUEUE));
 }
 

@@ -49,6 +49,7 @@ private:
 			STATE_CLICKER_RAISE,
 			STATE_CLICKER_LOWER,
 			STATE_CLICKER_GATEDELAY,
+			STATE_CLICKER_FIRSTTOTEDELAY,
 			STATE_CLICKER_TOP,
 			STATE_CLICKER_BOTTOM,
 			STATE_CLICKER_BOTTOMHOLD,
@@ -66,6 +67,7 @@ private:
 	bool bEnableAutoCycle;
 	bool bPrepareToRemove;
 	float fClickerPaused;
+	bool bFirstTote;
 
 	/* CLICKER
 	 *	Raise:+	  (using CIM, not bag)
@@ -83,6 +85,7 @@ private:
 	ClickerState clickerLastState = STATE_CLICKER_TOP;
 
 	bool irBlocked;
+	int topIR;
 	bool clickerHallEffectBottom;
 	bool clickerHallEffectTop;
 
