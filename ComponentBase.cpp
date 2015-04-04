@@ -66,7 +66,7 @@ void ComponentBase::ReceiveMessage()			//Receives a message and copies it into l
 	FD_SET(iPipeRcv, &selectSet);
 
 	timeout.tv_sec = 0;
-	timeout.tv_usec = 100000;
+	timeout.tv_usec = 40000;
 
 	if(select(iPipeRcv + 1, &selectSet, NULL, NULL, &timeout) == 0)
 	{

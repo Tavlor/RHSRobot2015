@@ -98,8 +98,15 @@ void CanLifter::Run() {
 			pSafetyTimer->Reset();
 			break;
 
+		case COMMAND_CANLIFTER_STARTRAISETOTES:
+			bMiddleHover = true;
+			pSafetyTimer->Reset();
+			lifterMotor->Set(fLifterLiftOneTotes);
+			break;
+
 		case COMMAND_CANLIFTER_RAISETOTES:
 			bMiddleHover = true;
+			pSafetyTimer->Reset();
 			iToteLoad = localMessage.params.canLifterParams.iNumTotes;
 
 			if(iToteLoad == 1)
@@ -113,6 +120,7 @@ void CanLifter::Run() {
 			else if(iToteLoad == 3)
 			{
 				lifterMotor->Set(fLifterLiftThreeTotes);
+				SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 			}
 			else
 			{
@@ -122,6 +130,7 @@ void CanLifter::Run() {
 
 		case COMMAND_CANLIFTER_LOWERTOTES:
 			bMiddleHover = false;
+			pSafetyTimer->Reset();
 
 			if(iToteLoad == 1)
 			{
@@ -133,6 +142,7 @@ void CanLifter::Run() {
 			}
 			else if(iToteLoad == 3)
 			{
+				//really just grabbing ahold, not lifting
 				lifterMotor->Set(fLifterLowerThreeTotes);
 			}
 			else
@@ -196,6 +206,8 @@ void CanLifter::Run() {
 			{
 				lifterMotor->Set(fLifterHoverNoTotes);
 			}
+
+			SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 		}
 		else
 		{

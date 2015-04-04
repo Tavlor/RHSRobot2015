@@ -23,6 +23,7 @@ typedef enum AUTO_COMMAND_TOKENS
 	AUTO_TOKEN_STRAIGHT,		// straight (speed)
 	AUTO_TOKEN_EXTEND_TOTE,		// tote lift extends tote stack
 	AUTO_TOKEN_RETRACT_TOTE,	// tote lift retracts tote stack
+	AUTO_TOKEN_START_RAISE_TOTE,// can lift begins to raise tote stack - won't stop auto
 	AUTO_TOKEN_RAISE_TOTE,		// can lift raises tote stack
 	AUTO_TOKEN_LOWER_TOTE,		// can lift lowers tote stack
 	AUTO_TOKEN_CLAW_OPEN,		// open the can lifter claw

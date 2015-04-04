@@ -31,6 +31,7 @@ const char *szTokens[] = {
 		"STRAIGHT",
 		"TOTEEXTEND",
 		"TOTERETRACT",
+		"STARTTOTEUP",
 		"TOTEUP",
 		"TOTEDOWN",
 		"CLAWOPEN",
@@ -57,12 +58,12 @@ bool Autonomous::Evaluate(std::string rStatement) {
 	// process the autonomous motion
 
 	pCurrLinePos = (char *) rStatement.c_str();
-	printf("%s\n", rStatement.c_str());
 
 	if(*pCurrLinePos == sComment) {
-		printf("%s\n", rStatus.c_str());
 		return (bReturn);
 	}
+
+	printf("%s\n", rStatement.c_str());
 
 	// find first token
 
@@ -185,13 +186,18 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		bReturn = !CommandNoResponse(TOTELIFTER_QUEUE);
 		break;
 
+	case AUTO_TOKEN_START_RAISE_TOTE:
+		Message.command = COMMAND_CANLIFTER_STARTRAISETOTES;
+		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
+		break;
+
 	case AUTO_TOKEN_RAISE_TOTE:
 		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
 		iParam1 = atoi(pToken);
 
 		Message.command = COMMAND_CANLIFTER_RAISETOTES;
 		Message.params.canLifterParams.iNumTotes = iParam1;
-		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
+		bReturn = !CommandResponse(CANLIFTER_QUEUE);
 		break;
 
 	case AUTO_TOKEN_LOWER_TOTE:
@@ -200,7 +206,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 
 		Message.command = COMMAND_CANLIFTER_LOWERTOTES;
 		Message.params.canLifterParams.iNumTotes = iParam1;
-		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
+		bReturn = !CommandResponse(CANLIFTER_QUEUE);
 		break;
 
 	case AUTO_TOKEN_CLAW_OPEN:

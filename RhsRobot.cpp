@@ -24,6 +24,7 @@ RhsRobot::RhsRobot() {
 	cube = NULL;
 	canlifter = NULL;
 	claw = NULL;
+	totelift = NULL;
 
 	bLastConveyorButtonDown = false;
 	bCanlifterNearBottom = false;
@@ -61,7 +62,8 @@ void RhsRobot::Init() {
 	conveyor = new Conveyor();
 	canlifter = new CanLifter();
 	claw = new Claw();
-	cube = new Cube();
+	//cube = new Cube();
+	totelift = new ToteLifter();
 	autonomous = new Autonomous();
 
 	std::vector<ComponentBase *>::iterator nextComponent = ComponentSet.begin();
@@ -89,6 +91,11 @@ void RhsRobot::Init() {
 	if(claw)
 	{
 		nextComponent = ComponentSet.insert(nextComponent, claw);
+	}
+
+	if(totelift)
+	{
+		nextComponent = ComponentSet.insert(nextComponent, totelift);
 	}
 
 	if(autonomous)

@@ -243,33 +243,6 @@ void Drivetrain::MeasuredMove(float speed, float targetDist) {
 #endif
 }
 
-void Drivetrain::SeekTote(float timein, float timeout) {
-	MessageCommand command = COMMAND_AUTONOMOUS_RESPONSE_ERROR;
-	pAutoTimer->Reset();
-
-	while ((pAutoTimer->Get() < timeout)
-			&& RobotBase::getInstance().IsAutonomous())
-	{
-		if (toteSensor->Get() && pAutoTimer->Get() > timein)
-		{
-			printf("Tote reached.\n");
-			command = COMMAND_AUTONOMOUS_RESPONSE_OK;
-			break;
-		}
-
-		SmartDashboard::PutNumber("Gyro Angle", gyro->GetAngle());
-		StraightDriveLoop(fToteSeekSpeed);
-		Wait(0.01);
-	}
-
-	left = 0;
-	right = 0;
-	leftMotor->Set(0.0);
-	rightMotor->Set(0.0);
-
-	SendCommandResponse(command);
-}
-
 void Drivetrain::Turn(float targetAngle, float timeout) {
 	MessageCommand command = COMMAND_AUTONOMOUS_RESPONSE_ERROR;
 	targetAngle += gyro->GetAngle();
@@ -285,7 +258,7 @@ void Drivetrain::Turn(float targetAngle, float timeout) {
 			break;
 		}
 
-		float motorValue = std::min(degreesLeft * .3f, turnSpeedLimit);
+		float motorValue = std::min(degreesLeft * turnAngleSpeedMultiplyer, turnSpeedLimit);
 		leftMotor->Set(motorValue);
 		rightMotor->Set(motorValue);
 		SmartDashboard::PutNumber("Remaining Degrees", degreesLeft);
@@ -301,9 +274,36 @@ void Drivetrain::Turn(float targetAngle, float timeout) {
 	SendCommandResponse(command);
 }
 
+void Drivetrain::SeekTote(float timein, float timeout) {
+	MessageCommand command = COMMAND_AUTONOMOUS_RESPONSE_ERROR;
+	pAutoTimer->Reset();
+
+	while ((pAutoTimer->Get() < timeout)
+			&& RobotBase::getInstance().IsAutonomous())
+	{
+		if (toteSensor->Get() && pAutoTimer->Get() > timein)
+		{
+			printf("Tote reached.\n");
+			command = COMMAND_AUTONOMOUS_RESPONSE_OK;
+			break;
+		}
+		StraightDriveLoop(fToteSeekSpeed);
+		Wait(0.01);
+	}
+
+	left = 0;
+	right = 0;
+	leftMotor->Set(0.0);
+	rightMotor->Set(0.0);
+
+	SendCommandResponse(command);
+}
+
 void Drivetrain::StraightDrive(float speed, float time) {
 	MessageCommand command = COMMAND_AUTONOMOUS_RESPONSE_OK;
 	pAutoTimer->Reset();
+	//DO NOT RESET THE GYRO EVER. only zeroing.
+	gyro->Zero();
 
 	while ((pAutoTimer->Get() < time)
 			&& RobotBase::getInstance().IsAutonomous())
@@ -344,8 +344,8 @@ void Drivetrain::StraightDriveLoop(float speed) {
 	else if (speed < 0.0)
 	{
 		//if headed in negative direction
-		left = (-1.0 + adjustment) * speed;
-		right = (1.0 + adjustment) * speed;
+		left = (1.0 + adjustment) * speed;
+		right = (-1.0 + adjustment) * speed;
 	}
 	else
 	{
@@ -354,7 +354,13 @@ void Drivetrain::StraightDriveLoop(float speed) {
 	}
 	leftMotor->Set(left);
 	rightMotor->Set(right);
-	SmartDashboard::PutNumber("Angle Adjustment", adjustment);
+	if (pRemoteUpdateTimer->Get() > 0.2)
+	{
+		pRemoteUpdateTimer->Reset();
+		SmartDashboard::PutBoolean("Tote Detector", toteSensor->Get());
+		SmartDashboard::PutNumber("Angle Adjustment", adjustment);
+		SmartDashboard::PutNumber("Gyro Angle", gyro->GetAngle());
+	}
 }
 
 bool Drivetrain::GetToteSensor()

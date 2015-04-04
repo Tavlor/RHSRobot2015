@@ -6,8 +6,8 @@
 
 
 ToteLifter::ToteLifter() : ComponentBase(TOTELIFTER_TASKNAME, TOTELIFTER_QUEUE, TOTELIFTER_PRIORITY) {
-	bExtending = true;
-	bRetracting = true;
+	bExtending = false;
+	bRetracting = false;
 
 	toteMotor = new CANTalon(CAN_PALLET_JACK_TOTE_LIFT);
 	wpi_assert(toteMotor);
@@ -41,13 +41,27 @@ void ToteLifter::OnStateChange()
 	switch (localMessage.command)
 	{
 		case COMMAND_ROBOT_STATE_AUTONOMOUS:
+			break;
+
 		case COMMAND_ROBOT_STATE_TEST:
+			break;
+
 		case COMMAND_ROBOT_STATE_TELEOPERATED:
+			toteMotor->Set(fToteStop);
+			bExtending = false;
+			bRetracting = false;
+			break;
+
 		case COMMAND_ROBOT_STATE_DISABLED:
+			break;
+
 		case COMMAND_ROBOT_STATE_UNKNOWN:
+			break;
+
 		default:
-			toteMotor->Set(fToteRetract);
-			pRetractTimer->Reset();
+			toteMotor->Set(fToteStop);
+			bExtending = false;
+			bRetracting = false;
 		break;
 	}
 }

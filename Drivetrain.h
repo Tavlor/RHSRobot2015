@@ -47,8 +47,8 @@ private:
 	float left = 0;
 	float right = 0;
 
-	///Speed for tote seeking
-	float fToteSeekSpeed = .3;
+	///Speed for tote seeking: the robot drives backwards
+	float fToteSeekSpeed = -.5;
 	///how strong direction recovery is in straight drive, higher = stronger
 	const float recoverStrength = .05;
 	const float fMaxRecoverSpeed = .3;
@@ -56,7 +56,8 @@ private:
 	///how far from goal the robot can be before stopping
 	const float distError = 1;//inches
 	const float angleError = 3;//degrees
-	const float turnSpeedLimit = .2;
+	const float turnAngleSpeedMultiplyer = .1;//angle * mult = speed to be reduced by limit
+	const float turnSpeedLimit = .4;
 	const float fEncoderRatio = 0.023009;
 	//diameter*pi/encoder_resolution : 1.875 * 3.14 / 256
 
