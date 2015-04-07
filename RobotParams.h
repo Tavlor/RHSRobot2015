@@ -16,6 +16,8 @@ const char* const ROBOT_NAME =		"RhsRobot2015 Oklahoma";	//Formal name
 const char* const ROBOT_NICKNAME =   "The Blues Brothers";		//Nickname
 const char* const ROBOT_VERSION =	"2.0";						//Version
 
+#define ABLIMIT(a,b) if(a > b) a = b; else if(a < -b) a = -b;
+
 //Task Params - Defines component task priorites relative to the default priority.
 //EXAMPLE: const int DRIVETRAIN_PRIORITY = DEFAULT_PRIORITY -2;
 const int DEFAULT_PRIORITY = 150;

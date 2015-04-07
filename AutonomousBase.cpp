@@ -47,7 +47,7 @@ void Autonomous::Init()	//Initializes the autonomous component
 void Autonomous::OnStateChange()	//Handles state changes
 {
 	// to handle unexpected state changes before the auto script finishes (like in OKC last year)
-	// we will leave the script running - hope this works!
+	// we will leave the script running
 
 	if(localMessage.command == COMMAND_ROBOT_STATE_AUTONOMOUS)
 	{
@@ -125,13 +125,17 @@ bool Autonomous::LoadScriptFile()
 
 void Autonomous::DoScript()
 {
-	printf("DoScript\n");
+	//int loadAttemptTally = 0; //for debugging
+	SmartDashboard::PutString("Script Line", "DoScript started");
+	SmartDashboard::PutBoolean("Script File Loaded", false);
+	//printf("DoScript\n");
 	
 	while(true)
 	{
 		lineNumber = 0;
 		SmartDashboard::PutNumber("Script Line Number", lineNumber);
 
+		//TODO: LoadScriptFile is called every stinking time we want to check load status! Does this eat time?
 		if(LoadScriptFile() == false)
 		{
 			// wait a little and try again, really only useful if when practicing
@@ -143,11 +147,10 @@ void Autonomous::DoScript()
 		{
 			SmartDashboard::PutBoolean("Script File Loaded", true);
 
-			// if there is a script we will execute it some hell or high water!
+			// if there is a script we will execute it some heck or high water!
 
 			while (bInAutoMode)
 			{
-
 				SmartDashboard::PutNumber("Script Line Number", lineNumber);
 
 				if (!bPauseAutoMode)
@@ -180,7 +183,7 @@ void Autonomous::DoScript()
 			}
 
 			bInAutoMode = false;
-			Wait(5.0);
+			Wait(0.1);
 		}
 	}
 

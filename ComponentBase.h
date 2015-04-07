@@ -50,6 +50,7 @@ protected:
 	virtual void Run() = 0;
 	//virtual void SmartDashboardUpdate() = 0;
 	//incorperate this later
+
 	///used to send a message back to autonomous or whatever to notify completion of a function
 	void SendCommandResponse(MessageCommand);
 

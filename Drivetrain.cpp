@@ -37,8 +37,8 @@ Drivetrain::Drivetrain() :
 
 	leftMotor->SetControlMode(CANSpeedController::kPercentVbus);
 	rightMotor->SetControlMode(CANSpeedController::kPercentVbus);
-	leftMotor->SetVoltageRampRate(60.0);
-	rightMotor->SetVoltageRampRate(60.0);
+	leftMotor->SetVoltageRampRate(120.0);
+	rightMotor->SetVoltageRampRate(120.0);
 
 	wpi_assert(leftMotor->IsAlive());
 	wpi_assert(rightMotor->IsAlive());
@@ -244,34 +244,44 @@ void Drivetrain::MeasuredMove(float speed, float targetDist) {
 }
 
 void Drivetrain::Turn(float targetAngle, float timeout) {
+	//TODO: if needed, you can check the rate at which the gyro angle changes
+	//to figure out if the robot is moving slow enough to exit.
 	MessageCommand command = COMMAND_AUTONOMOUS_RESPONSE_ERROR;
 	targetAngle += gyro->GetAngle();
 	pAutoTimer->Reset();
+
 	while (pAutoTimer->Get() < timeout
 			&& RobotBase::getInstance().IsAutonomous())
 	{
 		//if you don't disable this during non-auto, it will keep trying to turn during teleop. Not fun.
 		float degreesLeft = targetAngle - gyro->GetAngle();
 
-		if (degreesLeft < angleError && degreesLeft > -angleError)
+		printf("Turning target %f current %f\n", targetAngle, gyro->GetAngle());
+
+		if ((degreesLeft < angleError) && (degreesLeft > -angleError))
 		{
 			break;
 		}
 
-		float motorValue = std::min(degreesLeft * turnAngleSpeedMultiplyer, turnSpeedLimit);
+		float motorValue = degreesLeft * turnAngleSpeedMultiplyer;
+
+		ABLIMIT(motorValue, turnSpeedLimit);
+
 		leftMotor->Set(motorValue);
 		rightMotor->Set(motorValue);
+
 		SmartDashboard::PutNumber("Remaining Degrees", degreesLeft);
 		SmartDashboard::PutNumber("Turn Speed", motorValue);
 	}
+
 	leftMotor->Set(0);
 	rightMotor->Set(0);
+	command = COMMAND_AUTONOMOUS_RESPONSE_OK;
+	SendCommandResponse(command);
+
 	SmartDashboard::PutNumber("Remaining Degrees", 0.0);
 	SmartDashboard::PutNumber("Turn Speed", 0.0);
 	printf("Finished turning %f degrees\n", targetAngle);
-
-	command = COMMAND_AUTONOMOUS_RESPONSE_OK;
-	SendCommandResponse(command);
 }
 
 void Drivetrain::SeekTote(float timein, float timeout) {
@@ -322,14 +332,6 @@ void Drivetrain::StraightDrive(float speed, float time) {
 
 
 void Drivetrain::StraightDriveLoop(float speed) {
-	if(speed > 1.0)
-	{
-		speed = 1.0;
-	}
-	else if(speed < -1.0)
-	{
-		speed = -1.0;
-	}
 
 	//keep the reference angle between -30 and 30 degrees
 	//float angle = std::max(std::min(gyro->GetAngle(),fMaxRecoverAngle),-fMaxRecoverAngle);
@@ -338,8 +340,8 @@ void Drivetrain::StraightDriveLoop(float speed) {
 	if (speed > 0.0)
 	{
 		//if headed in positive direction
-		left = (1.0 - adjustment) * speed;
-		right = (-1.0 - adjustment) * speed;
+		left = (1.0 + adjustment) * speed;
+		right = (-1.0 + adjustment) * speed;
 	}
 	else if (speed < 0.0)
 	{
@@ -352,8 +354,15 @@ void Drivetrain::StraightDriveLoop(float speed) {
 		left = 0.0;
 		right = 0.0;
 	}
+
+	//printf("left %0.03f right %0.03f adjust %0.03f\n", left, right, adjustment);
+
+	ABLIMIT(left, 1.0);
+	ABLIMIT(right, 1.0);
+
 	leftMotor->Set(left);
 	rightMotor->Set(right);
+
 	if (pRemoteUpdateTimer->Get() > 0.2)
 	{
 		pRemoteUpdateTimer->Reset();

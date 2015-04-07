@@ -31,11 +31,11 @@ private:
 	bool bExtending;
 	bool bRetracting;
 
-	const float fToteExtend = 0.50;
-	const float fToteRetract = -0.50;
+	const float fToteExtend = 1.00;
+	const float fToteRetract = -1.00;
 	const float fToteStop = 0.0;
-	const float fExtendTime = 1.5;
-	const float fRetractTime = 1.5;
+	const float fExtendTime = 1.00;
+	const float fRetractTime = 1.00;
 
 	void OnStateChange();
 	void Run();

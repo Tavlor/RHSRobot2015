@@ -56,10 +56,10 @@ private:
 	const float fLifterLiftTwoTotes = 1.0;
 	const float fLifterLiftThreeTotes = 0.35;
 
-	const float fLifterLowerNoTotes = -0.25;
-	const float fLifterLowerOneTotes = -0.20;
-	const float fLifterLowerTwoTotes = -0.15;
-	const float fLifterLowerThreeTotes = -0.10;
+	const float fLifterLowerNoTotes = -0.50;
+	const float fLifterLowerOneTotes = -0.50;
+	const float fLifterLowerTwoTotes = -0.50;
+	const float fLifterLowerThreeTotes = -0.50;
 
 	const float fLifterStop = 0.0;
 

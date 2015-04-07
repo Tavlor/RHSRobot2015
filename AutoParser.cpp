@@ -18,7 +18,7 @@
 #include "Autonomous.h"
 
 using namespace std;
-
+//TODO: find source of delay at beginning of auto code.
 const char *szTokens[] = {
 		"MODE",
 		"BEGIN",
@@ -47,7 +47,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 	int iCommand;
 	float fParam1;
 	int iParam1;
-	bool bReturn = false;
+	bool bReturn = false; ///setting this to true WILL cause auto parsing to quit!
 	string rStatus;
 
 	if(rStatement.empty()) {
@@ -95,7 +95,8 @@ bool Autonomous::Evaluate(std::string rStatement) {
 
 	// execute the proper command
 
-	switch(iCommand) {
+	switch (iCommand)
+	{
 	case AUTO_TOKEN_BEGIN:
 		Begin(pCurrLinePos);
 		rStatus.append("start");
@@ -110,20 +111,22 @@ bool Autonomous::Evaluate(std::string rStatement) {
 	case AUTO_TOKEN_DELAY:
 		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
 
-		if(pToken == NULL) {
+		if (pToken == NULL)
+		{
 			rStatus.append("missing parameter");
 		}
-		else {
+		else
+		{
 			fParam1 = atof(pToken);
 			rStatus.append("wait");
 
 			// break out if auto mode is over
 
-			for(double fWait = 0.0; fWait < fParam1; fWait += 0.01)
+			for (double fWait = 0.0; fWait < fParam1; fWait += 0.01)
 			{
 				// if we are paused break the delay into pieces
 
-				while(bPauseAutoMode)
+				while (bPauseAutoMode)
 				{
 					Wait(0.02);
 				}
@@ -133,45 +136,53 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		}
 		break;
 	case AUTO_TOKEN_MOVE:
-		if(!Move(pCurrLinePos)) {
+		if (!Move(pCurrLinePos))
+		{
 			rStatus.append("move error");
 		}
-		else {
+		else
+		{
 			rStatus.append("move");
 		}
 		break;
 	case AUTO_TOKEN_MMOVE:
-		if(!MeasuredMove(pCurrLinePos)) {
+		if (!MeasuredMove(pCurrLinePos))
+		{
 			rStatus.append("move error");
 		}
-		else {
+		else
+		{
 			rStatus.append("move");
 		}
 		break;
 	case AUTO_TOKEN_TURN:
-		if(!Turn(pCurrLinePos)) {
+		if (!Turn(pCurrLinePos))
+		{
 			rStatus.append("turn error");
 		}
-		else {
+		else
+		{
 			rStatus.append("turn");
 		}
 		break;
-		case AUTO_TOKEN_SEEK_TOTE:
-			if (!SeekTote(pCurrLinePos))
-			{
-				rStatus.append("seekTote error");
-				bReturn = true;
-			}
-			else
-			{
-				rStatus.append("seekTote");
-			}
+	case AUTO_TOKEN_SEEK_TOTE:
+		if (!SeekTote(pCurrLinePos))
+		{
+			rStatus.append("seekTote error");
+			bReturn = true;
+		}
+		else
+		{
+			rStatus.append("seekTote");
+		}
 		break;
 	case AUTO_TOKEN_STRAIGHT:
-		if(!Straight(pCurrLinePos)) {
+		if (!Straight(pCurrLinePos))
+		{
 			rStatus.append("straight error");
 		}
-		else {
+		else
+		{
 			rStatus.append("straight");
 		}
 		break;
@@ -206,7 +217,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 
 		Message.command = COMMAND_CANLIFTER_LOWERTOTES;
 		Message.params.canLifterParams.iNumTotes = iParam1;
-		bReturn = !CommandResponse(CANLIFTER_QUEUE);
+		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
 		break;
 
 	case AUTO_TOKEN_CLAW_OPEN:
@@ -226,10 +237,12 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		break;
 
 	case AUTO_TOKEN_CUBE_AUTO:
-		if(!CubeAuto(pCurrLinePos)) {
+		if (!CubeAuto(pCurrLinePos))
+		{
 			rStatus.append("cube auto error");
 		}
-		else {
+		else
+		{
 			rStatus.append("cube auto");
 		}
 		break;

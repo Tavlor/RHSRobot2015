@@ -43,6 +43,7 @@ public:
 protected:
 	bool Evaluate(std::string statement);	//Evaluates an autonomous script statement
 	RobotMessage Message;
+	bool bScriptLoaded; //not yet in use
 	bool bInAutoMode;
 	bool bPauseAutoMode;
 
