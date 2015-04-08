@@ -170,7 +170,7 @@ void RhsRobot::Run() {
 		if(CONVEYOR_FWD)
 		{ //only used for autonomous and depositing cans
 			//SmartDashboard::PutString("Conveyor Mode", "Output Front");
-			robotMessage.command = COMMAND_CONVEYOR_RUNALL_FWD;
+			robotMessage.command = COMMAND_CONVEYOR_RUN_FWD;
 			//if(!bLastConveyorButtonDown)
 			//{
 			//	robotMessage.params.conveyorParams.bButtonWentDownEvent = true;
@@ -184,7 +184,7 @@ void RhsRobot::Run() {
 		else if(CONVEYOR_BCK)
 		{ //used to intake and deposit totes
 			//SmartDashboard::PutString("Conveyor Mode", "Output Back");
-			robotMessage.command = COMMAND_CONVEYOR_RUNALL_BCK;
+			robotMessage.command = COMMAND_CONVEYOR_RUN_BCK;
 
 			//if(!bLastConveyorButtonDown)
 			//{
@@ -199,7 +199,7 @@ void RhsRobot::Run() {
 		else
 		{
 			//SmartDashboard::PutString("Conveyor Mode", "Stopped");
-			robotMessage.command = COMMAND_CONVEYOR_RUNALL_STOP;
+			robotMessage.command = COMMAND_CONVEYOR_STOP;
 			//robotMessage.params.conveyorParams.bButtonWentDownEvent = false;
 			//bLastConveyorButtonDown = false;
 		}

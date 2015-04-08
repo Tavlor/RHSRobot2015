@@ -18,7 +18,7 @@
 #include "Autonomous.h"
 
 using namespace std;
-//TODO: find source of delay at beginning of auto code.
+
 const char *szTokens[] = {
 		"MODE",
 		"BEGIN",
@@ -27,18 +27,29 @@ const char *szTokens[] = {
 		"MOVE",
 		"MMOVE",
 		"TURN",
-		"SEEKTOTE",
 		"STRAIGHT",
-		"TOTEEXTEND",
-		"TOTERETRACT",
-		"STARTTOTEUP",
-		"TOTEUP",
-		"TOTEDOWN",
+		"STACKUP",
+		"STACKDOWN",
 		"CLAWOPEN",
 		"CLAWCLOSE",
+		"CANUP",
+		"CANDOWN",
+		"FRONTLOADTOTE",
+		"BACKLOADTOTE",
+		"DEPOSITTOTESBACK",
+		"TOTESHIFTFWD",
+		"TOTESHIFTBCK",
+		//"DRIVETOCAN",
+		"CANARMOPEN",
+		"CANARMCLOSE",
+		//Old commands from past auto attemts
+		"SEEKTOTE",
+		"STARTTOTEUP",
+		"TOTEEXTEND",
+		"TOTERETRACT",
+		"CUBEAUTO",
 		"CLICKERUP",
 		"CLICKERDOWN",
-		"CUBEAUTO",
 		"NOP" };
 
 bool Autonomous::Evaluate(std::string rStatement) {
@@ -135,6 +146,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 			}
 		}
 		break;
+
 	case AUTO_TOKEN_MOVE:
 		if (!Move(pCurrLinePos))
 		{
@@ -145,6 +157,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 			rStatus.append("move");
 		}
 		break;
+
 	case AUTO_TOKEN_MMOVE:
 		if (!MeasuredMove(pCurrLinePos))
 		{
@@ -155,6 +168,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 			rStatus.append("move");
 		}
 		break;
+
 	case AUTO_TOKEN_TURN:
 		if (!Turn(pCurrLinePos))
 		{
@@ -165,17 +179,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 			rStatus.append("turn");
 		}
 		break;
-	case AUTO_TOKEN_SEEK_TOTE:
-		if (!SeekTote(pCurrLinePos))
-		{
-			rStatus.append("seekTote error");
-			bReturn = true;
-		}
-		else
-		{
-			rStatus.append("seekTote");
-		}
-		break;
+
 	case AUTO_TOKEN_STRAIGHT:
 		if (!Straight(pCurrLinePos))
 		{
@@ -187,22 +191,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		}
 		break;
 
-	case AUTO_TOKEN_EXTEND_TOTE:
-		Message.command = COMMAND_TOTELIFTER_EXTEND;
-		bReturn = !CommandNoResponse(TOTELIFTER_QUEUE);
-		break;
-
-	case AUTO_TOKEN_RETRACT_TOTE:
-		Message.command = COMMAND_TOTELIFTER_RETRACT;
-		bReturn = !CommandNoResponse(TOTELIFTER_QUEUE);
-		break;
-
-	case AUTO_TOKEN_START_RAISE_TOTE:
-		Message.command = COMMAND_CANLIFTER_STARTRAISETOTES;
-		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
-		break;
-
-	case AUTO_TOKEN_RAISE_TOTE:
+	case AUTO_TOKEN_RAISE_TOTES:
 		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
 		iParam1 = atoi(pToken);
 
@@ -211,7 +200,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		bReturn = !CommandResponse(CANLIFTER_QUEUE);
 		break;
 
-	case AUTO_TOKEN_LOWER_TOTE:
+	case AUTO_TOKEN_LOWER_TOTES:
 		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
 		iParam1 = atoi(pToken);
 
@@ -230,10 +219,97 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		bReturn = !CommandNoResponse(CLAW_QUEUE);
 		break;
 
-	case AUTO_TOKEN_CLICKER_UP:
+	case AUTO_TOKEN_RAISE_CAN:
+		//TODO AUTO_TOKEN_RAISE_CAN
 		break;
 
-	case AUTO_TOKEN_CLICKER_DOWN:
+	case AUTO_TOKEN_LOWER_CAN:
+		//TODO AUTO_TOKEN_LOWER_CAN
+		break;
+
+	case AUTO_TOKEN_FRONT_LOAD_TOTE:
+		//draw tote into the robot from the front
+		//convey, drive robot fwd until front sensor, cont. convey until back sensor
+		Message.command = COMMAND_CONVEYOR_SET_BACK; //DON'T USE "RUN_BCK"-it's full of fancy
+		CommandNoResponse(CONVEYOR_QUEUE);
+		Message.command = COMMAND_DRIVETRAIN_FRONTLOAD_TOTE;
+		bReturn = !CommandResponse(DRIVETRAIN_QUEUE);
+		if(!bReturn)
+		{
+			Message.command = COMMAND_CONVEYOR_FRONTLOAD_TOTE;
+			bReturn = !CommandResponse(CONVEYOR_QUEUE);
+		}
+		break;
+
+	case AUTO_TOKEN_BACK_LOAD_TOTE:
+		//draw tote into the robot from the back
+		//convey, drive robot fwd until back sensor, cont. convey until front sensor
+		Message.command = COMMAND_CONVEYOR_RUN_FWD;
+		CommandNoResponse(CONVEYOR_QUEUE);
+		Message.command = COMMAND_DRIVETRAIN_BACKLOAD_TOTE;
+		bReturn = !CommandResponse(DRIVETRAIN_QUEUE);
+		if(!bReturn)
+		{
+			Message.command = COMMAND_CONVEYOR_BACKLOAD_TOTE;
+			bReturn = !CommandResponse(CONVEYOR_QUEUE);
+		}
+		break;
+
+	case AUTO_TOKEN_DEPOSITTOTES_BCK:
+		Message.command = COMMAND_CONVEYOR_DEPOSITTOTES_BCK;
+			//TODO AUTO_TOKEN_DEPOSITTOTES_BCK
+			break;
+
+	case AUTO_TOKEN_SHIFT_TOTES_FWD:
+		Message.command = COMMAND_CONVEYOR_SHIFTTOTES_FWD;
+		bReturn = !CommandNoResponse(CONVEYOR_QUEUE);
+			break;
+
+	case AUTO_TOKEN_SHIFT_TOTES_BCK:
+		Message.command = COMMAND_CONVEYOR_SHIFTTOTES_BCK;
+		bReturn = !CommandNoResponse(CONVEYOR_QUEUE);
+			break;
+
+	/*case AUTO_TOKEN_DRIVE_TO_CAN:
+			//TODO AUTO_TOKEN_DRIVE_TO_CAN
+			//drive forward to the can - may switch this to a straight drive
+			break;*/
+
+	case AUTO_TOKEN_CAN_ARM_OPEN:
+			//TODO AUTO_TOKEN_CAN_ARM_OPEN
+			//push open the can arm
+			break;
+
+	case AUTO_TOKEN_CAN_ARM_CLOSE:
+			//TODO AUTO_TOKEN_CAN_ARM_CLOSE
+			//close the can arm
+			break;
+
+	case AUTO_TOKEN_SEEK_TOTE:
+		if (!SeekTote(pCurrLinePos))
+		{
+			rStatus.append("seekTote error");
+			bReturn = true;
+		}
+		else
+		{
+			rStatus.append("seekTote");
+		}
+		break;
+
+	case AUTO_TOKEN_START_RAISE_TOTE:
+		Message.command = COMMAND_CANLIFTER_STARTRAISETOTES;
+		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
+		break;
+
+	case AUTO_TOKEN_EXTEND_TOTE:
+		Message.command = COMMAND_TOTELIFTER_EXTEND;
+		bReturn = !CommandNoResponse(TOTELIFTER_QUEUE);
+		break;
+
+	case AUTO_TOKEN_RETRACT_TOTE:
+		Message.command = COMMAND_TOTELIFTER_RETRACT;
+		bReturn = !CommandNoResponse(TOTELIFTER_QUEUE);
 		break;
 
 	case AUTO_TOKEN_CUBE_AUTO:
@@ -245,6 +321,12 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		{
 			rStatus.append("cube auto");
 		}
+		break;
+
+	case AUTO_TOKEN_CLICKER_UP:
+		break;
+
+	case AUTO_TOKEN_CLICKER_DOWN:
 		break;
 
 	default:

@@ -151,7 +151,7 @@ const int POV_STILL = -1;
  * 	Start Button				Start Cube autocycle
  * 	Back Button					Stop Cube autocycle
  * 	Left Bumper					Run Conveyor forward
- * 	Right Bumper				Run Conveyor backwards
+ * 	Right Bumper				Run Conveyor backwards - to claw
  * 	Left Thumbstick Button		Close CanLifter claw
  * 	Right Thumbstick Button		Open CanLifter claw
  * 	Left Thumbstick				Left tank, Arcade

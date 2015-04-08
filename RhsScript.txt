@@ -5,84 +5,51 @@
 #DELAY <seconds>
 #MOVE <left speed> <right speed>
 #MMOVE <speed> <distance:inches> <timeout>
-#SEEKTOTE <time:delay before looking for tote> <timeout:seconds>
 #TURN <degrees> <timeout>
-#STRAIGHT <speed> <timeout:seconds>
-#TOTEEXTEND
-#TOTERETRACT
-#STARTTOTEUP
-#TOTEUP <number of totes>
-#TOTEDOWN <number of totes>
+#STRAIGHT <speed> <duration>
+#SEEKTOTE <time:delay before looking for tote> <timeout>
+#STACKUP <number of totes>
+#STACKDOWN <number of totes>
 #CLAWOPEN
 #CLAWCLOSE
+#CANUP
+#CANDOWN
+#FRONTLOADTOTE <timeout>
+#BACKLOADTOTE <timeout>
+#DEPOSITTOTESBACK
+#TOTESHIFTFWD
+#TOTESHIFTBCK
+#CANARMOPEN
+#CANARMCLOSE
+#STARTTOTEUP
+#TOTEEXTEND
+#TOTERETRACT
 #CLICKERUP
 #CLICKERDOWN
 #
 BEGIN
-# pick up first tote, we should already be attached
-STARTTOTEUP
-DELAY 0.25
-TOTERETRACT
-TOTEUP 1
-#search for the second tote
-SEEKTOTE 2.0 7.0
-TOTEDOWN 1
-DELAY 1.50
-TOTEEXTEND
-DELAY 1.00
-STARTTOTEUP
-DELAY 0.25 
-TOTERETRACT
-TOTEUP 2
-##search for the third tote
-SEEKTOTE 2.0 7.0
-TOTEDOWN 2
-DELAY 1.50
-TOTEEXTEND
-DELAY 1.0
-STARTTOTEUP
-DELAY 0.25
-TOTEUP 3
-DELAY 0.75
-TOTERETRACT
+# grab the first can
+CLAWCLOSE
+# load the middle tote - can arm should be open already
+FRONTLOADTOTE 4.0
+CANARMCLOSE
+STACKUP 1
+# load the first tote
+BACKLOADTOTE 4.0
+STACKDOWN 1
+STACKUP 2
+# get rid of the can
+STRAIGHT 1.0
+CANARMOPEN
+# leave arm open, get last tote
+FRONTLOADTOTE 4.0
+STACKDOWN 2.0
+# get totes out of the tab's way, then lift the can wilst turning
+TOTESHIFTFWD
+CANUP
 TURN 90.0 5.0
+# deposit totes - drive to the edge of autozone, spit, drive back
 STRAIGHT -0.75 3.0
-#TOTEDOWN 2
-# pick up first and second tote
-# from here down is "real" script
-## lift the first tote up, we should already be attached
-#TOTEUP 1
-#TOTERETRACT
-#DELAY 1.0
-##search for the second tote
-#SEEKTOTE 2.0 7.0
-##stack two totes
-#TOTEEXTEND
-#DELAY 1.0
-#TOTEDOWN 1
-#DELAY 2.0
-#TOTEUP 2
-#TOTERETRACT
-#DELAY 2.0
-##search for the third tote
-#SEEKTOTE 2.0 7.0
-##stack three totes
-#TOTEEXTEND
-#DELAY 1.0
-#TOTEDOWN 2
-#DELAY 2.0
-#TOTEUP 3
-#TOTERETRACT
-#DELAY 2.0
-##drive to middle zone
-#TURN 80.0 5.0
-#STRAIGHT -0.5 3.0
-## set totes down
-#TOTEEXTEND
-#TOTEDOWN 3
-#DELAY 2.0
-#TOTERETRACT
-## move back to starting zone
-#TURN -80.0 5.0
-#STRAIGHT 0.5 3.0
+DEPOSITTOTESBACK
+STRAIGHT 0.75 3.0
 END

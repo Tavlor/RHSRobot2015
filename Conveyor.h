@@ -13,6 +13,7 @@
 #include "WPILib.h"
 
 #include "ComponentBase.h"			//For ComponentBase class
+#include "RobotMessage.h"
 
 class Conveyor: public ComponentBase
 {
@@ -26,10 +27,17 @@ public:
 	}
 
 private:
+	/*MOTOR VALUES with CAN
+	 * + backwards
+	 * - forwards
+	 */
 	CANTalon *conveyorMotor;
 	const float fConveyorSpeed = 1.0;
 	const float fConveyorSpeedBack = 0.5;
+	const float fLoadSpeed = 1.0;
+	const float fShiftSpeed = 1.0;
 	bool bBackStopEnable;
+	MessageCommand responseCommand;
 
 	void OnStateChange();
 	void Run();

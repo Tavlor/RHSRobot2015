@@ -87,6 +87,11 @@ bool Autonomous::End(char *pCurrLinePos)
 	return (true);
 }
 
+bool Autonomous::Stop(char *pCurrLinePos) {
+	//tell those who need to know that the autonomous behavior is over - reset variables
+	Message.command = COMMAND_DRIVETRAIN_STOP;
+	return (CommandNoResponse(DRIVETRAIN_QUEUE));
+}
 
 bool Autonomous::Move(char *pCurrLinePos) {
 	char *pToken;
@@ -113,12 +118,6 @@ bool Autonomous::Move(char *pCurrLinePos) {
 	return (CommandNoResponse(DRIVETRAIN_QUEUE));
 }
 
-bool Autonomous::Stop(char *pCurrLinePos) {
-	//tell those who need to know that the autonomous behavior is over - reset variables
-	Message.command = COMMAND_DRIVETRAIN_STOP;
-	return (CommandNoResponse(DRIVETRAIN_QUEUE));
-}
-
 bool Autonomous::MeasuredMove(char *pCurrLinePos) {
 
 	char *pToken;
@@ -139,6 +138,25 @@ bool Autonomous::MeasuredMove(char *pCurrLinePos) {
 	Message.params.autonomous.driveSpeed = fSpeed;
 	Message.params.autonomous.driveDistance = fDistance;
 
+	return (CommandResponse(DRIVETRAIN_QUEUE));
+}
+
+bool Autonomous::Straight(char *pCurrLinePos) {
+	char *pToken;
+	float fSpeed;
+	float fTime;
+
+	// parse remainder of line to get length to move
+
+	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+	fSpeed = atof(pToken);
+	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+	fTime = atof(pToken);
+
+	// send the message to the drive train
+	Message.command = COMMAND_DRIVETRAIN_DRIVE_STRAIGHT;
+	Message.params.autonomous.driveSpeed = fSpeed;
+	Message.params.autonomous.driveTime = fTime;
 	return (CommandResponse(DRIVETRAIN_QUEUE));
 }
 
@@ -201,25 +219,6 @@ bool Autonomous::SeekTote(char *pCurrLinePos) {
 	Message.command = COMMAND_DRIVETRAIN_SEEK_TOTE;
 	Message.params.autonomous.timeout = fTimeout;
 	Message.params.autonomous.timein = fTimein;
-	return (CommandResponse(DRIVETRAIN_QUEUE));
-}
-
-bool Autonomous::Straight(char *pCurrLinePos) {
-	char *pToken;
-	float fSpeed;
-	float fTime;
-
-	// parse remainder of line to get length to move
-
-	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
-	fSpeed = atof(pToken);
-	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
-	fTime = atof(pToken);
-
-	// send the message to the drive train
-	Message.command = COMMAND_DRIVETRAIN_DRIVE_STRAIGHT;
-	Message.params.autonomous.driveSpeed = fSpeed;
-	Message.params.autonomous.driveTime = fTime;
 	return (CommandResponse(DRIVETRAIN_QUEUE));
 }
 

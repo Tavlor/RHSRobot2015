@@ -16,8 +16,7 @@
 #include "RobotParams.h"
 
 Conveyor::Conveyor() :
-		ComponentBase(CONVEYOR_TASKNAME, CONVEYOR_QUEUE,
-				CONVEYOR_PRIORITY) {
+		ComponentBase(CONVEYOR_TASKNAME, CONVEYOR_QUEUE, CONVEYOR_PRIORITY) {
 	bBackStopEnable = true;
 
 	conveyorMotor = new CANTalon(CAN_PALLET_JACK_CONVEYOR);
@@ -34,15 +33,16 @@ Conveyor::Conveyor() :
 	pTask = new Task(CONVEYOR_TASKNAME, (FUNCPTR) &Conveyor::StartTask,
 			CONVEYOR_PRIORITY, CONVEYOR_STACKSIZE);
 	wpi_assert(pTask);
-	pTask->Start((int)this);
+	pTask->Start((int) this);
 }
 
 Conveyor::~Conveyor() {
-	delete(pTask);
+	delete (pTask);
 }
 
 void Conveyor::OnStateChange() {
-	switch (localMessage.command) {
+	switch (localMessage.command)
+	{
 	case COMMAND_ROBOT_STATE_AUTONOMOUS:
 	case COMMAND_ROBOT_STATE_TEST:
 	case COMMAND_ROBOT_STATE_TELEOPERATED:
@@ -55,69 +55,100 @@ void Conveyor::OnStateChange() {
 }
 
 void Conveyor::Run() {
-	switch (localMessage.command)			//Reads the message command
+	switch (localMessage.command)
+	//Reads the message command
 	{
 	case COMMAND_CONVEYOR_RUN_FWD:
 		//SmartDashboard::PutString("Conveyor CMD", "CONVEYOR_RUN_FWD");
 		conveyorMotor->Set(-fConveyorSpeedBack);
 		break;
+
 	case COMMAND_CONVEYOR_RUN_BCK:
+		//runs conveyor towards the claw
 		//SmartDashboard::PutString("Conveyor CMD", "CONVEYOR_RUN_BCK");
-		if(localMessage.params.conveyorParams.bButtonWentDownEvent)
-		{
-			if(!conveyorMotor->IsFwdLimitSwitchClosed())
-			{
-				//printf("button down: closed, disable switch\n");
-				conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
-				//conveyorMotor->Set(fReducedConveyorSpeed);
-			}
-			else
-			{
-				//printf("button down: open, enable switch\n");
-				conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
-				//conveyorMotor->Set(fConveyorSpeed);
-			}
-			conveyorMotor->Set(fConveyorSpeed);
-		}
-		break;
-	case COMMAND_CONVEYOR_STOP:
-		//SmartDashboard::PutString("Conveyor CMD", "CONVEYOR_STOP");
-		conveyorMotor->Set(0.0);
-		break;
-
-	case COMMAND_CONVEYOR_RUNALL_FWD:
-		//SmartDashboard::PutString("Conveyor CMD", "CONVEYOR_RUNALL_FWD");
-		conveyorMotor->Set(-fConveyorSpeedBack);
-		break;
-
-	case COMMAND_CONVEYOR_RUNALL_BCK:
-		//SmartDashboard::PutString("Conveyor CMD", "CONVEYOR_RUNALL_BCK");
 		//if(localMessage.params.conveyorParams.bButtonWentDownEvent)
 		//{
-			if(!conveyorMotor->IsFwdLimitSwitchClosed())
+		if (!conveyorMotor->IsFwdLimitSwitchClosed())
+		{
+			if (!bBackStopEnable)
 			{
-				if(!bBackStopEnable)
-				{
-					//printf("button down: closed, disable switch\n");
-					conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
-					conveyorMotor->Set(fConveyorSpeed);
-				}
-			}
-			else
-			{
-				//printf("button down: open, enable switch\n");
-				conveyorMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
+				//printf("button down: closed, disable switch\n");
+				conveyorMotor->ConfigLimitMode(
+						CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
 				conveyorMotor->Set(fConveyorSpeed);
-				bBackStopEnable = true;
 			}
+		}
+		else
+		{
+			//printf("button down: open, enable switch\n");
+			conveyorMotor->ConfigLimitMode(
+					CANSpeedController::kLimitMode_SwitchInputsOnly);
+			conveyorMotor->Set(fConveyorSpeed);
+			bBackStopEnable = true;
+		}
 		//}
 		//conveyorMotor->Set(fConveyorSpeed);
 		break;
 
-	case COMMAND_CONVEYOR_RUNALL_STOP:
-		//SmartDashboard::PutString("Conveyor CMD", "CONVEYOR_RUNALL_STOP");
+	case COMMAND_CONVEYOR_SET_BACK:
+		conveyorMotor->Set(fConveyorSpeed);
+		break;
+
+	case COMMAND_CONVEYOR_STOP:
+		//SmartDashboard::PutString("Conveyor CMD", "CONVEYOR_STOP");
 		conveyorMotor->Set(0.0);
 		bBackStopEnable = false;
+		break;
+
+	case COMMAND_CONVEYOR_FRONTLOAD_TOTE:
+		//TODO fix errors - may need to write individual methods
+		respondCommand = COMMAND_AUTONOMOUS_RESPONSE_OK;
+		//convey backwards until back sensor
+		while (conveyorMotor->IsRevLimitSwitchClosed())
+		{
+			conveyorMotor->Set(fLoadSpeed);
+		}
+		SendCommandResponse(respondCommand);
+		break;
+
+	case COMMAND_CONVEYOR_BACKLOAD_TOTE:
+		respondCommand = COMMAND_AUTONOMOUS_RESPONSE_OK;
+		//convey forwards until forward sensor
+		while (conveyorMotor->IsFwdLimitSwitchClosed())
+		{
+			conveyorMotor->Set(-fLoadSpeed);
+		}
+		SendCommandResponse(respondCommand);
+		break;
+
+		//TODO check sensors! Rev or Fwd?
+	case COMMAND_CONVEYOR_SHIFTTOTES_FWD:
+		//move the stack forward until the back sensor is unblocked
+			while (conveyorMotor->IsRevLimitSwitchClosed())
+			{
+				conveyorMotor->Set(-fShiftSpeed);
+			}
+		conveyorMotor->Set(0);
+		break;
+
+	case COMMAND_CONVEYOR_SHIFTTOTES_BCK:
+		//move the stack forward until the back sensor is blocked
+			while (!conveyorMotor->IsRevLimitSwitchClosed())
+			{
+				conveyorMotor->Set(fShiftSpeed);
+			}
+		conveyorMotor->Set(0);
+		break;
+
+	case COMMAND_CONVEYOR_DEPOSITTOTES_BCK:
+		respondCommand = COMMAND_AUTONOMOUS_RESPONSE_OK;
+		//move the stack backwards until the back sensor is unblocked
+			while (conveyorMotor->IsRevLimitSwitchClosed())
+			{
+				conveyorMotor->Set(fShiftSpeed);
+			}
+		conveyorMotor->Set(0);
+		SendCommandResponse(respondCommand);
 		break;
 
 	case COMMAND_SYSTEM_MSGTIMEOUT:
@@ -126,6 +157,7 @@ void Conveyor::Run() {
 		break;
 	}
 
-	SmartDashboard::PutBoolean("Pallet Jack Conveyor IR", !conveyorMotor->IsFwdLimitSwitchClosed());
+	SmartDashboard::PutBoolean("Pallet Jack Conveyor IR",
+			!conveyorMotor->IsFwdLimitSwitchClosed());
 }
 

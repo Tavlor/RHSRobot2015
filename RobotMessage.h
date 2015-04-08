@@ -89,14 +89,22 @@ enum MessageCommand {
 	COMMAND_DRIVETRAIN_DRIVE_STRAIGHT,	//!< Tells Drivetrain to drive straight, used by Autonomous
 	COMMAND_DRIVETRAIN_TURN,			//!< Tells Drivetrain to turn, used by Autonomous
 	COMMAND_DRIVETRAIN_SEEK_TOTE,		//!< Tells Drivetrain to seek the next tote, used by Autonomous
+	COMMAND_DRIVETRAIN_FRONTLOAD_TOTE,	//!< Tells Drivetrain to front load the next tote, used by Autonomous
+	COMMAND_DRIVETRAIN_BACKLOAD_TOTE,	//!< Tells Drivetrain to back load the next tote, used by Autonomous
 
 	COMMAND_CONVEYOR_RUN_FWD,			//!< Tells Conveyor to run the rollers forward
-	COMMAND_CONVEYOR_RUN_BCK,			//!< Tells Conveyor to run the rollers backwards
+	COMMAND_CONVEYOR_RUN_BCK,			//!< Tells Conveyor to run the rollers backwards - fancy operations
+	COMMAND_CONVEYOR_SET_BACK,			//!< Tells Conveyor to set the rollers backwards - simple
 	COMMAND_CONVEYOR_STOP,				//!< Tells Conveyor to stop the rollers
+	COMMAND_CONVEYOR_FRONTLOAD_TOTE,	//!< Tells Conveyor to front load the next tote, used by Autonomous
+	COMMAND_CONVEYOR_BACKLOAD_TOTE,		//!< Tells Conveyor to back load the next tote, used by Autonomous
+	COMMAND_CONVEYOR_SHIFTTOTES_FWD,	//!< Tells Conveyor to shift the totes to the front sensor, used by Autonomous
+	COMMAND_CONVEYOR_SHIFTTOTES_BCK,	//!< Tells Conveyor to shift the totes to the back sensor, used by Autonomous
+	COMMAND_CONVEYOR_DEPOSITTOTES_BCK,	//!< Tells Conveyor to dump the tote stack out the back, used by Autonomous
 
-	COMMAND_CONVEYOR_RUNALL_FWD,		//!< Tells Conveyor to run all components forward
-	COMMAND_CONVEYOR_RUNALL_BCK,		//!< Tells Conveyor to run all components backwards
-	COMMAND_CONVEYOR_RUNALL_STOP,		//!< Tells Conveyor to stop all components
+	//COMMAND_CONVEYOR_RUNALL_FWD,		//!< Tells Conveyor to run all components forward
+	//COMMAND_CONVEYOR_RUNALL_BCK,		//!< Tells Conveyor to run all components backwards
+	//COMMAND_CONVEYOR_RUNALL_STOP,		//!< Tells Conveyor to stop all components
 
 	COMMAND_CANLIFTER_RAISE,			//!< Tells CanLifter to raise the lift
 	COMMAND_CANLIFTER_LOWER,			//!< Tells CanLifter to lower the lift
