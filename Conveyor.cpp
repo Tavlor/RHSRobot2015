@@ -24,7 +24,7 @@ Conveyor::Conveyor() :
 	conveyorMotor->SetControlMode(CANSpeedController::kPercentVbus);
 	conveyorMotor->SetVoltageRampRate(24.0);
 	conveyorMotor->ConfigFwdLimitSwitchNormallyOpen(false);
-	conveyorMotor->ConfigRevLimitSwitchNormallyOpen(true);
+	conveyorMotor->ConfigRevLimitSwitchNormallyOpen(false);
 	conveyorMotor->ConfigLimitMode(
 			CANSpeedController::kLimitMode_SwitchInputsOnly);
 
@@ -91,6 +91,7 @@ void Conveyor::Run() {
 		break;
 
 	case COMMAND_CONVEYOR_SET_BACK:
+		//used when you don't need the frills of "RUN_BACK"
 		conveyorMotor->Set(fConveyorSpeed);
 		break;
 
@@ -100,25 +101,45 @@ void Conveyor::Run() {
 		bBackStopEnable = false;
 		break;
 
+	//AUTONOMOUS CASES
+	case COMMAND_CONVEYOR_WATCH_TOTE_FRONT:
+		responseCommand = COMMAND_AUTONOMOUS_RESPONSE_OK;
+		while (conveyorMotor->IsFwdLimitSwitchClosed())
+		{
+			conveyorMotor->Set(fLoadSpeed);
+		}
+		SendCommandResponse(responseCommand);
+		break;
+
+	case COMMAND_CONVEYOR_WATCH_TOTE_BACK:
+		responseCommand = COMMAND_AUTONOMOUS_RESPONSE_OK;
+		while (conveyorMotor->IsRevLimitSwitchClosed())
+		{
+			conveyorMotor->Set(-fLoadSpeed);
+		}
+		SendCommandResponse(responseCommand);
+		break;
+
 	case COMMAND_CONVEYOR_FRONTLOAD_TOTE:
-		//TODO fix errors - may need to write individual methods
-		respondCommand = COMMAND_AUTONOMOUS_RESPONSE_OK;
+		responseCommand = COMMAND_AUTONOMOUS_RESPONSE_OK;
 		//convey backwards until back sensor
 		while (conveyorMotor->IsRevLimitSwitchClosed())
 		{
 			conveyorMotor->Set(fLoadSpeed);
 		}
-		SendCommandResponse(respondCommand);
+		conveyorMotor->Set(0);
+		SendCommandResponse(responseCommand);
 		break;
 
 	case COMMAND_CONVEYOR_BACKLOAD_TOTE:
-		respondCommand = COMMAND_AUTONOMOUS_RESPONSE_OK;
+		responseCommand = COMMAND_AUTONOMOUS_RESPONSE_OK;
 		//convey forwards until forward sensor
 		while (conveyorMotor->IsFwdLimitSwitchClosed())
 		{
 			conveyorMotor->Set(-fLoadSpeed);
 		}
-		SendCommandResponse(respondCommand);
+		conveyorMotor->Set(0);
+		SendCommandResponse(responseCommand);
 		break;
 
 		//TODO check sensors! Rev or Fwd?
@@ -141,14 +162,14 @@ void Conveyor::Run() {
 		break;
 
 	case COMMAND_CONVEYOR_DEPOSITTOTES_BCK:
-		respondCommand = COMMAND_AUTONOMOUS_RESPONSE_OK;
+		responseCommand = COMMAND_AUTONOMOUS_RESPONSE_OK;
 		//move the stack backwards until the back sensor is unblocked
 			while (conveyorMotor->IsRevLimitSwitchClosed())
 			{
 				conveyorMotor->Set(fShiftSpeed);
 			}
 		conveyorMotor->Set(0);
-		SendCommandResponse(respondCommand);
+		SendCommandResponse(responseCommand);
 		break;
 
 	case COMMAND_SYSTEM_MSGTIMEOUT:
@@ -159,5 +180,15 @@ void Conveyor::Run() {
 
 	SmartDashboard::PutBoolean("Pallet Jack Conveyor IR",
 			!conveyorMotor->IsFwdLimitSwitchClosed());
+}
+
+bool Conveyor::RevLimitSwitchClosed()
+{
+	return RevLimitSwitchClosed();
+}
+
+bool Conveyor::FwdLimitSwitchClosed()
+{
+	return FwdLimitSwitchClosed();
 }
 

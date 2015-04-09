@@ -30,7 +30,7 @@ const int CONVEYOR_PRIORITY 	= DEFAULT_PRIORITY;
 const int CUBE_PRIORITY 		= DEFAULT_PRIORITY;
 const int CANLIFTER_PRIORITY 	= DEFAULT_PRIORITY;
 const int CLAW_PRIORITY 		= DEFAULT_PRIORITY;
-const int TOTELIFTER_PRIORITY	= DEFAULT_PRIORITY;
+const int CANARM_PRIORITY		= DEFAULT_PRIORITY;
 
 //Task Names - Used when you view the task list but used by the operating system
 //EXAMPLE: const char* DRIVETRAIN_TASKNAME = "tDrive";
@@ -43,7 +43,7 @@ const char* const CONVEYOR_TASKNAME		= "tConveyor";
 const char* const CUBE_TASKNAME			= "tCube";
 const char* const CANLIFTER_TASKNAME	= "tCanLift";
 const char* const CLAW_TASKNAME			= "tClaw";
-const char* const TOTELIFTER_TASKNAME	= "tToteLift";
+const char* const CANARM_TASKNAME		= "tCanArm";
 
 const int COMPONENT_STACKSIZE	= 0x10000;
 const int DRIVETRAIN_STACKSIZE	= 0x10000;
@@ -54,7 +54,7 @@ const int CONVEYOR_STACKSIZE	= 0x10000;
 const int CUBE_STACKSIZE		= 0x10000;
 const int CANLIFTER_STACKSIZE	= 0x10000;
 const int CLAW_STACKSIZE		= 0x10000;
-const int TOTELIFTER_STACKSIZE	= 0x10000;
+const int CANARM_STACKSIZE		= 0x10000;
 
 //TODO change these variables throughout the code to PIPE or whatever instead  of QUEUE
 //Queue Names - Used when you want to open the message queue for any task
@@ -68,7 +68,7 @@ const char* const CONVEYOR_QUEUE	= "/tmp/qConvey";
 const char* const CUBE_QUEUE		= "/tmp/qCube";
 const char* const CANLIFTER_QUEUE	= "/tmp/qCanLift";
 const char* const CLAW_QUEUE		= "/tmp/qClaw";
-const char* const TOTELIFTER_QUEUE	= "/tmp/qToteLift";
+const char* const CANARM_QUEUE		= "/tmp/qCanArm";
 
 //PWM Channels - Assigns names to PWM ports 1-10 on the Roborio
 //EXAMPLE: const int PWM_DRIVETRAIN_FRONT_LEFT_MOTOR = 1;
@@ -85,7 +85,7 @@ const int PWM_DRIVETRAIN_RIGHT_MOTOR = 0;
 3 - conveyor
 4 - claw
 5 - bin lift
-6 - ~~
+6 - can arm
 7 - ~~
 8 - cube intake roller
 9 - cube clicker
@@ -97,7 +97,7 @@ const int CAN_DRIVETRAIN_RIGHT_MOTOR = 2;
 const int CAN_PALLET_JACK_CONVEYOR = 3;
 const int CAN_PALLET_JACK_CLAW = 4;
 const int CAN_PALLET_JACK_BIN_LIFT = 5;
-const int CAN_PALLET_JACK_TOTE_LIFT = 6;
+const int CAN_PALLET_JACK_CAN_ARM = 6;
 const int CAN_CUBE_INTAKE = 8;
 const int CAN_CUBE_CLICKER = 9;
 
@@ -204,6 +204,9 @@ const int POV_STILL = -1;
 #define ARCADE_DRIVE_Y				-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y)
 #define CONVEYOR_FWD				Controller_1->GetRawButton(L310_BUTTON_BUMPER_LEFT)
 #define CONVEYOR_BCK				Controller_1->GetRawButton(L310_BUTTON_BUMPER_RIGHT)
+//next 2 are temporary
+#define CANARM_OPEN					false//Controller_1->GetRawButton(L310_BUTTON_BUMPER_LEFT)
+#define CANARM_CLOSE				false//Controller_1->GetRawButton(L310_BUTTON_BUMPER_RIGHT)
 #define CANLIFTER_RAISE				Controller_1->GetRawAxis(L310_TRIGGER_RIGHT)
 #define CANLIFTER_LOWER				Controller_1->GetRawAxis(L310_TRIGGER_LEFT)
 #define CLAW_CLOSE					Controller_1->GetRawButton(L310_BUTTON_THUMB_LEFT)

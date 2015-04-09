@@ -91,20 +91,20 @@ enum MessageCommand {
 	COMMAND_DRIVETRAIN_SEEK_TOTE,		//!< Tells Drivetrain to seek the next tote, used by Autonomous
 	COMMAND_DRIVETRAIN_FRONTLOAD_TOTE,	//!< Tells Drivetrain to front load the next tote, used by Autonomous
 	COMMAND_DRIVETRAIN_BACKLOAD_TOTE,	//!< Tells Drivetrain to back load the next tote, used by Autonomous
+	COMMAND_DRIVETRAIN_START_KEEPALIGN,	//!< Tells Drivetrain to start keeping itself at constant alignment, used by Autonomous
+	COMMAND_DRIVETRAIN_STOP_KEEPALIGN,	//!< Tells Drivetrain to stop keeping itself at constant alignment, used by Autonomous
 
 	COMMAND_CONVEYOR_RUN_FWD,			//!< Tells Conveyor to run the rollers forward
 	COMMAND_CONVEYOR_RUN_BCK,			//!< Tells Conveyor to run the rollers backwards - fancy operations
 	COMMAND_CONVEYOR_SET_BACK,			//!< Tells Conveyor to set the rollers backwards - simple
 	COMMAND_CONVEYOR_STOP,				//!< Tells Conveyor to stop the rollers
+	COMMAND_CONVEYOR_WATCH_TOTE_FRONT,	//!< Tells Conveyor to watch for next tote in the front, used by Autonomous
+	COMMAND_CONVEYOR_WATCH_TOTE_BACK,	//!< Tells Conveyor to watch for next tote in the back, used by Autonomous
 	COMMAND_CONVEYOR_FRONTLOAD_TOTE,	//!< Tells Conveyor to front load the next tote, used by Autonomous
 	COMMAND_CONVEYOR_BACKLOAD_TOTE,		//!< Tells Conveyor to back load the next tote, used by Autonomous
 	COMMAND_CONVEYOR_SHIFTTOTES_FWD,	//!< Tells Conveyor to shift the totes to the front sensor, used by Autonomous
 	COMMAND_CONVEYOR_SHIFTTOTES_BCK,	//!< Tells Conveyor to shift the totes to the back sensor, used by Autonomous
 	COMMAND_CONVEYOR_DEPOSITTOTES_BCK,	//!< Tells Conveyor to dump the tote stack out the back, used by Autonomous
-
-	//COMMAND_CONVEYOR_RUNALL_FWD,		//!< Tells Conveyor to run all components forward
-	//COMMAND_CONVEYOR_RUNALL_BCK,		//!< Tells Conveyor to run all components backwards
-	//COMMAND_CONVEYOR_RUNALL_STOP,		//!< Tells Conveyor to stop all components
 
 	COMMAND_CANLIFTER_RAISE,			//!< Tells CanLifter to raise the lift
 	COMMAND_CANLIFTER_LOWER,			//!< Tells CanLifter to lower the lift
@@ -118,8 +118,9 @@ enum MessageCommand {
 	COMMAND_CLAW_CLOSE,					//!< Tells CanLifter to close the claw
 	COMMAND_CLAW_STOP,					//!< Tells CanLifter to stop the claw
 
-	COMMAND_TOTELIFTER_EXTEND,			//!< Tells ToteLifter to extend tote arm, used by Autonomous
-	COMMAND_TOTELIFTER_RETRACT,			//!< Tells ToteLifter to retract tote arm, used by Autonomous
+	COMMAND_CANARM_OPEN,				//!< Tells CanArm to open the arm - push away a can
+	COMMAND_CANARM_CLOSE,				//!< Tells CanArm to close the arm
+	COMMAND_CANARM_STOP,				//!< Tells CanArm to stop
 
 	COMMAND_CUBECLICKER_RAISE,			//!< Tells Cube to raise the clicker
 	COMMAND_CUBECLICKER_LOWER,			//!< Tells Cube to lower the clicker

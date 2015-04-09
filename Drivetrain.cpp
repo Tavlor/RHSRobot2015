@@ -163,18 +163,34 @@ void Drivetrain::Run() {
 		Turn(localMessage.params.autonomous.turnAngle,localMessage.params.autonomous.timeout);
 		break;
 
-	case COMMAND_DRIVETRAIN_SEEK_TOTE:
+	/*case COMMAND_DRIVETRAIN_SEEK_TOTE:
 		SeekTote(localMessage.params.autonomous.timein,localMessage.params.autonomous.timeout);
+		break;*/
+
+	case COMMAND_DRIVETRAIN_STOP:
+		//SmartDashboard::PutString("Drivetrain CMD", "DRIVETRAIN_STOP");
+		//reset all auto variables
+		left = 0;
+		right = 0;
+		leftMotor->Set(left);
+		rightMotor->Set(right);
+		gyro->Zero();
 		break;
 
-		case COMMAND_DRIVETRAIN_STOP:
-			//SmartDashboard::PutString("Drivetrain CMD", "DRIVETRAIN_STOP");
-			//reset all auto variables
-			left = 0;
-			right = 0;
-			leftMotor->Set(left);
-			rightMotor->Set(right);
+	case COMMAND_DRIVETRAIN_FRONTLOAD_TOTE:
+		//TODO: start to drive straight
+		break;
+
+	case COMMAND_DRIVETRAIN_START_KEEPALIGN:
+		if (!bKeepAligned)
+		{
+			bKeepAligned = true;
 			gyro->Zero();
+		}
+		break;
+
+	case COMMAND_DRIVETRAIN_STOP_KEEPALIGN:
+		bKeepAligned = false;
 		break;
 
 	case COMMAND_SYSTEM_MSGTIMEOUT:
@@ -187,6 +203,17 @@ void Drivetrain::Run() {
 		leftMotor->Set(left);
 		rightMotor->Set(right);
 	 }*/
+
+	if(bStraightDrive)
+	{
+		//TODO: add speed variation - direction
+		StraightDriveLoop(fToteSeekSpeed);
+	 }
+
+	if(bKeepAligned)
+	{
+		KeepAligned();
+	 }
 
 	//Put out information
 	if (pRemoteUpdateTimer->Get() > 0.2)
@@ -242,6 +269,18 @@ void Drivetrain::MeasuredMove(float speed, float targetDist) {
 	printf("Finished moving %f inches", targetDist);
 #endif
 }
+void Drivetrain::KeepAligned() {
+	//gyro should start zeroed
+	float error = -gyro->GetAngle();
+	float motorValue = error * turnAngleSpeedMultiplyer;
+	ABLIMIT(motorValue, turnSpeedLimit);
+
+	leftMotor->Set(motorValue);
+	rightMotor->Set(motorValue);
+
+	SmartDashboard::PutNumber("Angle Error", error);
+	SmartDashboard::PutNumber("Turn Speed", motorValue);
+}
 
 void Drivetrain::Turn(float targetAngle, float timeout) {
 	//TODO: if needed, you can check the rate at which the gyro angle changes
@@ -270,7 +309,7 @@ void Drivetrain::Turn(float targetAngle, float timeout) {
 		leftMotor->Set(motorValue);
 		rightMotor->Set(motorValue);
 
-		SmartDashboard::PutNumber("Remaining Degrees", degreesLeft);
+		SmartDashboard::PutNumber("Angle Error", degreesLeft);
 		SmartDashboard::PutNumber("Turn Speed", motorValue);
 	}
 
@@ -279,7 +318,7 @@ void Drivetrain::Turn(float targetAngle, float timeout) {
 	command = COMMAND_AUTONOMOUS_RESPONSE_OK;
 	SendCommandResponse(command);
 
-	SmartDashboard::PutNumber("Remaining Degrees", 0.0);
+	SmartDashboard::PutNumber("Angle Error", 0.0);
 	SmartDashboard::PutNumber("Turn Speed", 0.0);
 	printf("Finished turning %f degrees\n", targetAngle);
 }
@@ -375,4 +414,9 @@ void Drivetrain::StraightDriveLoop(float speed) {
 bool Drivetrain::GetToteSensor()
 {
 	return toteSensor->Get();
+}
+
+bool Drivetrain::GetGyroAngle()
+{
+	return gyro->GetAngle();
 }

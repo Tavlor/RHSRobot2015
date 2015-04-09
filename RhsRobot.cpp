@@ -24,7 +24,7 @@ RhsRobot::RhsRobot() {
 	cube = NULL;
 	canlifter = NULL;
 	claw = NULL;
-	totelift = NULL;
+	canarm = NULL;
 
 	bLastConveyorButtonDown = false;
 	bCanlifterNearBottom = false;
@@ -63,7 +63,7 @@ void RhsRobot::Init() {
 	canlifter = new CanLifter();
 	claw = new Claw();
 	//cube = new Cube();
-	totelift = new ToteLifter();
+	canarm = new CanArm();
 	autonomous = new Autonomous();
 
 	std::vector<ComponentBase *>::iterator nextComponent = ComponentSet.begin();
@@ -93,9 +93,9 @@ void RhsRobot::Init() {
 		nextComponent = ComponentSet.insert(nextComponent, claw);
 	}
 
-	if(totelift)
+	if(canarm)
 	{
-		nextComponent = ComponentSet.insert(nextComponent, totelift);
+		nextComponent = ComponentSet.insert(nextComponent, canarm);
 	}
 
 	if(autonomous)
@@ -135,6 +135,7 @@ void RhsRobot::Run() {
 
 	if (drivetrain)
 	{
+		//robotMessage.command = COMMAND_DRIVETRAIN_START_KEEPALIGN;
 #if 1
 		robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_TANK;
 
@@ -304,21 +305,40 @@ void RhsRobot::Run() {
 		canlifter->SendMessage(&robotMessage);
 	}
 
-	if(claw)
+	if (claw)
+	{
+		claw->SendMessage(&robotMessage);
+
+		if (ControllerListen_1->ButtonPressed(CLAW_OPEN_ID))
 		{
-			claw->SendMessage(&robotMessage);
-
-			if(ControllerListen_1->ButtonPressed(CLAW_OPEN_ID))
-			{
-				robotMessage.command = COMMAND_CLAW_OPEN;
-			}
-			else if(ControllerListen_1->ButtonPressed(CLAW_CLOSE_ID))
-			{
-				robotMessage.command = COMMAND_CLAW_CLOSE;
-			}
-
-			claw->SendMessage(&robotMessage);
+			robotMessage.command = COMMAND_CLAW_OPEN;
 		}
+		else if (ControllerListen_1->ButtonPressed(CLAW_CLOSE_ID))
+		{
+			robotMessage.command = COMMAND_CLAW_CLOSE;
+		}
+
+		claw->SendMessage(&robotMessage);
+	}
+
+	if (canarm)
+	{
+		if(CANARM_OPEN)
+		{
+			robotMessage.command = COMMAND_CANARM_OPEN;
+		}
+		else if(CANARM_CLOSE)
+		{
+			robotMessage.command = COMMAND_CANARM_CLOSE;
+		}
+		else
+		{
+			robotMessage.command = COMMAND_CANARM_STOP;
+		}
+
+		canarm->SendMessage(&robotMessage);
+
+	}
 
 	ControllerListen_1->FinalUpdate();
 	ControllerListen_2->FinalUpdate();

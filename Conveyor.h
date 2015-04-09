@@ -26,16 +26,23 @@ public:
 		return(NULL);
 	}
 
+	bool RevLimitSwitchClosed();
+	bool FwdLimitSwitchClosed();
+
 private:
 	/*MOTOR VALUES with CAN
 	 * + backwards
 	 * - forwards
+	 *
+	 * revLimit - at the back
+	 * fwdLimit - at the front
 	 */
+
 	CANTalon *conveyorMotor;
 	const float fConveyorSpeed = 1.0;
 	const float fConveyorSpeedBack = 0.5;
-	const float fLoadSpeed = 1.0;
-	const float fShiftSpeed = 1.0;
+	const float fLoadSpeed = 0.5;
+	const float fShiftSpeed = 0.25;
 	bool bBackStopEnable;
 	MessageCommand responseCommand;
 

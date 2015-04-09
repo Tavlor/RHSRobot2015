@@ -28,28 +28,5 @@
 #CLICKERDOWN
 #
 BEGIN
-# grab the first can
-CLAWCLOSE
-# load the middle tote - can arm should be open already
-FRONTLOADTOTE 4.0
-CANARMCLOSE
-STACKUP 1
-# load the first tote
-BACKLOADTOTE 4.0
-STACKDOWN 1
-STACKUP 2
-# get rid of the can
-STRAIGHT 1.0
-CANARMOPEN
-# leave arm open, get last tote
-FRONTLOADTOTE 4.0
-STACKDOWN 2.0
-# get totes out of the tab's way, then lift the can wilst turning
-TOTESHIFTFWD
-CANUP
-TURN 90.0 5.0
-# deposit totes - drive to the edge of autozone, spit, drive back
-STRAIGHT -0.75 3.0
-DEPOSITTOTESBACK
-STRAIGHT 0.75 3.0
+FRONTLOADTOTE 10.0
 END

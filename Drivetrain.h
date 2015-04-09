@@ -33,6 +33,7 @@ public:
 	}
 
 	bool GetToteSensor();
+	bool GetGyroAngle();
 private:
 
 	CANTalon* leftMotor;
@@ -46,6 +47,10 @@ private:
 	//stores motor values during autonomous
 	float left = 0;
 	float right = 0;
+
+	bool bStraightDrive = false;
+	bool bKeepAligned = false;
+	//float alignAngle = 0;
 
 	///Speed for tote seeking: the robot drives backwards
 	float fToteSeekSpeed = -.50;
@@ -68,6 +73,7 @@ private:
 	void ArcadeDrive(float, float);
 	void MeasuredMove(float,float);
 	void Turn(float,float);
+	void KeepAligned();
 	void SeekTote(float,float);
 	void StraightDrive(float, float);
 	void StraightDriveLoop(float);

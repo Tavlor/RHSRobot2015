@@ -33,7 +33,6 @@ typedef enum AUTO_COMMAND_TOKENS
 	AUTO_TOKEN_DEPOSITTOTES_BCK,//R		deposit totestack out the back
 	AUTO_TOKEN_SHIFT_TOTES_FWD,	//NR	shift totestack to the front sensor
 	AUTO_TOKEN_SHIFT_TOTES_BCK,	//NR	shift totestack to the back sensor
-	//AUTO_TOKEN_DRIVE_TO_CAN,	//R		drive to the can
 	AUTO_TOKEN_CAN_ARM_OPEN,	//NR	open the can arm
 	AUTO_TOKEN_CAN_ARM_CLOSE,	//NR	close the can arm
 	//Old stuff

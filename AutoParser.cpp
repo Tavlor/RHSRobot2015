@@ -39,7 +39,6 @@ const char *szTokens[] = {
 		"DEPOSITTOTESBACK",
 		"TOTESHIFTFWD",
 		"TOTESHIFTBCK",
-		//"DRIVETOCAN",
 		"CANARMOPEN",
 		"CANARMCLOSE",
 		//Old commands from past auto attemts
@@ -228,16 +227,27 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		break;
 
 	case AUTO_TOKEN_FRONT_LOAD_TOTE:
+		//TODO: redo: conveyor warns auto about front sensor, this should stop drivetrain
 		//draw tote into the robot from the front
 		//convey, drive robot fwd until front sensor, cont. convey until back sensor
-		Message.command = COMMAND_CONVEYOR_SET_BACK; //DON'T USE "RUN_BCK"-it's full of fancy
-		CommandNoResponse(CONVEYOR_QUEUE);
-		Message.command = COMMAND_DRIVETRAIN_FRONTLOAD_TOTE;
-		bReturn = !CommandResponse(DRIVETRAIN_QUEUE);
+		//start driving forwards
+		Message.command = COMMAND_DRIVETRAIN_FRONTLOAD_TOTE;//simply drives forward
+		CommandNoResponse(DRIVETRAIN_QUEUE);
+		//when front sensor sees tote, stop drivetrain no matter what
+		Message.command = COMMAND_CONVEYOR_WATCH_TOTE_FRONT;
+		bReturn = !CommandResponse(CONVEYOR_QUEUE);
+		Message.command = COMMAND_DRIVETRAIN_STOP;//simply drives forward
+		CommandNoResponse(DRIVETRAIN_QUEUE);
+		//if front sensor success, continue until back sensor sees; otherwise, stop.
 		if(!bReturn)
 		{
 			Message.command = COMMAND_CONVEYOR_FRONTLOAD_TOTE;
 			bReturn = !CommandResponse(CONVEYOR_QUEUE);
+		}
+		else
+		{
+			Message.command = COMMAND_CONVEYOR_STOP;
+			CommandNoResponse(CONVEYOR_QUEUE);
 		}
 		break;
 
@@ -257,7 +267,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 
 	case AUTO_TOKEN_DEPOSITTOTES_BCK:
 		Message.command = COMMAND_CONVEYOR_DEPOSITTOTES_BCK;
-			//TODO AUTO_TOKEN_DEPOSITTOTES_BCK
+			bReturn = !CommandResponse(CONVEYOR_QUEUE);
 			break;
 
 	case AUTO_TOKEN_SHIFT_TOTES_FWD:
@@ -270,19 +280,14 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		bReturn = !CommandNoResponse(CONVEYOR_QUEUE);
 			break;
 
-	/*case AUTO_TOKEN_DRIVE_TO_CAN:
-			//TODO AUTO_TOKEN_DRIVE_TO_CAN
-			//drive forward to the can - may switch this to a straight drive
-			break;*/
-
 	case AUTO_TOKEN_CAN_ARM_OPEN:
-			//TODO AUTO_TOKEN_CAN_ARM_OPEN
-			//push open the can arm
+		Message.command = COMMAND_CANARM_OPEN;
+		bReturn = !CommandNoResponse(CANARM_QUEUE);
 			break;
 
 	case AUTO_TOKEN_CAN_ARM_CLOSE:
-			//TODO AUTO_TOKEN_CAN_ARM_CLOSE
-			//close the can arm
+		Message.command = COMMAND_CANARM_CLOSE;
+		bReturn = !CommandNoResponse(CANARM_QUEUE);
 			break;
 
 	case AUTO_TOKEN_SEEK_TOTE:
@@ -302,7 +307,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
 		break;
 
-	case AUTO_TOKEN_EXTEND_TOTE:
+	/*case AUTO_TOKEN_EXTEND_TOTE:
 		Message.command = COMMAND_TOTELIFTER_EXTEND;
 		bReturn = !CommandNoResponse(TOTELIFTER_QUEUE);
 		break;
@@ -310,7 +315,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 	case AUTO_TOKEN_RETRACT_TOTE:
 		Message.command = COMMAND_TOTELIFTER_RETRACT;
 		bReturn = !CommandNoResponse(TOTELIFTER_QUEUE);
-		break;
+		break;*/
 
 	case AUTO_TOKEN_CUBE_AUTO:
 		if (!CubeAuto(pCurrLinePos))
