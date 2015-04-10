@@ -135,7 +135,10 @@ void RhsRobot::Run() {
 
 	if (drivetrain)
 	{
+		//for keepalign tests: comment out everything to the sendMessage
+		//also comment out the if (ISAUTO) at the bottom of Drivetrain::Run()
 		//robotMessage.command = COMMAND_DRIVETRAIN_START_KEEPALIGN;
+
 #if 1
 		robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_TANK;
 

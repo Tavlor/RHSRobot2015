@@ -64,10 +64,28 @@ void CanLifter::OnStateChange() {
 	switch (localMessage.command)
 	{
 		case COMMAND_ROBOT_STATE_AUTONOMOUS:
+			lifterMotor->Set(fLifterStop);
+			pSafetyTimer->Reset();
+			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
+			break;
 		case COMMAND_ROBOT_STATE_TEST:
+			lifterMotor->Set(fLifterStop);
+			pSafetyTimer->Reset();
+			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
+			break;
 		case COMMAND_ROBOT_STATE_TELEOPERATED:
+			lifterMotor->Set(fLifterStop);
+			pSafetyTimer->Reset();
+			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
+			break;
 		case COMMAND_ROBOT_STATE_DISABLED:
+			lifterMotor->Set(fLifterStop);
+			pSafetyTimer->Reset();
+			break;
 		case COMMAND_ROBOT_STATE_UNKNOWN:
+			lifterMotor->Set(fLifterStop);
+			pSafetyTimer->Reset();
+			break;
 		default:
 			lifterMotor->Set(fLifterStop);
 			pSafetyTimer->Reset();
@@ -78,19 +96,25 @@ void CanLifter::OnStateChange() {
 void CanLifter::Run() {
 	switch (localMessage.command)
 	{
-		case COMMAND_CANLIFTER_RAISE:
+	case COMMAND_CANLIFTER_RAISE:
+		if (CheckLifterCurrentOK())
+		{
 			lifterMotor->Set(localMessage.params.canLifterParams.lifterSpeed);
-			bHover = false;
-			bMiddleHover = false;
-			pSafetyTimer->Reset();
-			break;
+		}
+		bHover = false;
+		bMiddleHover = false;
+		pSafetyTimer->Reset();
+		break;
 
-		case COMMAND_CANLIFTER_LOWER:
+	case COMMAND_CANLIFTER_LOWER:
+		if (CheckLifterCurrentOK())
+		{
 			lifterMotor->Set(-localMessage.params.canLifterParams.lifterSpeed);
-			bHover = false;
-			bMiddleHover = false;
-			pSafetyTimer->Reset();
-			break;
+		}
+		bHover = false;
+		bMiddleHover = false;
+		pSafetyTimer->Reset();
+		break;
 
 		case COMMAND_CANLIFTER_HOVER:
 			lifterMotor->Set(fLifterHoverNoTotes);
@@ -99,17 +123,22 @@ void CanLifter::Run() {
 			break;
 
 		case COMMAND_CANLIFTER_STARTRAISETOTES:
+			if (CheckLifterCurrentOK())
+			{
+				lifterMotor->Set(fLifterRaise);
+			}
 			bMiddleHover = true;
 			pSafetyTimer->Reset();
-			lifterMotor->Set(fLifterLiftOneTotes);
 			break;
 
-		case COMMAND_CANLIFTER_RAISETOTES:
+
+		case COMMAND_CANLIFTER_RAISE_TOTES:
+			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 			bMiddleHover = true;
 			pSafetyTimer->Reset();
 			iToteLoad = localMessage.params.canLifterParams.iNumTotes;
-
-			if(iToteLoad == 1)
+			lifterMotor->Set(fLifterRaise);
+			/*if(iToteLoad == 1)
 			{
 				lifterMotor->Set(fLifterLiftOneTotes);
 			}
@@ -125,14 +154,16 @@ void CanLifter::Run() {
 			else
 			{
 				lifterMotor->Set(fLifterLiftNoTotes);
-			}
+			}*/
 			break;
 
-		case COMMAND_CANLIFTER_LOWERTOTES:
+		case COMMAND_CANLIFTER_LOWER_TOTES:
+			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 			bMiddleHover = false;
 			pSafetyTimer->Reset();
 
-			if(iToteLoad == 1)
+			lifterMotor->Set(fLifterLower);
+			/*if(iToteLoad == 1)
 			{
 				lifterMotor->Set(fLifterLowerOneTotes);
 			}
@@ -148,7 +179,15 @@ void CanLifter::Run() {
 			else
 			{
 				lifterMotor->Set(fLifterLowerNoTotes);
-			}
+			}*/
+			break;
+
+		case COMMAND_CANLIFTER_RAISE_CAN:
+			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
+			break;
+
+		case COMMAND_CANLIFTER_LOWER_CAN:
+			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
 			break;
 
 		case COMMAND_CANLIFTER_STOP:
@@ -244,4 +283,11 @@ void CanLifter::Run() {
 	}
 }
 
-
+bool CanLifter::CheckLifterCurrentOK() {
+	if (lifterMotor->GetOutputCurrent() > fLifterMotorCurrentMax)
+	{
+		lifterMotor->Set(fLifterStop);
+		return false;
+	}
+	return true;
+}

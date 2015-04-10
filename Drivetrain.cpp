@@ -174,11 +174,19 @@ void Drivetrain::Run() {
 		right = 0;
 		leftMotor->Set(left);
 		rightMotor->Set(right);
+		bFrontLoadTote = false;
+		bBackLoadTote = false;
 		gyro->Zero();
 		break;
 
 	case COMMAND_DRIVETRAIN_FRONTLOAD_TOTE:
-		//TODO: start to drive straight
+		gyro->Zero();
+		bFrontLoadTote = true;
+		break;
+
+	case COMMAND_DRIVETRAIN_BACKLOAD_TOTE:
+		gyro->Zero();
+		bBackLoadTote = true;
 		break;
 
 	case COMMAND_DRIVETRAIN_START_KEEPALIGN:
@@ -198,22 +206,24 @@ void Drivetrain::Run() {
 	default:
 		break;
 	}
-	/*if(bIsAuto)
+	if (ISAUTO)
 	{
-		leftMotor->Set(left);
-		rightMotor->Set(right);
-	 }*/
+		//leftMotor->Set(left);
+		//rightMotor->Set(right);
 
-	if(bStraightDrive)
-	{
-		//TODO: add speed variation - direction
-		StraightDriveLoop(fToteSeekSpeed);
-	 }
-
-	if(bKeepAligned)
-	{
-		KeepAligned();
-	 }
+		if (bFrontLoadTote)
+		{
+			StraightDriveLoop(fFrontLoadSpeed);
+		}
+		else if (bBackLoadTote)
+		{
+			StraightDriveLoop(fBackLoadSpeed);
+		}
+		else if (bKeepAligned)
+		{
+			KeepAligned();
+		}
+	}
 
 	//Put out information
 	if (pRemoteUpdateTimer->Get() > 0.2)
@@ -290,7 +300,7 @@ void Drivetrain::Turn(float targetAngle, float timeout) {
 	pAutoTimer->Reset();
 
 	while (pAutoTimer->Get() < timeout
-			&& RobotBase::getInstance().IsAutonomous())
+			&& ISAUTO)
 	{
 		//if you don't disable this during non-auto, it will keep trying to turn during teleop. Not fun.
 		float degreesLeft = targetAngle - gyro->GetAngle();
@@ -328,7 +338,7 @@ void Drivetrain::SeekTote(float timein, float timeout) {
 	pAutoTimer->Reset();
 
 	while ((pAutoTimer->Get() < timeout)
-			&& RobotBase::getInstance().IsAutonomous())
+			&& ISAUTO)
 	{
 		if (toteSensor->Get() && pAutoTimer->Get() > timein)
 		{
@@ -355,7 +365,7 @@ void Drivetrain::StraightDrive(float speed, float time) {
 	gyro->Zero();
 
 	while ((pAutoTimer->Get() < time)
-			&& RobotBase::getInstance().IsAutonomous())
+			&& ISAUTO)
 	{
 		StraightDriveLoop(speed);
 		Wait(0.01);

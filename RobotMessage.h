@@ -110,8 +110,10 @@ enum MessageCommand {
 	COMMAND_CANLIFTER_LOWER,			//!< Tells CanLifter to lower the lift
 	COMMAND_CANLIFTER_HOVER,			//!< Tells CanLifter to hold the lift where it is
 	COMMAND_CANLIFTER_STARTRAISETOTES,	//!< Tells CanLifter to start raising to middle position
-	COMMAND_CANLIFTER_RAISETOTES,		//!< Tells CanLifter to raise to middle position
-	COMMAND_CANLIFTER_LOWERTOTES,		//!< Tells CanLifter to lower when holding totes
+	COMMAND_CANLIFTER_RAISE_TOTES,		//!< Tells CanLifter to raise to middle position
+	COMMAND_CANLIFTER_LOWER_TOTES,		//!< Tells CanLifter to lower when holding totes
+	COMMAND_CANLIFTER_RAISE_CAN,		//!< Tells CanLifter to raise to middle position
+	COMMAND_CANLIFTER_LOWER_CAN,		//!< Tells CanLifter to lower when holding totes
 	COMMAND_CANLIFTER_STOP,				//!< Tells CanLifter to stop the lift
 
 	COMMAND_CLAW_OPEN,					//!< Tells CanLifter to open the claw

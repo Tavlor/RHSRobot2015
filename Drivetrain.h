@@ -43,17 +43,17 @@ private:
 	BuiltInAccelerometer accelerometer;
 	DigitalInput *toteSensor;
 	Timer *pAutoTimer; //watches autonomous time and disables it if needed.
-	//AutoMode autoMode = AUTO_DRIVETRAIN_STOP;
 	//stores motor values during autonomous
 	float left = 0;
 	float right = 0;
 
-	bool bStraightDrive = false;
+	bool bFrontLoadTote = false;
+	bool bBackLoadTote = false;
 	bool bKeepAligned = false;
-	//float alignAngle = 0;
+	const float fFrontLoadSpeed = .50;
+	const float fBackLoadSpeed = -.50;
+	const float fToteSeekSpeed = -.50;
 
-	///Speed for tote seeking: the robot drives backwards
-	float fToteSeekSpeed = -.50;
 	///how strong direction recovery is in straight drive, higher = stronger
 	const float recoverStrength = .04;
 	const float fMaxRecoverSpeed = .3;
@@ -61,7 +61,9 @@ private:
 	///how far from goal the robot can be before stopping
 	const float distError = 1.0;				//inches
 	const float angleError = 2.0;				//degrees
-	const float turnAngleSpeedMultiplyer = .05;	//angle * mult = speed to be reduced by limit
+	const float turnAngleSpeedMultiplyer = .03;
+
+	//angle * mult = speed to be reduced by limit
 	const float turnSpeedLimit = .50;
 	const float fEncoderRatio = 0.023009;
 

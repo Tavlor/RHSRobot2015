@@ -16,7 +16,15 @@ const char* const ROBOT_NAME =		"RhsRobot2015 Oklahoma";	//Formal name
 const char* const ROBOT_NICKNAME =   "The Blues Brothers";		//Nickname
 const char* const ROBOT_VERSION =	"2.0";						//Version
 
-#define ABLIMIT(a,b) if(a > b) a = b; else if(a < -b) a = -b;
+//Robot Mode Macros - used to tell what mode the robot is in
+#define ISAUTO			RobotBase::getInstance().IsAutonomous()
+#define ISTELEOPERATED	RobotBase::getInstance().IsOperatorControl()
+#define ISTEST			RobotBase::getInstance().IsTest()
+#define ISENABLED		RobotBase::getInstance().IsEnabled()
+#define ISDISABLED		RobotBase::getInstance().IsDisabled()
+
+//Custom Functions - Define commonly used operations here
+#define ABLIMIT(a,b)	if(a > b) a = b; else if(a < -b) a = -b;
 
 //Task Params - Defines component task priorites relative to the default priority.
 //EXAMPLE: const int DRIVETRAIN_PRIORITY = DEFAULT_PRIORITY -2;

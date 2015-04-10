@@ -28,5 +28,8 @@
 #CLICKERDOWN
 #
 BEGIN
-FRONTLOADTOTE 10.0
+# grab the first can
+CLAWCLOSE
+# load the middle tote - can arm should be open already
+FRONTLOADTOTE 4.0
 END

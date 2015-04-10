@@ -43,8 +43,8 @@ private:
 	 * 	Raise: +
 	 *	Lower: -
 	 */
-	const float fLifterRaise = 1.0;		//not needed
-	const float fLifterLower = -1.0;	//not needed
+	const float fLifterRaise = 1.0;
+	const float fLifterLower = -1.0;
 
 	const float fLifterHoverNoTotes = .15;
 	const float fLifterHoverOneTotes = .20;
@@ -62,6 +62,7 @@ private:
 	const float fLifterLowerThreeTotes = -0.50;
 
 	const float fLifterStop = 0.0;
+	const float fLifterMotorCurrentMax = 30;
 
 	bool lifterHallEffectBottom;
 	bool lifterHallEffectTop;
@@ -74,6 +75,7 @@ private:
 
 	void OnStateChange();
 	void Run();
+	bool CheckLifterCurrentOK();
 };
 
 #endif			//CANLIFTER_H

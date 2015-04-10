@@ -31,18 +31,18 @@ public:
 
 private:
 	/*MOTOR VALUES with CAN
-	 * + backwards
-	 * - forwards
+	 * + backwards (towards back)
+	 * - forwards (towards front)
 	 *
-	 * revLimit - at the back
-	 * fwdLimit - at the front
+	 * revLimit - at the front
+	 * fwdLimit - at the back
 	 */
 
 	CANTalon *conveyorMotor;
 	const float fConveyorSpeed = 1.0;
 	const float fConveyorSpeedBack = 0.5;
 	const float fLoadSpeed = 0.5;
-	const float fShiftSpeed = 0.25;
+	const float fShiftSpeed = 0.35;
 	bool bBackStopEnable;
 	MessageCommand responseCommand;
 

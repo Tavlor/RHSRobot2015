@@ -194,17 +194,29 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
 		iParam1 = atoi(pToken);
 
-		Message.command = COMMAND_CANLIFTER_RAISETOTES;
+		Message.command = COMMAND_CANLIFTER_RAISE_TOTES;
 		Message.params.canLifterParams.iNumTotes = iParam1;
 		bReturn = !CommandResponse(CANLIFTER_QUEUE);
 		break;
 
 	case AUTO_TOKEN_LOWER_TOTES:
-		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
-		iParam1 = atoi(pToken);
+		/*pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+		iParam1 = atoi(pToken);*/
 
-		Message.command = COMMAND_CANLIFTER_LOWERTOTES;
-		Message.params.canLifterParams.iNumTotes = iParam1;
+		Message.command = COMMAND_CANLIFTER_LOWER_TOTES;
+		//Message.params.canLifterParams.iNumTotes = iParam1;
+		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
+		break;
+
+	case AUTO_TOKEN_RAISE_CAN:
+		//TODO AUTO_TOKEN_RAISE_CAN
+		Message.command = COMMAND_CANLIFTER_RAISE_CAN;
+		bReturn = !CommandResponse(CANLIFTER_QUEUE);
+		break;
+
+	case AUTO_TOKEN_LOWER_CAN:
+		//TODO AUTO_TOKEN_LOWER_CAN
+		Message.command = COMMAND_CANLIFTER_LOWER_CAN;
 		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
 		break;
 
@@ -218,18 +230,11 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		bReturn = !CommandNoResponse(CLAW_QUEUE);
 		break;
 
-	case AUTO_TOKEN_RAISE_CAN:
-		//TODO AUTO_TOKEN_RAISE_CAN
-		break;
-
-	case AUTO_TOKEN_LOWER_CAN:
-		//TODO AUTO_TOKEN_LOWER_CAN
-		break;
-
+	//TESTED
 	case AUTO_TOKEN_FRONT_LOAD_TOTE:
-		//TODO: redo: conveyor warns auto about front sensor, this should stop drivetrain
 		//draw tote into the robot from the front
 		//convey, drive robot fwd until front sensor, cont. convey until back sensor
+
 		//start driving forwards
 		Message.command = COMMAND_DRIVETRAIN_FRONTLOAD_TOTE;//simply drives forward
 		CommandNoResponse(DRIVETRAIN_QUEUE);
@@ -238,7 +243,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		bReturn = !CommandResponse(CONVEYOR_QUEUE);
 		Message.command = COMMAND_DRIVETRAIN_STOP;//simply drives forward
 		CommandNoResponse(DRIVETRAIN_QUEUE);
-		//if front sensor success, continue until back sensor sees; otherwise, stop.
+		//if front sensor sees, continue until back sensor sees; otherwise, stop.
 		if(!bReturn)
 		{
 			Message.command = COMMAND_CONVEYOR_FRONTLOAD_TOTE;
@@ -251,17 +256,29 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		}
 		break;
 
+	//TESTED
 	case AUTO_TOKEN_BACK_LOAD_TOTE:
 		//draw tote into the robot from the back
-		//convey, drive robot fwd until back sensor, cont. convey until front sensor
-		Message.command = COMMAND_CONVEYOR_RUN_FWD;
-		CommandNoResponse(CONVEYOR_QUEUE);
-		Message.command = COMMAND_DRIVETRAIN_BACKLOAD_TOTE;
-		bReturn = !CommandResponse(DRIVETRAIN_QUEUE);
-		if(!bReturn)
+		//convey, drive robot back until front sensor, cont. convey until front sensor
+
+		//start driving backwards
+		Message.command = COMMAND_DRIVETRAIN_BACKLOAD_TOTE;	//simply drives forward
+		CommandNoResponse(DRIVETRAIN_QUEUE);
+		//when front sensor sees tote, stop drivetrain no matter what
+		Message.command = COMMAND_CONVEYOR_WATCH_TOTE_BACK;
+		bReturn = !CommandResponse(CONVEYOR_QUEUE);
+		Message.command = COMMAND_DRIVETRAIN_STOP;	//simply drives backwards
+		CommandNoResponse(DRIVETRAIN_QUEUE);
+		//if back sensor sees, continue until front sensor sees; otherwise, stop.
+		if (!bReturn)
 		{
 			Message.command = COMMAND_CONVEYOR_BACKLOAD_TOTE;
 			bReturn = !CommandResponse(CONVEYOR_QUEUE);
+		}
+		else
+		{
+			Message.command = COMMAND_CONVEYOR_STOP;
+			CommandNoResponse(CONVEYOR_QUEUE);
 		}
 		break;
 
@@ -270,21 +287,25 @@ bool Autonomous::Evaluate(std::string rStatement) {
 			bReturn = !CommandResponse(CONVEYOR_QUEUE);
 			break;
 
+	//TESTED
 	case AUTO_TOKEN_SHIFT_TOTES_FWD:
 		Message.command = COMMAND_CONVEYOR_SHIFTTOTES_FWD;
 		bReturn = !CommandNoResponse(CONVEYOR_QUEUE);
 			break;
 
+	//TESTED
 	case AUTO_TOKEN_SHIFT_TOTES_BCK:
 		Message.command = COMMAND_CONVEYOR_SHIFTTOTES_BCK;
 		bReturn = !CommandNoResponse(CONVEYOR_QUEUE);
 			break;
 
+	//TESTED
 	case AUTO_TOKEN_CAN_ARM_OPEN:
 		Message.command = COMMAND_CANARM_OPEN;
 		bReturn = !CommandNoResponse(CANARM_QUEUE);
 			break;
 
+	//TESTED
 	case AUTO_TOKEN_CAN_ARM_CLOSE:
 		Message.command = COMMAND_CANARM_CLOSE;
 		bReturn = !CommandNoResponse(CANARM_QUEUE);
