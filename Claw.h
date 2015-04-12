@@ -4,7 +4,9 @@
  * This classes is derived from the standard Component base class and includes
  * definitions for the devices used to control the pallet jack's claw.
  */
-
+/**
+ * A class to control the movements of the claw. It implements a current limit to keep the motor from burning out.
+ */
 #ifndef CLAW_H
 #define CLAW_H
 

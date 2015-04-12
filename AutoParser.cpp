@@ -28,12 +28,14 @@ const char *szTokens[] = {
 		"MMOVE",
 		"TURN",
 		"STRAIGHT",
-		"STACKUP",
-		"STACKDOWN",
 		"CLAWOPEN",
 		"CLAWCLOSE",
+		"CLAWUP",
+		"CLAWDOWN",
 		"CANUP",
 		"CANDOWN",
+		"STACKUP",
+		"STACKDOWN",
 		"FRONTLOADTOTE",
 		"BACKLOADTOTE",
 		"DEPOSITTOTESBACK",
@@ -130,19 +132,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 			fParam1 = atof(pToken);
 			rStatus.append("wait");
 
-			// break out if auto mode is over
-
-			for (double fWait = 0.0; fWait < fParam1; fWait += 0.01)
-			{
-				// if we are paused break the delay into pieces
-
-				while (bPauseAutoMode)
-				{
-					Wait(0.02);
-				}
-
-				Wait(0.01);
-			}
+			Delay(fParam1);
 		}
 		break;
 
@@ -208,16 +198,19 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
 		break;
 
-	case AUTO_TOKEN_RAISE_CAN:
-		//TODO AUTO_TOKEN_RAISE_CAN
-		Message.command = COMMAND_CANLIFTER_RAISE_CAN;
+	case AUTO_TOKEN_RAISE_CLAW:
+		Message.command = COMMAND_CANLIFTER_RAISE_CLAW;
 		bReturn = !CommandResponse(CANLIFTER_QUEUE);
 		break;
 
-	case AUTO_TOKEN_LOWER_CAN:
-		//TODO AUTO_TOKEN_LOWER_CAN
-		Message.command = COMMAND_CANLIFTER_LOWER_CAN;
+	case AUTO_TOKEN_LOWER_CLAW:
+		Message.command = COMMAND_CANLIFTER_LOWER_CLAW;
 		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
+		break;
+
+	case AUTO_TOKEN_RAISE_CAN:
+		Message.command = COMMAND_CANLIFTER_RAISE_CAN;
+		bReturn = !CommandResponse(CANLIFTER_QUEUE);
 		break;
 
 	case AUTO_TOKEN_CLAW_OPEN:
@@ -282,35 +275,39 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		}
 		break;
 
+		//TESTED
 	case AUTO_TOKEN_DEPOSITTOTES_BCK:
 		Message.command = COMMAND_CONVEYOR_DEPOSITTOTES_BCK;
-			bReturn = !CommandResponse(CONVEYOR_QUEUE);
-			break;
+		bReturn = !CommandResponse(CONVEYOR_QUEUE);
+		break;
 
-	//TESTED
+		//TESTED
 	case AUTO_TOKEN_SHIFT_TOTES_FWD:
 		Message.command = COMMAND_CONVEYOR_SHIFTTOTES_FWD;
 		bReturn = !CommandNoResponse(CONVEYOR_QUEUE);
-			break;
+		break;
 
-	//TESTED
+		//TESTED
 	case AUTO_TOKEN_SHIFT_TOTES_BCK:
 		Message.command = COMMAND_CONVEYOR_SHIFTTOTES_BCK;
 		bReturn = !CommandNoResponse(CONVEYOR_QUEUE);
-			break;
+		break;
 
-	//TESTED
 	case AUTO_TOKEN_CAN_ARM_OPEN:
+		Message.command = COMMAND_DRIVETRAIN_START_KEEPALIGN;
+		bReturn = !CommandNoResponse(DRIVETRAIN_QUEUE);
 		Message.command = COMMAND_CANARM_OPEN;
-		bReturn = !CommandNoResponse(CANARM_QUEUE);
-			break;
+		bReturn = !CommandResponse(CANARM_QUEUE);
+		Message.command = COMMAND_DRIVETRAIN_STOP_KEEPALIGN;
+		bReturn = !CommandNoResponse(DRIVETRAIN_QUEUE);
+		break;
 
-	//TESTED
 	case AUTO_TOKEN_CAN_ARM_CLOSE:
 		Message.command = COMMAND_CANARM_CLOSE;
 		bReturn = !CommandNoResponse(CANARM_QUEUE);
-			break;
+		break;
 
+//OLD FUNCTIONS
 	case AUTO_TOKEN_SEEK_TOTE:
 		if (!SeekTote(pCurrLinePos))
 		{

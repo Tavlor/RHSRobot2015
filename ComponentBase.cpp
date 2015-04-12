@@ -114,6 +114,10 @@ void ComponentBase::DoWork()
 		}
 
 		Run();			//Component logic
+		//if(ISAUTO) { AutoBehavior(); } //TODO: add this after world's for easier auto coding
+		//AutoBehavior is where the actual auto stuff is called - it should be periodic rather than stop up the thread
+		//It should be structured as a state machine; Run will change the state.
+		//if(pRemoteUpdateTimer->Get() > fUpdateDelay) { pRemoteUpdateTimer->Reset(); SmartDashboardUpdate(); } //TODO: add this after world's
 		iLoop++;
 	}
 }

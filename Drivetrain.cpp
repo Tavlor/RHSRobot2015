@@ -230,7 +230,8 @@ void Drivetrain::Run() {
 	{
 		pRemoteUpdateTimer->Reset();
 		SmartDashboard::PutBoolean("Tote Detector", toteSensor->Get());
-		SmartDashboard::PutNumber("Gyro Angle", gyro->GetAngle());
+		//gyro reading is truncated for the sake of the CSV file.
+		SmartDashboard::PutNumber("Gyro Angle", TRUNC_THOU(gyro->GetAngle()));
 	}
 }
 
@@ -381,20 +382,23 @@ void Drivetrain::StraightDrive(float speed, float time) {
 
 
 void Drivetrain::StraightDriveLoop(float speed) {
-
-	//keep the reference angle between -30 and 30 degrees
-	//float angle = std::max(std::min(gyro->GetAngle(),fMaxRecoverAngle),-fMaxRecoverAngle);
 	float adjustment = gyro->GetAngle() * recoverStrength;
 	//glorified arcade drive
 	if (speed > 0.0)
 	{
-		//if headed in positive direction
-		left = (1.0 + adjustment) * speed;
-		right = (-1.0 + adjustment) * speed;
+		/* if headed in positive direction
+		 * +angle requires more power on the right to fix
+		 * -angle, left
+		 */
+		left = (1.0 - adjustment) * speed;
+		right = (-1.0 - adjustment) * speed;
 	}
 	else if (speed < 0.0)
 	{
-		//if headed in negative direction
+		/* if headed in negative direction
+		 * +angle requires more power on the left to fix
+		 * -angle, right
+		 */
 		left = (1.0 + adjustment) * speed;
 		right = (-1.0 + adjustment) * speed;
 	}

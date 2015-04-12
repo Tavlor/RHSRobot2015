@@ -39,10 +39,13 @@ private:
 	 */
 
 	CANTalon *conveyorMotor;
-	const float fConveyorSpeed = 1.0;
+	const float fConveyorSpeed = 0.75;//1.0;
 	const float fConveyorSpeedBack = 0.5;
-	const float fLoadSpeed = 0.5;
-	const float fShiftSpeed = 0.35;
+	const float fConveyorSpeedFwd = -0.5;
+	//dial these down as you go - but start fast.
+	const float fLoadSpeed = 1.0;
+	const float fShiftSpeed = 0.3;//good to keep low.
+	const float fDepositSpeed = 1.0;
 	bool bBackStopEnable;
 	MessageCommand responseCommand;
 

@@ -22,7 +22,6 @@ CanLifter::CanLifter() :
 		ComponentBase(CANLIFTER_TASKNAME, CANLIFTER_QUEUE, CANLIFTER_PRIORITY) {
 
 	bHover = false;
-	bMiddleHover = false;
 	bGoingUp = false;
 	bGoingDown = false;
 	iToteLoad = 0;
@@ -97,114 +96,106 @@ void CanLifter::Run() {
 	switch (localMessage.command)
 	{
 	case COMMAND_CANLIFTER_RAISE:
-		if (CheckLifterCurrentOK())
+		if(lifterMotor->IsFwdLimitSwitchClosed())
 		{
-			lifterMotor->Set(localMessage.params.canLifterParams.lifterSpeed);
+			if(!bHover)
+			{
+				lifterMotor->ConfigLimitMode(
+						CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
+				LifterCurrentLimitDrive(localMessage.params.canLifterParams.lifterSpeed);
+			}
 		}
-		bHover = false;
-		bMiddleHover = false;
+		else
+		{
+			lifterMotor->ConfigLimitMode(
+					CANSpeedController::kLimitMode_SwitchInputsOnly);
+			LifterCurrentLimitDrive(localMessage.params.canLifterParams.lifterSpeed);
+		}
 		pSafetyTimer->Reset();
 		break;
 
 	case COMMAND_CANLIFTER_LOWER:
-		if (CheckLifterCurrentOK())
-		{
-			lifterMotor->Set(-localMessage.params.canLifterParams.lifterSpeed);
-		}
+		LifterCurrentLimitDrive(-localMessage.params.canLifterParams.lifterSpeed);
 		bHover = false;
-		bMiddleHover = false;
 		pSafetyTimer->Reset();
 		break;
 
-		case COMMAND_CANLIFTER_HOVER:
-			lifterMotor->Set(fLifterHoverNoTotes);
-			bHover = true;
-			pSafetyTimer->Reset();
-			break;
+	/*case COMMAND_CANLIFTER_HOVER:
+		lifterMotor->Set(fLifterHover);
+		bHover = true;
+		pSafetyTimer->Reset();
+		break;*/
 
-		case COMMAND_CANLIFTER_STARTRAISETOTES:
-			if (CheckLifterCurrentOK())
-			{
-				lifterMotor->Set(fLifterRaise);
-			}
-			bMiddleHover = true;
-			pSafetyTimer->Reset();
-			break;
+	/*case COMMAND_CANLIFTER_STARTRAISETOTES:
+		if (CheckLifterCurrentOK())
+		{
+			lifterMotor->Set(fLifterRaise);
+		}
+		pSafetyTimer->Reset();
+		break;*/
 
 
 		case COMMAND_CANLIFTER_RAISE_TOTES:
+			//to load pos
 			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
-			bMiddleHover = true;
+			bHover = true;
 			pSafetyTimer->Reset();
 			iToteLoad = localMessage.params.canLifterParams.iNumTotes;
-			lifterMotor->Set(fLifterRaise);
-			/*if(iToteLoad == 1)
+			while(ISAUTO && !lifterMotor->IsFwdLimitSwitchClosed())
 			{
-				lifterMotor->Set(fLifterLiftOneTotes);
+				lifterMotor->Set(fLifterRaise);
 			}
-			else if(iToteLoad == 2)
-			{
-				lifterMotor->Set(fLifterLiftTwoTotes);
-			}
-			else if(iToteLoad == 3)
-			{
-				lifterMotor->Set(fLifterLiftThreeTotes);
-				SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
-			}
-			else
-			{
-				lifterMotor->Set(fLifterLiftNoTotes);
-			}*/
+			SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 			break;
 
 		case COMMAND_CANLIFTER_LOWER_TOTES:
+			//to hook pos
 			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
-			bMiddleHover = false;
+			bHover = false;
 			pSafetyTimer->Reset();
-
 			lifterMotor->Set(fLifterLower);
-			/*if(iToteLoad == 1)
+			break;
+
+		case COMMAND_CANLIFTER_RAISE_CLAW:
+			//to top
+			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
+			bHover = false;
+			while(ISAUTO && LifterCurrentLimitDrive(fLifterRaise))
 			{
-				lifterMotor->Set(fLifterLowerOneTotes);
+				//Left empty on purpose
 			}
-			else if(iToteLoad == 2)
+			pSafetyTimer->Reset();
+			break;
+
+		case COMMAND_CANLIFTER_LOWER_CLAW:
+			//to bottom
+			bHover = false;
+			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
+			while(ISAUTO && LifterCurrentLimitDrive(fLifterLower))
 			{
-				lifterMotor->Set(fLifterLowerTwoTotes);
+				//Left empty on purpose
 			}
-			else if(iToteLoad == 3)
-			{
-				//really just grabbing ahold, not lifting
-				lifterMotor->Set(fLifterLowerThreeTotes);
-			}
-			else
-			{
-				lifterMotor->Set(fLifterLowerNoTotes);
-			}*/
+			pSafetyTimer->Reset();
 			break;
 
 		case COMMAND_CANLIFTER_RAISE_CAN:
+			//to hook pos
+			bHover = false;
 			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
+			pSafetyTimer->Reset();
 			break;
 
 		case COMMAND_CANLIFTER_LOWER_CAN:
-			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
+			//to load pos
+			bHover = true;
+			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
+			pSafetyTimer->Reset();
 			break;
 
 		case COMMAND_CANLIFTER_STOP:
-			if(bHover)
-			{
-				// stop but with enough juice to hold the carriage in place
-
-				lifterMotor->Set(fLifterHoverNoTotes);
-			}
-			else if(!bMiddleHover)
-			{
-				// stop if we are not hovering with a tote
-
-				lifterMotor->Set(fLifterStop);
-			}
-
+			lifterMotor->Set(fLifterStop);
 			pSafetyTimer->Reset();
+			bHover = false;
 			break;
 
 		default:
@@ -221,51 +212,47 @@ void CanLifter::Run() {
 
 	// if the middle sensor is tripped were we moving up or down or should we hover holding a tote?
 
-	if(midDetect->Get())
+	/*if(midDetect->Get())
 	{
-		midDetect->Reset();
+		midDetect->Reset();*/
 
-		if(bMiddleHover)
+	if(bHover)
+	{
+		// hover here with enough juice to hold steady
+		switch(iToteLoad)
 		{
-			// hover here with enough juice to hold steady
-
-			if(iToteLoad == 1)
-			{
-				lifterMotor->Set(fLifterHoverOneTotes);
-			}
-			else if(iToteLoad == 2)
-			{
-				lifterMotor->Set(fLifterHoverTwoTotes);
-			}
-			else if(iToteLoad == 3)
-			{
-				lifterMotor->Set(fLifterHoverThreeTotes);
-			}
-			else
-			{
-				lifterMotor->Set(fLifterHoverNoTotes);
-			}
-
-			SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
+			case 1:
+			lifterMotor->Set(fLifterHoverOneTotes);
+			break;
+			case 2:
+			lifterMotor->Set(fLifterHoverOneTotes);
+			break;
+			case 3:
+			lifterMotor->Set(fLifterHoverOneTotes);
+			break;
+			default:
+			lifterMotor->Set(fLifterHover);
+			break;
 		}
-		else
+		//SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
+	}
+	else
+	{
+		// not holding a tote, just normal can up and down motions
+
+		if(lifterMotor->Get() > 0.0)
 		{
-			// not holding a tote, just normal can up and down motions
+			// was on the way up
 
-			if(lifterMotor->Get() > 0.0)
-			{
-				// was on the way up
+			bGoingUp = true;
+			bGoingDown = false;
+		}
+		else if(lifterMotor->Get() < 0.0)
+		{
+			// was on the way down
 
-				bGoingUp = true;
-				bGoingDown = false;
-			}
-			else if(lifterMotor->Get() < 0.0)
-			{
-				// was on the way down
-
-				bGoingUp = false;
-				bGoingDown = true;
-			}
+			bGoingUp = false;
+			bGoingDown = true;
 		}
 	}
 
@@ -280,14 +267,17 @@ void CanLifter::Run() {
 		SmartDashboard::PutBoolean("Lifter @ Top", lifterHallEffectTop);
 		SmartDashboard::PutBoolean("Lifter @ Bottom", lifterHallEffectBottom);
 		SmartDashboard::PutBoolean("Lifter Hover", bHover);
+		SmartDashboard::PutBoolean("Lifter Raising", bGoingUp);
+		SmartDashboard::PutBoolean("Lifter Lowering", bGoingDown);
 	}
 }
 
-bool CanLifter::CheckLifterCurrentOK() {
+bool CanLifter::LifterCurrentLimitDrive(float speed) {
 	if (lifterMotor->GetOutputCurrent() > fLifterMotorCurrentMax)
 	{
 		lifterMotor->Set(fLifterStop);
 		return false;
 	}
+	lifterMotor->Set(speed);
 	return true;
 }

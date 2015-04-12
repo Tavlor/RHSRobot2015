@@ -57,14 +57,20 @@ void CanArm::Run()
 	switch(localMessage.command)
 	{
 		case COMMAND_CANARM_OPEN:
+			bOpening = true;
+			bClosing = false;
 			armMotor->Set(fOpen);
 			break;
 
 		case COMMAND_CANARM_CLOSE:
+			bOpening = false;
+			bClosing = true;
 			armMotor->Set(fClose);
 			break;
 
 		case COMMAND_CANARM_STOP:
+			bOpening = false;
+			bClosing = false;
 			armMotor->Set(0);
 			break;
 
@@ -77,4 +83,37 @@ void CanArm::Run()
 			armMotor->Set(0);
 			break;
 	}
+
+	SmartDashboard::PutNumber("Arm Current", TRUNC_THOU(armMotor->GetOutputCurrent()));
+
+	if (ISAUTO)
+	{
+		if(bOpening)
+		{
+			armMotor->Set(fOpen);
+			if(!CheckArmCurrentOK())
+			{
+				SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
+				bOpening = false;
+			}
+		}
+		else if(bClosing)
+		{
+			armMotor->Set(fClose);
+			if(!CheckArmCurrentOK())
+			{
+				SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
+				bClosing = false;
+			}
+		}
+	}
+}
+
+bool CanArm::CheckArmCurrentOK() {
+	if (armMotor->GetOutputCurrent() > fArmMotorCurrentMax)
+	{
+		armMotor->Set(0);
+		return false;
+	}
+	return true;
 }

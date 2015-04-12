@@ -53,8 +53,7 @@ bool Autonomous::CommandResponse(const char *szQueueName) {
 	}
 	else if (ReceivedCommand == COMMAND_AUTONOMOUS_RESPONSE_ERROR)
 	{
-		SmartDashboard::PutString("Auto Status","auto died, tell programmers");
-		//TODO: if auto quits abnormally, signal the drivers via SD or something
+		SmartDashboard::PutString("Auto Status","EARLY DEATH!");
 		bReturn = false;
 	}
 
@@ -72,6 +71,21 @@ bool Autonomous::CommandNoResponse(const char *szQueueName) {
 	return (true);
 }
 
+void Autonomous::Delay(float delayTime)
+{
+	//breaks the delay into little bits to prevent issues in the event of disabling
+	for (double fWait = 0.0; fWait < delayTime; fWait += 0.01)
+				{
+					// if we are paused break the delay into pieces
+
+					while (bPauseAutoMode)
+					{
+						Wait(0.02);
+					}
+
+					Wait(0.01);
+				}
+}
 bool Autonomous::Begin(char *pCurrLinePos)
 {
 	//tell all the components who may need to know that auto is beginning

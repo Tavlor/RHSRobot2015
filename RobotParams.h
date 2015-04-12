@@ -23,8 +23,10 @@ const char* const ROBOT_VERSION =	"2.0";						//Version
 #define ISENABLED		RobotBase::getInstance().IsEnabled()
 #define ISDISABLED		RobotBase::getInstance().IsDisabled()
 
-//Custom Functions - Define commonly used operations here
+//Utility Functions - Define commonly used operations here
 #define ABLIMIT(a,b)	if(a > b) a = b; else if(a < -b) a = -b;
+#define TRUNC_THOU(a)		((int)(1000 * a)) * .001
+#define TRUNC_HUND(a)		((int)(100 * a)) * .01
 
 //Task Params - Defines component task priorites relative to the default priority.
 //EXAMPLE: const int DRIVETRAIN_PRIORITY = DEFAULT_PRIORITY -2;
@@ -92,7 +94,7 @@ const int PWM_DRIVETRAIN_RIGHT_MOTOR = 0;
 2 - right drive motor
 3 - conveyor
 4 - claw
-5 - bin lift
+5 - can lift
 6 - can arm
 7 - ~~
 8 - cube intake roller
@@ -152,38 +154,38 @@ const int POV_STILL = -1;
 /** \page joysticks Joystick Layouts
  * \verbatim
  	 +++++ Controller 1 +++++
- * 	A Button					Enable CanLifter hover
- * 	B Button					~~
- * 	X Button					Hold Cube clicker at bottom to remove totes
- * 	Y Button					Release Cube clicker from hold
- * 	Start Button				Start Cube autocycle
- * 	Back Button					Stop Cube autocycle
- * 	Left Bumper					Run Conveyor forward
- * 	Right Bumper				Run Conveyor backwards - to claw
- * 	Left Thumbstick Button		Close CanLifter claw
- * 	Right Thumbstick Button		Open CanLifter claw
- * 	Left Thumbstick				Left tank, Arcade
- * 	Right Thumbstick			Right tank
- * 	D-pad						~~
- * 	Left Trigger				Lower CanLifter
- * 	RightTrigger				Raise CanLifter
- *
+  	A Button					Enable CanLifter hover
+  	B Button					~~
+  	X Button					Hold Cube clicker at bottom to remove totes
+  	Y Button					Release Cube clicker from hold
+  	Start Button				Start Cube autocycle
+  	Back Button					Stop Cube autocycle
+  	Left Bumper					Run Conveyor forward
+  	Right Bumper				Run Conveyor backwards - to claw
+  	Left Thumbstick Button		Close CanLifter claw
+  	Right Thumbstick Button		Open CanLifter claw
+  	Left Thumbstick				Left tank, Arcade
+  	Right Thumbstick			Right tank
+  	D-pad						~~
+  	Left Trigger				Lower CanLifter
+  	RightTrigger				Raise CanLifter
+
  	 +++++ Controller 2 +++++
- * 	A Button					~~
- * 	B Button					~~
- * 	X Button					Hold Cube clicker at bottom to remove totes
- * 	Y Button					Release Cube clicker from hold
- * 	Start Button				Start Cube autocycle
- * 	Back Button					Stop Cube autocycle
- * 	Left Bumper					~~
- * 	Right Bumper				~~
- * 	Left Thumbstick Button		~~
- * 	Right Thumbstick Button		~~
- * 	Left Thumbstick				~~
- * 	Right Thumbstick			Raise/lower Cube clicker
- * 	D-pad						~~
- * 	Left Trigger				~~
- * 	RightTrigger				~~
+  	A Button					~~
+  	B Button					~~
+  	X Button					Hold Cube clicker at bottom to remove totes
+  	Y Button					Release Cube clicker from hold
+  	Start Button				Start Cube autocycle
+  	Back Button					Stop Cube autocycle
+  	Left Bumper					~~
+  	Right Bumper				~~
+ 	Left Thumbstick Button		~~
+  	Right Thumbstick Button		~~
+  	Left Thumbstick				~~
+  	Right Thumbstick			Raise/lower Cube clicker
+  	D-pad						~~
+  	Left Trigger				~~
+  	RightTrigger				~~
  \endverbatim
  */
 #ifdef USE_L310_FOR_CONTROLLER_1

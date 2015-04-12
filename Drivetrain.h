@@ -50,8 +50,8 @@ private:
 	bool bFrontLoadTote = false;
 	bool bBackLoadTote = false;
 	bool bKeepAligned = false;
-	const float fFrontLoadSpeed = .50;
-	const float fBackLoadSpeed = -.50;
+	const float fFrontLoadSpeed = .250;
+	const float fBackLoadSpeed = -.250;
 	const float fToteSeekSpeed = -.50;
 
 	///how strong direction recovery is in straight drive, higher = stronger

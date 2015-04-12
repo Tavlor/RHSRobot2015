@@ -45,8 +45,8 @@ private:
 	 */
 	const float fLifterRaise = 1.0;
 	const float fLifterLower = -1.0;
+	const float fLifterHover = .15;
 
-	const float fLifterHoverNoTotes = .15;
 	const float fLifterHoverOneTotes = .20;
 	const float fLifterHoverTwoTotes = .25;
 	const float fLifterHoverThreeTotes = .30;
@@ -66,8 +66,7 @@ private:
 
 	bool lifterHallEffectBottom;
 	bool lifterHallEffectTop;
-	bool bHover;
-	bool bMiddleHover;
+	bool bHover;//hovers by hitting the higher hall effect
 	bool bGoingUp;
 	bool bGoingDown;
 	int iToteLoad;
@@ -75,7 +74,7 @@ private:
 
 	void OnStateChange();
 	void Run();
-	bool CheckLifterCurrentOK();
+	bool LifterCurrentLimitDrive(float);
 };
 
 #endif			//CANLIFTER_H

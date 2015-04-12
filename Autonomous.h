@@ -54,6 +54,7 @@ private:
 	bool bReceivedCommandResponse;
 	MessageCommand ReceivedCommand;
 
+	void Delay(float);
 	bool Begin(char *);
 	bool End(char *);
 	bool Move(char *);

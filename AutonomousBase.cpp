@@ -136,6 +136,7 @@ void Autonomous::DoScript()
 		SmartDashboard::PutNumber("Script Line Number", lineNumber);
 
 		//TODO: LoadScriptFile is called every stinking time we want to check load status! Does this eat time?
+		//We want to load the file while disabled - this allows us to load new scripts
 		if(LoadScriptFile() == false)
 		{
 			// wait a little and try again, really only useful if when practicing

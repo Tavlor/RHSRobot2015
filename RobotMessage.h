@@ -45,6 +45,10 @@
  robot=>conveyor [label="RUN_FWD"];
  robot=>conveyor [label="RUN_BCK"];
  robot=>conveyor [label="STOP"];
+ auto=>conveyor [label="WATCH_TOTE_FRONT/BACK"];
+ auto=>conveyor [label="FRONT/BACKLOAD_TOTE"];
+ auto=>conveyor [label="SHIFTTOTES_FWD/BCK"];
+ auto=>conveyor [label="DEPOSITTOTES_BCK"];
  robot=>cclick [label="RAISE"];
  robot=>cclick [label="LOWER"];
  robot=>cclick [label="STOP"];
@@ -57,6 +61,8 @@
  robot=>can[label="RAISE"];
  robot=>can[label="LOWER"];
  robot=>can[label="STOP"];
+ auto=>can[label="RAISE/LOWER_TOTES"];
+ auto=>can[label="RAISE/LOWER_CLAW"];
  robot=>claw[label="OPEN"];
  robot=>claw[label="CLOSE"];
  robot=>test[label="TEST"];
@@ -109,11 +115,13 @@ enum MessageCommand {
 	COMMAND_CANLIFTER_RAISE,			//!< Tells CanLifter to raise the lift
 	COMMAND_CANLIFTER_LOWER,			//!< Tells CanLifter to lower the lift
 	COMMAND_CANLIFTER_HOVER,			//!< Tells CanLifter to hold the lift where it is
-	COMMAND_CANLIFTER_STARTRAISETOTES,	//!< Tells CanLifter to start raising to middle position
-	COMMAND_CANLIFTER_RAISE_TOTES,		//!< Tells CanLifter to raise to middle position
-	COMMAND_CANLIFTER_LOWER_TOTES,		//!< Tells CanLifter to lower when holding totes
-	COMMAND_CANLIFTER_RAISE_CAN,		//!< Tells CanLifter to raise to middle position
-	COMMAND_CANLIFTER_LOWER_CAN,		//!< Tells CanLifter to lower when holding totes
+	COMMAND_CANLIFTER_STARTRAISETOTES,	//!< Tells CanLifter to start raising to middle position, used by Autonomous
+	COMMAND_CANLIFTER_RAISE_TOTES,		//!< Tells CanLifter to raise to loading position & hover, used by Autonomous
+	COMMAND_CANLIFTER_LOWER_TOTES,		//!< Tells CanLifter to lower to hook position, used by Autonomous
+	COMMAND_CANLIFTER_RAISE_CLAW,		//!< Tells CanLifter to raise to top, used by Autonomous
+	COMMAND_CANLIFTER_LOWER_CLAW,		//!< Tells CanLifter to lower to bottom, used by Autonomous
+	COMMAND_CANLIFTER_RAISE_CAN,		//!< Tells CanLifter to raise to hook position, used by Autonomous
+	COMMAND_CANLIFTER_LOWER_CAN,		//!< Tells CanLifter to lower to  loading position & hover, used by Autonomous
 	COMMAND_CANLIFTER_STOP,				//!< Tells CanLifter to stop the lift
 
 	COMMAND_CLAW_OPEN,					//!< Tells CanLifter to open the claw
@@ -193,21 +201,21 @@ union MessageParams {
 };
 
 ///Used by components to register what state the robot is in.
-typedef enum eRobotOpMode
+/*typedef enum eRobotOpMode
 {
 	ROBOT_STATE_DISABLED,
 	ROBOT_STATE_AUTONOMOUS,
 	ROBOT_STATE_TELEOPERATED,
 	ROBOT_STATE_TEST,
 	ROBOT_STATE_UNKNOWN
-} RobotOpMode;
+} RobotOpMode;*/
 
 ///A structure containing a command, a set of parameters, and a reply id, sent between components
 struct RobotMessage {
 	MessageCommand command;
 	const char* replyQ;
 	MessageParams params;
-	RobotOpMode robotMode;
+	//RobotOpMode robotMode;
 };
 
 #endif //ROBOT_MESSAGE_H

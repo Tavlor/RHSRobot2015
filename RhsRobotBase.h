@@ -13,15 +13,14 @@
 #include <WPILib.h>			//For the RobotBase class
 #include "RobotMessage.h"
 
-//TODO: move this to a file accessable to all and put stuff in ComponentBase so components know the state
-/*typedef enum eRobotOpMode
+typedef enum eRobotOpMode
 {
 	ROBOT_STATE_DISABLED,
 	ROBOT_STATE_AUTONOMOUS,
 	ROBOT_STATE_TELEOPERATED,
 	ROBOT_STATE_TEST,
 	ROBOT_STATE_UNKNOWN
-} RobotOpMode;*/
+} RobotOpMode;
 
 class RhsRobotBase : public RobotBase
 {

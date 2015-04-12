@@ -22,9 +22,14 @@ private:
 
 	const float fOpen = -0.65;
 	const float fClose = 0.65;
+	const float fArmMotorCurrentMax = 20;//WILL NEED ADJUSTING
+
+	bool bOpening = false;
+	bool bClosing = false;
 
 	void OnStateChange();
 	void Run();
+	bool CheckArmCurrentOK();
 };
 
 #endif /* CANARM_H */

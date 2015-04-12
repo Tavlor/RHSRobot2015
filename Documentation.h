@@ -12,6 +12,7 @@
  * 	\ref motorID \n
  * 	\ref Cube \n
  * 	\ref RobotMessage.h \n
+ * 	\ref AutoParser.h \n
  * 	\ref Component
  */
 
@@ -20,35 +21,41 @@
  *
  * <b> CODING </b> \n
  *
+ *	-- NEVER use "magic numbers". Instead, create a constant value with a descriptive name in the
+ *		class's header file. This makes it easier to understand the number's purpose and adjust it.
+ *
+ *
  *	-- ALWAYS use brackets with control structures, even if there is only one line.
  *
  *		\verbatim
- *		if(bVariable)
- *		{
- *			DoStuff();
- *		}
- *		\endverbatim
+ 		if(bVariable)
+ 		{
+ 			DoStuff();
+ 		}
+ 		\endverbatim
  *
  *
  *	-- ALWAYS put breaks in your switches and repeat code if necessary. You may leave the condition
  *		empty except for the break.
  *
  *		\verbatim
- *		switch(iVariable)
- *		{
- *			case 1:
- *				DoThing();
- *				break;
- *			case 2:
- *				DoThing();
- *				break;
- *			case 3:
- *				DoOtherThing();
- *				break;
- *			default:
- *		}
- *		\endverbatim
+ 		switch(iVariable)
+ 		{
+ 			case 1:
+ 				DoThing();
+ 				break;
+ 			case 2:
+ 				DoThing();
+ 				break;
+ 			case 3:
+ 				DoOtherThing();
+ 				break;
+ 			default:
+ 		}
+ 		\endverbatim
  *
+ *
+ *	-- When chec
  *		<b> AUTONOMOUS </b> \n
  *
  *		<b> DOCUMENTATION </b> \n
