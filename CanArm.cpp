@@ -79,8 +79,6 @@ void CanArm::Run()
 			break;
 
 		default:
-			//remove this when limits are added
-			armMotor->Set(0);
 			break;
 	}
 
@@ -102,10 +100,14 @@ void CanArm::Run()
 			armMotor->Set(fClose);
 			if(!CheckArmCurrentOK())
 			{
-				SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
+				//SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 				bClosing = false;
 			}
 		}
+	}
+	else
+	{
+		armMotor->Set(0);
 	}
 }
 

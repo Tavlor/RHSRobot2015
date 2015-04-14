@@ -58,7 +58,7 @@ void Conveyor::OnStateChange() {
 		conveyorMotor->ConfigLimitMode(
 				CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
 		conveyorMotor->ConfigNeutralMode(
-				CANSpeedController::NeutralMode::kNeutralMode_Coast);
+				CANSpeedController::NeutralMode::kNeutralMode_Brake);//Coast);
 		break;
 	case COMMAND_ROBOT_STATE_DISABLED:
 		conveyorMotor->Set(0.0);
@@ -82,6 +82,7 @@ void Conveyor::Run() {
 		break;
 
 	case COMMAND_CONVEYOR_RUN_BCK:
+		//FIXME Does backstop disable forward stuff as well?
 		//runs conveyor towards the claw
 		//SmartDashboard::PutString("Conveyor CMD", "CONVEYOR_RUN_BCK");
 		//if(localMessage.params.conveyorParams.bButtonWentDownEvent)
@@ -178,6 +179,11 @@ void Conveyor::Run() {
 				conveyorMotor->Set(fShiftSpeed);
 			}
 		conveyorMotor->Set(0);
+		break;
+
+	case COMMAND_CONVEYOR_PUSHTOTES_BCK:
+		//push totes into the hook
+				conveyorMotor->Set(fShiftSpeed);
 		break;
 
 	case COMMAND_CONVEYOR_DEPOSITTOTES_BCK:

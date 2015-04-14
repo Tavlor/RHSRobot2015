@@ -35,12 +35,10 @@ CanLifter::CanLifter() :
 
 	wpi_assert(lifterMotor->IsAlive());
 
-	midHallEffect = new DigitalInput(DIO_CANLIFTER_MID_HALL_EFFECT);
-	lifterHallEffectBottom = lifterMotor->IsRevLimitSwitchClosed();
-	lifterHallEffectTop = lifterMotor->IsFwdLimitSwitchClosed();
+	lifterHallEffectMiddle = lifterMotor->IsFwdLimitSwitchClosed();
 
-	midDetect = new Counter(midHallEffect);
-	midDetect->Reset();
+	//midDetect = new Counter(midHallEffect);
+	//midDetect->Reset();
 
 	pSafetyTimer = new Timer();
 	pSafetyTimer->Start();
@@ -55,7 +53,6 @@ CanLifter::~CanLifter() {
 	delete (pTask);
 	delete lifterMotor;
 	delete pSafetyTimer;
-	delete midHallEffect;
 }
 ;
 
@@ -96,6 +93,7 @@ void CanLifter::Run() {
 	switch (localMessage.command)
 	{
 	case COMMAND_CANLIFTER_RAISE:
+		//if the lift is at the middle halleffect
 		if(lifterMotor->IsFwdLimitSwitchClosed())
 		{
 			if(!bHover)
@@ -110,6 +108,7 @@ void CanLifter::Run() {
 			lifterMotor->ConfigLimitMode(
 					CANSpeedController::kLimitMode_SwitchInputsOnly);
 			LifterCurrentLimitDrive(localMessage.params.canLifterParams.lifterSpeed);
+			bHover = true;
 		}
 		pSafetyTimer->Reset();
 		break;
@@ -125,15 +124,6 @@ void CanLifter::Run() {
 		bHover = true;
 		pSafetyTimer->Reset();
 		break;*/
-
-	/*case COMMAND_CANLIFTER_STARTRAISETOTES:
-		if (CheckLifterCurrentOK())
-		{
-			lifterMotor->Set(fLifterRaise);
-		}
-		pSafetyTimer->Reset();
-		break;*/
-
 
 		case COMMAND_CANLIFTER_RAISE_TOTES:
 			//to load pos
@@ -178,12 +168,12 @@ void CanLifter::Run() {
 			pSafetyTimer->Reset();
 			break;
 
-		case COMMAND_CANLIFTER_RAISE_CAN:
+		/*case COMMAND_CANLIFTER_RAISE_CAN:
 			//to hook pos
 			bHover = false;
 			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
 			pSafetyTimer->Reset();
-			break;
+			break;*/
 
 		case COMMAND_CANLIFTER_LOWER_CAN:
 			//to load pos
@@ -210,13 +200,19 @@ void CanLifter::Run() {
 		pSafetyTimer->Reset();
 	}
 
+	//check that the lifter is not hurting itself
+	if (lifterMotor->GetOutputCurrent() > fLifterMotorCurrentMax)
+	{
+		lifterMotor->Set(fLifterStop);
+	}
+
 	// if the middle sensor is tripped were we moving up or down or should we hover holding a tote?
 
 	/*if(midDetect->Get())
 	{
 		midDetect->Reset();*/
 
-	if(bHover)
+	if(bHover && lifterMotor->IsFwdLimitSwitchClosed())
 	{
 		// hover here with enough juice to hold steady
 		switch(iToteLoad)
@@ -260,12 +256,10 @@ void CanLifter::Run() {
 	if (pRemoteUpdateTimer->Get() > 0.2)
 	{
 		pRemoteUpdateTimer->Reset();
-		lifterHallEffectBottom = lifterMotor->IsRevLimitSwitchClosed();
-		lifterHallEffectTop = lifterMotor->IsFwdLimitSwitchClosed();
+		lifterHallEffectMiddle = lifterMotor->IsFwdLimitSwitchClosed();
 
 		SmartDashboard::PutNumber("Lift Current", lifterMotor->GetOutputCurrent());
-		SmartDashboard::PutBoolean("Lifter @ Top", lifterHallEffectTop);
-		SmartDashboard::PutBoolean("Lifter @ Bottom", lifterHallEffectBottom);
+		SmartDashboard::PutBoolean("Lifter @ Middle", lifterHallEffectMiddle);
 		SmartDashboard::PutBoolean("Lifter Hover", bHover);
 		SmartDashboard::PutBoolean("Lifter Raising", bGoingUp);
 		SmartDashboard::PutBoolean("Lifter Lowering", bGoingDown);

@@ -41,6 +41,7 @@ const char *szTokens[] = {
 		"DEPOSITTOTESBACK",
 		"TOTESHIFTFWD",
 		"TOTESHIFTBCK",
+		"TOTEPUSHBCK",
 		"CANARMOPEN",
 		"CANARMCLOSE",
 		//Old commands from past auto attemts
@@ -187,6 +188,9 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		Message.command = COMMAND_CANLIFTER_RAISE_TOTES;
 		Message.params.canLifterParams.iNumTotes = iParam1;
 		bReturn = !CommandResponse(CANLIFTER_QUEUE);
+		//the conveyor should've pushed the totes. Stop it.
+		Message.command = COMMAND_CONVEYOR_STOP;
+		bReturn = !CommandNoResponse(CONVEYOR_QUEUE);
 		break;
 
 	case AUTO_TOKEN_LOWER_TOTES:
@@ -290,6 +294,12 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		//TESTED
 	case AUTO_TOKEN_SHIFT_TOTES_BCK:
 		Message.command = COMMAND_CONVEYOR_SHIFTTOTES_BCK;
+		bReturn = !CommandNoResponse(CONVEYOR_QUEUE);
+		break;
+
+		//TESTED
+	case AUTO_TOKEN_PUSH_TOTES_BCK:
+		Message.command = COMMAND_CONVEYOR_PUSHTOTES_BCK;
 		bReturn = !CommandNoResponse(CONVEYOR_QUEUE);
 		break;
 

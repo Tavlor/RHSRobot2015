@@ -25,17 +25,14 @@ public:
 		return(NULL);
 	}
 
-	bool GetHallEffectTop() { return lifterMotor->IsFwdLimitSwitchClosed();	}
-	bool GetHallEffectMiddle() { return midHallEffect->Get(); }
-	bool GetHallEffectBottom() { return lifterMotor->IsRevLimitSwitchClosed(); }
+	bool GetHallEffectMiddle() { return lifterMotor->IsFwdLimitSwitchClosed();	}
 	bool GetGoingUp() { return(bGoingUp);}
 	bool GetGoingDown() { return(bGoingDown);}
 
 private:
 
 	CANTalon *lifterMotor;
-	DigitalInput *midHallEffect;
-	Counter *midDetect;
+	//Counter *midDetect;
 	Timer *pSafetyTimer;
 
 
@@ -43,7 +40,7 @@ private:
 	 * 	Raise: +
 	 *	Lower: -
 	 */
-	const float fLifterRaise = 1.0;
+	const float fLifterRaise = .5;
 	const float fLifterLower = -1.0;
 	const float fLifterHover = .15;
 
@@ -64,8 +61,7 @@ private:
 	const float fLifterStop = 0.0;
 	const float fLifterMotorCurrentMax = 30;
 
-	bool lifterHallEffectBottom;
-	bool lifterHallEffectTop;
+	bool lifterHallEffectMiddle;
 	bool bHover;//hovers by hitting the higher hall effect
 	bool bGoingUp;
 	bool bGoingDown;

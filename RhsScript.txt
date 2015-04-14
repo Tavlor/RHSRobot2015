@@ -31,38 +31,38 @@
 #
 BEGIN
 # grab the first can
-CLAWCLOSE
-# lift the can slightly to reduce traction
-CANUP
+#CLAWCLOSE
 # load the middle tote - can arm should be open already
 FRONTLOADTOTE 4.0
 # go ahead and close the arm
-CANARMCLOSE
+#CANARMCLOSE
+# delay for a bit
+DELAY .5
 # lift the loaded tote
 STACKUP 1
 # load the first tote
-BACKLOADTOTE 4.0
+#BACKLOADTOTE 4.0
 # get loaded tote into the claw tab's way
-SHIFTTOTEBCK
+#SHIFTTOTEBCK
 # lower claw on top of loaded tote
-STACKDOWN
+#STACKDOWN
 # lift the stack
-STACKUP 2
+#STACKUP 2
 # get rid of the can
-CANARMOPEN
+#CANARMOPEN
 # leave arm open, get last tote
-FRONTLOADTOTE 4.0
+#FRONTLOADTOTE 4.0
 # lower stack 
-STACKDOWN
+#STACKDOWN
 # get totes out of the tab's way, then lift the can wilst turning
-TOTESHIFTFWD
+#TOTESHIFTFWD
 # lift can to the top to get it out of the stack's way
-CLAWUP
+#CLAWUP
 # turn to face autozone
-TURN 90.0 5.0
+#TURN 90.0 5.0
 # deposit totes - drive to the edge of autozone, spit, drive back
-STRAIGHT -0.75 3.0
-DEPOSITTOTESBACK
-STRAIGHT 0.75 3.0
+#STRAIGHT -0.75 3.0
+#DEPOSITTOTESBACK
+#STRAIGHT 0.75 3.0
 #may need to lower to loading height for noodling after auto
 END

@@ -110,6 +110,7 @@ enum MessageCommand {
 	COMMAND_CONVEYOR_BACKLOAD_TOTE,		//!< Tells Conveyor to back load the next tote, used by Autonomous
 	COMMAND_CONVEYOR_SHIFTTOTES_FWD,	//!< Tells Conveyor to shift the totes to the front sensor, used by Autonomous
 	COMMAND_CONVEYOR_SHIFTTOTES_BCK,	//!< Tells Conveyor to shift the totes to the back sensor, used by Autonomous
+	COMMAND_CONVEYOR_PUSHTOTES_BCK,	//!< Tells Conveyor to push the totes into the stack hook, used by Autonomous
 	COMMAND_CONVEYOR_DEPOSITTOTES_BCK,	//!< Tells Conveyor to dump the tote stack out the back, used by Autonomous
 
 	COMMAND_CANLIFTER_RAISE,			//!< Tells CanLifter to raise the lift

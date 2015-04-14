@@ -35,6 +35,7 @@ typedef enum AUTO_COMMAND_TOKENS
 	AUTO_TOKEN_DEPOSITTOTES_BCK,//!<R	deposit totestack out the back
 	AUTO_TOKEN_SHIFT_TOTES_FWD,	//!<N	shift totestack to the front sensor
 	AUTO_TOKEN_SHIFT_TOTES_BCK,	//!<N	shift totestack to the back sensor
+	AUTO_TOKEN_PUSH_TOTES_BCK,	//!<N	push totestack into the stack lifter
 	AUTO_TOKEN_CAN_ARM_OPEN,	//!<R	open the can arm to push a can away
 	AUTO_TOKEN_CAN_ARM_CLOSE,	//!<N	close the can arm
 	//Old stuff
