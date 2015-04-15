@@ -42,8 +42,8 @@ private:
 	const float fClawOpen = 1.00;
 	const float fClawClose = -.50;
 	const float fClawStop = 0.0;
-	const float fClawActionTimeLimit = 0.75;
-	const float fClawMotorCurrentMax = 30.0;
+	const float fClawActionTimeLimit = 0.45;
+	const float fClawMotorCurrentMax = 20.0;
 
 	///claw is open or closed
 	//bool bClawOpen;

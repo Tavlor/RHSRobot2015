@@ -14,6 +14,9 @@
 
 #include "ComponentBase.h"			//For ComponentBase class
 
+#define TOPHALLEFFECT		lifterMotor->IsRevLimitSwitchClosed()
+#define BOTTOMHALLEFFECT	lifterMotor->IsFwdLimitSwitchClosed()
+
 class CanLifter : public ComponentBase
 {
 public:
@@ -34,35 +37,44 @@ private:
 	CANTalon *lifterMotor;
 	//Counter *midDetect;
 	Timer *pSafetyTimer;
+	Timer *pAutoTimer;
 
 
 	/* CANLIFTER  (using bag, not CIM)
-	 * 	Raise: +
-	 *	Lower: -
+	 * 	Raise: -
+	 *	Lower: +
 	 */
-	const float fLifterRaise = .5;
-	const float fLifterLower = -1.0;
-	const float fLifterHover = .15;
+	const float fLifterUpMult = -1.0;
+	const float fLifterDownMult = 1.0;
 
-	const float fLifterHoverOneTotes = .20;
-	const float fLifterHoverTwoTotes = .25;
-	const float fLifterHoverThreeTotes = .30;
+	const float fLifterRaise = -.75;
+	const float fLifterLower = 1.0;
+	const float fLifterHover = -.5;
 
-	const float fLifterLiftNoTotes = 0.50;
-	const float fLifterLiftOneTotes = 1.0;
-	const float fLifterLiftTwoTotes = 1.0;
-	const float fLifterLiftThreeTotes = 0.35;
+	const float fLifterHoverOneTotes = -.20;
+	const float fLifterHoverTwoTotes = -.25;
+	const float fLifterHoverThreeTotes = -.30;
 
-	const float fLifterLowerNoTotes = -0.50;
-	const float fLifterLowerOneTotes = -0.50;
-	const float fLifterLowerTwoTotes = -0.50;
-	const float fLifterLowerThreeTotes = -0.50;
+	const float fLifterLiftNoTotes = -0.50;
+	const float fLifterLiftOneTotes = -1.0;
+	const float fLifterLiftTwoTotes = -1.0;
+	const float fLifterLiftThreeTotes = -0.35;
+
+	const float fLifterLowerNoTotes = 0.50;
+	const float fLifterLowerOneTotes = 0.50;
+	const float fLifterLowerTwoTotes = 0.50;
+	const float fLifterLowerThreeTotes = 0.50;
 
 	const float fLifterStop = 0.0;
 	const float fLifterMotorCurrentMax = 30;
+	const float fLifterMotorCurrentMaxOneCan = 20;
 
-	bool lifterHallEffectMiddle;
-	bool bHover;//hovers by hitting the higher hall effect
+	//bool lifterHallEffectTopPast;
+	//bool lifterHallEffectBottom;
+	//bool bHover;//hovers by hitting the higher hall effect
+	bool bHoverEnabled;	//able to hover
+	bool bHovering;		//actually hovering
+	bool bLowerHover;
 	bool bGoingUp;
 	bool bGoingDown;
 	int iToteLoad;

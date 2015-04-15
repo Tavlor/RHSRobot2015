@@ -78,6 +78,8 @@ void Conveyor::Run() {
 	{
 	case COMMAND_CONVEYOR_RUN_FWD:
 		//SmartDashboard::PutString("Conveyor CMD", "CONVEYOR_RUN_FWD");
+		conveyorMotor->ConfigLimitMode(
+				CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
 		conveyorMotor->Set(fConveyorSpeedFwd);
 		break;
 

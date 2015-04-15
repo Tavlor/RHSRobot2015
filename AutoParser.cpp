@@ -30,14 +30,20 @@ const char *szTokens[] = {
 		"STRAIGHT",
 		"CLAWOPEN",
 		"CLAWCLOSE",
-		"CLAWUP",
-		"CLAWDOWN",
-		"CANUP",
-		"CANDOWN",
+		//LIFTER
+		"CLAWTOTOP",
+		"CLAWTOBOTTOM",
+		//"CANUP",
+		"RAISECANTOLOMID",
+		"LOWERCANTOHIMID",
 		"STACKUP",
 		"STACKDOWN",
+		"STARTSTACKUP",
+		//CONVEYOR/DRIVETRAIN
 		"FRONTLOADTOTE",
 		"BACKLOADTOTE",
+		"FRONTSEEKTOTE",
+		"BACKSEEKTOTE",
 		"DEPOSITTOTESBACK",
 		"TOTESHIFTFWD",
 		"TOTESHIFTBCK",
@@ -196,25 +202,38 @@ bool Autonomous::Evaluate(std::string rStatement) {
 	case AUTO_TOKEN_LOWER_TOTES:
 		/*pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
 		iParam1 = atoi(pToken);*/
-
 		Message.command = COMMAND_CANLIFTER_LOWER_TOTES;
 		//Message.params.canLifterParams.iNumTotes = iParam1;
-		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
-		break;
-
-	case AUTO_TOKEN_RAISE_CLAW:
-		Message.command = COMMAND_CANLIFTER_RAISE_CLAW;
 		bReturn = !CommandResponse(CANLIFTER_QUEUE);
 		break;
 
-	case AUTO_TOKEN_LOWER_CLAW:
-		Message.command = COMMAND_CANLIFTER_LOWER_CLAW;
+	case AUTO_TOKEN_START_RAISE_TOTES:
+		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+		iParam1 = atoi(pToken);
+
+		Message.command = COMMAND_CANLIFTER_START_RAISE_TOTES;
+		Message.params.canLifterParams.iNumTotes = iParam1;
 		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
 		break;
 
-	case AUTO_TOKEN_RAISE_CAN:
-		Message.command = COMMAND_CANLIFTER_RAISE_CAN;
+	case AUTO_TOKEN_CLAW_TO_TOP:
+		Message.command = COMMAND_CANLIFTER_CLAW_TO_TOP;
 		bReturn = !CommandResponse(CANLIFTER_QUEUE);
+		break;
+
+	case AUTO_TOKEN_CLAW_TO_BOTTOM:
+		Message.command = COMMAND_CANLIFTER_CLAW_TO_TOP;
+		bReturn = !CommandResponse(CANLIFTER_QUEUE);
+		break;
+
+	case AUTO_TOKEN_RAISE_CAN_LOMID:
+		Message.command = COMMAND_CANLIFTER_RAISE_LOMID;
+		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
+		break;
+
+	case AUTO_TOKEN_LOWER_CAN_HIMID:
+		Message.command = COMMAND_CANLIFTER_LOWER_HIMID;
+		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
 		break;
 
 	case AUTO_TOKEN_CLAW_OPEN:
@@ -330,10 +349,10 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		}
 		break;
 
-	case AUTO_TOKEN_START_RAISE_TOTE:
+	/*case AUTO_TOKEN_START_RAISE_TOTE:
 		Message.command = COMMAND_CANLIFTER_STARTRAISETOTES;
 		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
-		break;
+		break;*/
 
 	/*case AUTO_TOKEN_EXTEND_TOTE:
 		Message.command = COMMAND_TOTELIFTER_EXTEND;

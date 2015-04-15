@@ -116,13 +116,13 @@ enum MessageCommand {
 	COMMAND_CANLIFTER_RAISE,			//!< Tells CanLifter to raise the lift
 	COMMAND_CANLIFTER_LOWER,			//!< Tells CanLifter to lower the lift
 	COMMAND_CANLIFTER_HOVER,			//!< Tells CanLifter to hold the lift where it is
-	COMMAND_CANLIFTER_STARTRAISETOTES,	//!< Tells CanLifter to start raising to middle position, used by Autonomous
 	COMMAND_CANLIFTER_RAISE_TOTES,		//!< Tells CanLifter to raise to loading position & hover, used by Autonomous
 	COMMAND_CANLIFTER_LOWER_TOTES,		//!< Tells CanLifter to lower to hook position, used by Autonomous
-	COMMAND_CANLIFTER_RAISE_CLAW,		//!< Tells CanLifter to raise to top, used by Autonomous
-	COMMAND_CANLIFTER_LOWER_CLAW,		//!< Tells CanLifter to lower to bottom, used by Autonomous
-	COMMAND_CANLIFTER_RAISE_CAN,		//!< Tells CanLifter to raise to hook position, used by Autonomous
-	COMMAND_CANLIFTER_LOWER_CAN,		//!< Tells CanLifter to lower to  loading position & hover, used by Autonomous
+	COMMAND_CANLIFTER_START_RAISE_TOTES,//!< Tells CanLifter to raise to loading position & hover, used by Autonomous
+	COMMAND_CANLIFTER_CLAW_TO_TOP,		//!< Tells CanLifter to raise to top, used by Autonomous
+	COMMAND_CANLIFTER_CLAW_TO_BOTTOM,	//!< Tells CanLifter to lower to bottom, used by Autonomous
+	COMMAND_CANLIFTER_RAISE_LOMID,		//!< Tells CanLifter to raise to hall effect & hover, used by Autonomous
+	COMMAND_CANLIFTER_LOWER_HIMID,		//!< Tells CanLifter to lower to hall effect & hover, used by Autonomous
 	COMMAND_CANLIFTER_STOP,				//!< Tells CanLifter to stop the lift
 
 	COMMAND_CLAW_OPEN,					//!< Tells CanLifter to open the claw

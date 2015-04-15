@@ -55,6 +55,11 @@
  		\endverbatim
  *
  *
+ *	-- Macros are your friend. Use them.
+ *
+ *	-- A class should represent as few motor controllers as possible. Only allow multiple controllers
+ *		if they are unavoidably intertwined.
+ *
  *	-- When chec
  *		<b> AUTONOMOUS </b> \n
  *
