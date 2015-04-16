@@ -30,6 +30,8 @@ Conveyor::Conveyor() :
 
 	wpi_assert(conveyorMotor->IsAlive());
 
+	pAutoTimer = new Timer();
+	pAutoTimer->Start();
 	pTask = new Task(CONVEYOR_TASKNAME, (FUNCPTR) &Conveyor::StartTask,
 			CONVEYOR_PRIORITY, CONVEYOR_STACKSIZE);
 	wpi_assert(pTask);
@@ -166,8 +168,10 @@ void Conveyor::Run() {
 		break;
 
 	case COMMAND_CONVEYOR_SHIFTTOTES_FWD:
+		pAutoTimer->Reset();
 		//move the stack forward until the back sensor is unblocked
-			while (!conveyorMotor->IsFwdLimitSwitchClosed() && ISAUTO)
+			while (!conveyorMotor->IsFwdLimitSwitchClosed() && ISAUTO
+					&& pAutoTimer->Get()< 3)
 			{
 				conveyorMotor->Set(-fShiftSpeed);
 			}
@@ -175,8 +179,10 @@ void Conveyor::Run() {
 		break;
 
 	case COMMAND_CONVEYOR_SHIFTTOTES_BCK:
+		pAutoTimer->Reset();
 		//move the stack forward until the back sensor is blocked
-			while (conveyorMotor->IsFwdLimitSwitchClosed() && ISAUTO)
+			while (conveyorMotor->IsFwdLimitSwitchClosed() && ISAUTO
+					&& pAutoTimer->Get()< 3)
 			{
 				conveyorMotor->Set(fShiftSpeed);
 			}
@@ -185,7 +191,7 @@ void Conveyor::Run() {
 
 	case COMMAND_CONVEYOR_PUSHTOTES_BCK:
 		//push totes into the hook
-				conveyorMotor->Set(fShiftSpeed);
+				conveyorMotor->Set(fPushSpeed);
 		break;
 
 	case COMMAND_CONVEYOR_DEPOSITTOTES_BCK:

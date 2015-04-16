@@ -112,6 +112,7 @@ void CanLifter::Run() {
 			LifterCurrentLimitDrive(fLifterUpMult * localMessage.params.canLifterParams.lifterSpeed);
 			bHoverEnabled = true;
 		}*/
+		bHoverEnabled = false;
 		lifterMotor->ConfigLimitMode(
 								CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
 						LifterCurrentLimitDrive(fLifterUpMult * localMessage.params.canLifterParams.lifterSpeed);
@@ -213,11 +214,10 @@ void CanLifter::Run() {
 				lifterMotor->Set(fLifterRaise);
 			}
 			//go above the halleffect
-			pAutoTimer->Reset();
-			while(ISAUTO && pAutoTimer->Get() < .2)
+			/*while(ISAUTO && BOTTOMHALLEFFECT)
 			{
 				lifterMotor->Set(fLifterRaise);
-			}
+			}*/
 			lifterMotor->Set(fLifterStop);
 			pSafetyTimer->Reset();
 			break;
@@ -275,46 +275,46 @@ void CanLifter::Run() {
 
 	if(bHovering)
 	{
-		if(ISAUTO)
+		if(ISAUTO)//if it's auto, we adjust for tote count
 		{
-		// hover here with enough juice to hold steady
-		switch(iToteLoad)
-		{
-			case 1:
-			lifterMotor->Set(fLifterHoverOneTotes);
-			break;
-			case 2:
-			lifterMotor->Set(fLifterHoverOneTotes);
-			break;
-			case 3:
-			lifterMotor->Set(fLifterHoverOneTotes);
-			break;
-			default:
-			lifterMotor->Set(fLifterHover);
-			break;
-		}
+			// hover here with enough juice to hold steady
+			switch(iToteLoad)
+			{
+				case 1:
+				lifterMotor->Set(fLifterHoverOneTotes);
+				break;
+				case 2:
+				lifterMotor->Set(fLifterHoverTwoTotes);
+				break;
+				case 3:
+				lifterMotor->Set(fLifterHoverThreeTotes);
+				break;
+				default:
+				lifterMotor->Set(fLifterHover);
+				break;
+			}
 		}
 		else
 		{
 			lifterMotor->Set(fLifterHover);
 		}
-
-		if(ISAUTO && bLowerHover)
-		{
-			if(BOTTOMHALLEFFECT)
-			{
-				lifterMotor->Set(fLifterHover);
-			}
-			else
-			{
-				lifterMotor->Set(fLifterStop);
-			}
-		}
 		//SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 	}
+
+	else if(ISAUTO && bLowerHover)
+			{
+				if(BOTTOMHALLEFFECT)
+				{
+					lifterMotor->Set(fLifterHoverNoTotes);
+				}
+				else
+				{
+					lifterMotor->Set(fLifterStop);
+				}
+			}
 	else
 	{
-		// not holding a tote, just normal can up and down motions
+		// not hovering, just normal can up and down motions
 
 		if(lifterMotor->Get() < 0.0)
 		{

@@ -51,6 +51,7 @@ private:
 	const float fLifterLower = 1.0;
 	const float fLifterHover = -.5;
 
+	const float fLifterHoverNoTotes = -.2;
 	const float fLifterHoverOneTotes = -.20;
 	const float fLifterHoverTwoTotes = -.25;
 	const float fLifterHoverThreeTotes = -.30;
@@ -65,7 +66,7 @@ private:
 	const float fLifterLowerTwoTotes = 0.50;
 	const float fLifterLowerThreeTotes = 0.50;
 
-	const float fLifterStop = 0.0;
+	const float fLifterStop = -.2;///should hover with a can
 	const float fLifterMotorCurrentMax = 30;
 	const float fLifterMotorCurrentMaxOneCan = 20;
 

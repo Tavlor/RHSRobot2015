@@ -100,6 +100,12 @@ void Claw::Run() {
 		break;
 	}	//end of command switch
 
+	//current safety
+	if (clawMotor->GetOutputCurrent() >= fClawMotorCurrentMax)
+	{
+		clawMotor->Set(fClawStop);
+	}
+
 	// a timer is used to allow the claw to move
 	if(pClawTimer->Get() > fClawActionTimeLimit)
 	{
@@ -112,5 +118,7 @@ void Claw::Run() {
 		clawMotor->Set(fClawStop);
 		pSafetyTimer->Reset();
 	}
+
+	SmartDashboard::PutNumber("Claw Current", TRUNC_THOU(clawMotor->GetOutputCurrent()));
 }
 

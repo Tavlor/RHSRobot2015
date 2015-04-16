@@ -14,6 +14,8 @@ CanArm::CanArm() : ComponentBase(CANARM_TASKNAME, CANARM_QUEUE, CANARM_PRIORITY)
 			CANSpeedController::NeutralMode::kNeutralMode_Brake);
 	armMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 
+	pAutoTimer = new Timer();
+	pAutoTimer->Start();
 	wpi_assert(armMotor->IsAlive());
 	pTask = new Task(CANARM_TASKNAME, (FUNCPTR) &CanArm::StartTask,
 			CANARM_PRIORITY, CANARM_STACKSIZE);
@@ -63,6 +65,7 @@ void CanArm::Run()
 			break;
 
 		case COMMAND_CANARM_CLOSE:
+			pAutoTimer->Reset();
 			bOpening = false;
 			bClosing = true;
 			armMotor->Set(fClose);
@@ -98,11 +101,15 @@ void CanArm::Run()
 		else if(bClosing)
 		{
 			armMotor->Set(fClose);
-			if(!CheckArmCurrentOK())
+			if(pAutoTimer->Get() >= fCloseTime)
 			{
 				//SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 				bClosing = false;
 			}
+		}
+		else
+		{
+			armMotor->Set(0);
 		}
 	}
 	else

@@ -19,9 +19,11 @@ public:
 private:
 
 	CANTalon *armMotor;
+	Timer *pAutoTimer;
 
 	const float fOpen = -0.65;
 	const float fClose = 0.65;
+	const float fCloseTime = .4;
 	const float fArmMotorCurrentMax = 19;//WILL NEED ADJUSTING
 
 	bool bOpening = false;

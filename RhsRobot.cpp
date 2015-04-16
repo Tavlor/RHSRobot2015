@@ -342,7 +342,6 @@ void RhsRobot::Run() {
 		canarm->SendMessage(&robotMessage);
 
 	}
-
 	ControllerListen_1->FinalUpdate();
 	ControllerListen_2->FinalUpdate();
 	iLoop++;

@@ -100,7 +100,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 
 	if(iCommand == AUTO_TOKEN_LAST) {
 		// no valid token found
-		rStatus.append("no tokens");
+		rStatus.append("no tokens - check script spelling");
 		printf("%s\n", rStatus.c_str());
 		return (bReturn);
 	}
