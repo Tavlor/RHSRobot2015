@@ -95,8 +95,8 @@ enum MessageCommand {
 	COMMAND_DRIVETRAIN_DRIVE_STRAIGHT,	//!< Tells Drivetrain to drive straight, used by Autonomous
 	COMMAND_DRIVETRAIN_TURN,			//!< Tells Drivetrain to turn, used by Autonomous
 	COMMAND_DRIVETRAIN_SEEK_TOTE,		//!< Tells Drivetrain to seek the next tote, used by Autonomous
-	COMMAND_DRIVETRAIN_FRONTLOAD_TOTE,	//!< Tells Drivetrain to front load the next tote, used by Autonomous
-	COMMAND_DRIVETRAIN_BACKLOAD_TOTE,	//!< Tells Drivetrain to back load the next tote, used by Autonomous
+	COMMAND_DRIVETRAIN_START_DRIVE_FWD,	//!< Tells Drivetrain to front load the next tote, used by Autonomous
+	COMMAND_DRIVETRAIN_START_DRIVE_BCK,	//!< Tells Drivetrain to back load the next tote, used by Autonomous
 	COMMAND_DRIVETRAIN_START_KEEPALIGN,	//!< Tells Drivetrain to start keeping itself at constant alignment, used by Autonomous
 	COMMAND_DRIVETRAIN_STOP_KEEPALIGN,	//!< Tells Drivetrain to stop keeping itself at constant alignment, used by Autonomous
 
@@ -104,14 +104,16 @@ enum MessageCommand {
 	COMMAND_CONVEYOR_RUN_BCK,			//!< Tells Conveyor to run the rollers backwards - fancy operations
 	COMMAND_CONVEYOR_SET_BACK,			//!< Tells Conveyor to set the rollers backwards - simple
 	COMMAND_CONVEYOR_STOP,				//!< Tells Conveyor to stop the rollers
-	COMMAND_CONVEYOR_WATCH_TOTE_FRONT,	//!< Tells Conveyor to watch for next tote in the front, used by Autonomous
-	COMMAND_CONVEYOR_WATCH_TOTE_BACK,	//!< Tells Conveyor to watch for next tote in the back, used by Autonomous
+	COMMAND_CONVEYOR_SEEK_TOTE_FRONT,	//!< Tells Conveyor to watch for next tote in the front, used by Autonomous
+	COMMAND_CONVEYOR_SEEK_TOTE_BACK,	//!< Tells Conveyor to watch for next tote in the back, used by Autonomous
 	COMMAND_CONVEYOR_FRONTLOAD_TOTE,	//!< Tells Conveyor to front load the next tote, used by Autonomous
 	COMMAND_CONVEYOR_BACKLOAD_TOTE,		//!< Tells Conveyor to back load the next tote, used by Autonomous
 	COMMAND_CONVEYOR_SHIFTTOTES_FWD,	//!< Tells Conveyor to shift the totes to the front sensor, used by Autonomous
 	COMMAND_CONVEYOR_SHIFTTOTES_BCK,	//!< Tells Conveyor to shift the totes to the back sensor, used by Autonomous
-	COMMAND_CONVEYOR_PUSHTOTES_BCK,	//!< Tells Conveyor to push the totes into the stack hook, used by Autonomous
+	COMMAND_CONVEYOR_PUSHTOTES_BCK,		//!< Tells Conveyor to push the totes into the stack hook, used by Autonomous
 	COMMAND_CONVEYOR_DEPOSITTOTES_BCK,	//!< Tells Conveyor to dump the tote stack out the back, used by Autonomous
+	COMMAND_CONVEYOR_WAIT_FRONT_BEAM,	//!< Tells Conveyor to dump the tote stack out the back, used by Autonomous
+	COMMAND_CONVEYOR_WAIT_BACK_BEAM,	//!< Tells Conveyor to dump the tote stack out the back, used by Autonomous
 
 	COMMAND_CANLIFTER_RAISE,			//!< Tells CanLifter to raise the lift
 	COMMAND_CANLIFTER_LOWER,			//!< Tells CanLifter to lower the lift
@@ -201,22 +203,11 @@ union MessageParams {
 	AutonomousParams autonomous;
 };
 
-///Used by components to register what state the robot is in.
-/*typedef enum eRobotOpMode
-{
-	ROBOT_STATE_DISABLED,
-	ROBOT_STATE_AUTONOMOUS,
-	ROBOT_STATE_TELEOPERATED,
-	ROBOT_STATE_TEST,
-	ROBOT_STATE_UNKNOWN
-} RobotOpMode;*/
-
 ///A structure containing a command, a set of parameters, and a reply id, sent between components
 struct RobotMessage {
 	MessageCommand command;
 	const char* replyQ;
 	MessageParams params;
-	//RobotOpMode robotMode;
 };
 
 #endif //ROBOT_MESSAGE_H

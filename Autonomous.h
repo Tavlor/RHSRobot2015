@@ -13,8 +13,8 @@
 #include "ComponentBase.h" //For the ComponentBase class
 #include "RobotParams.h" //For various robot parameters
 
-const int AUTONOMOUS_SCRIPT_LINES = 100;
-const int AUTONOMOUS_CHECKLIST_LINES = 100;
+const int AUTONOMOUS_SCRIPT_LINES = 150;
+const int AUTONOMOUS_CHECKLIST_LINES = 150;
 const char* const AUTONOMOUS_SCRIPT_FILEPATH = "/home/lvuser/RhsScript.txt";
 
 //from 2014

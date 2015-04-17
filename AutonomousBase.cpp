@@ -127,6 +127,7 @@ void Autonomous::DoScript()
 {
 	//int loadAttemptTally = 0; //for debugging
 	SmartDashboard::PutString("Script Line", "DoScript started");
+	SmartDashboard::PutString("Auto Status", "Ready to go");
 	SmartDashboard::PutBoolean("Script File Loaded", false);
 	//printf("DoScript\n");
 	

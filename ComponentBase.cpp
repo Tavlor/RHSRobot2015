@@ -31,6 +31,9 @@ ComponentBase::ComponentBase(const char* componentName, const char *queueName, i
 	pRemoteUpdateTimer = new Timer();
 	pRemoteUpdateTimer->Start();
 
+	pAutoTimer = new Timer();
+	pAutoTimer->Start();
+
 	mkfifo(queueName, 0666);
 	queueLocal = queueName;
 	//printf("COMPONENT: %s\n",componentName); //Added by Talyor for debugging

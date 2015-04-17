@@ -18,11 +18,13 @@
 #STACKDOWN <number of totes>
 #FRONTLOADTOTE <timeout>
 #BACKLOADTOTE <timeout>
+#FRONTSEEKTOTE <drive speed> <timeout>
+#BACKSEEKTOTE <drive speed> <timeout>
 #DEPOSITTOTESBACK
 #TOTESHIFTFWD
 #TOTESHIFTBCK
 #TOTEPUSHBCK
-#CANARMOPEN
+#CANARMOPEN <drive speed>
 #CANARMCLOSE
 # uneeded - do not use, not fully tested
 #SEEKTOTE <time:delay before looking for tote> <timeout>
@@ -33,6 +35,8 @@
 #CLICKERUP
 #CLICKERDOWN
 #
+#
+#
 BEGIN
 # grab the first can
 CLAWCLOSE
@@ -40,30 +44,50 @@ DELAY .2
 # lift slightly
 RAISECANTOLOMID
 # load the middle tote - can arm should be open already
-FRONTLOADTOTE 4.0
+FRONTSEEKTOTE .3 6.0
+FRONTLOADTOTE 6.0
 TOTEPUSHBCK
+DELAY .5
 # lift the loaded tote
+STARTSTACKUP 1
+# drive at a higher speed to the first tote
+STRAIGHT -0.6 0.7
 STACKUP 1
 # load the first tote
-BACKLOADTOTE 4.0
+BACKSEEKTOTE .2 6.0
+BACKLOADTOTE 6.0
+# drive the robot out of the cube
+STRAIGHT 0.6 1.0
 # lower claw on top of loaded tote
 STACKDOWN
 # get loaded tote into the claw tab's way
 TOTESHIFTBCK
+DELAY 1.0
+TOTEPUSHBCK
 DELAY .1
+#
+STARTSTACKUP 2
 # lift the stack
-#STACKUP 2
 # go ahead and close the arm
-#CANARMCLOSE
-# may need a delay
-# get rid of the can
-#CANARMOPEN
+CANARMCLOSE
+# drive closer to can
+STRAIGHT 0.6 .5
+# check that the stack is up
+STACKUP 2
+# get rid of the can - will drive forward
+CANARMOPEN .4
 # leave arm open, get last tote
-#FRONTLOADTOTE 4.0
-# lower stack 
-#STACKDOWN
+STRAIGHT 0.6 0.3
+TURN -6.0 1.0
+#
+FRONTSEEKTOTE .3 4.0
+FRONTLOADTOTE 4.0
 # get totes out of the tab's way, then lift the can wilst turning
-#TOTESHIFTFWD
+TOTESHIFTFWD
+WAITFRONTSENSOR
+# may need to shift back, drop stack, then fwd again
+# lower stack 
+STACKDOWN
 # lift can to the top to get it out of the stack's way
 #CLAWTOTOP
 # turn to face autozone

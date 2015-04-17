@@ -160,11 +160,11 @@ void RhsRobot::Run() {
 		robotMessage.params.arcadeDrive.x = ARCADE_DRIVE_X;
 		robotMessage.params.arcadeDrive.y = ARCADE_DRIVE_Y;
 
-		if(!canlifter->GetHallEffectBottom())
+		/*if(!canlifter->GetHallEffectBottom())
 		{
 			robotMessage.params.arcadeDrive.x *= fDriveReduction;
 			robotMessage.params.arcadeDrive.y *= fDriveReduction;
-		}
+		}*/
 #endif
 		drivetrain->SendMessage(&robotMessage);
 	}

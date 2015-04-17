@@ -45,8 +45,8 @@ Drivetrain::Drivetrain() :
 
 	toteSensor = new DigitalInput(DIO_DRIVETRAIN_BEAM_BREAK);
 
-	pAutoTimer = new Timer();
-		pAutoTimer->Start();
+	//pAutoTimer = new Timer();IN COMPONENT BASE
+	//pAutoTimer->Start();
 
 	gyro = new ADXRS453Z;
 	wpi_assert(gyro);
@@ -179,12 +179,12 @@ void Drivetrain::Run() {
 		gyro->Zero();
 		break;
 
-	case COMMAND_DRIVETRAIN_FRONTLOAD_TOTE:
+	case COMMAND_DRIVETRAIN_START_DRIVE_FWD:
 		gyro->Zero();
 		bFrontLoadTote = true;
 		break;
 
-	case COMMAND_DRIVETRAIN_BACKLOAD_TOTE:
+	case COMMAND_DRIVETRAIN_START_DRIVE_BCK:
 		gyro->Zero();
 		bBackLoadTote = true;
 		break;
@@ -213,11 +213,11 @@ void Drivetrain::Run() {
 
 		if (bFrontLoadTote)
 		{
-			StraightDriveLoop(fFrontLoadSpeed);
+			StraightDriveLoop(fDirectionFwd * localMessage.params.autonomous.driveSpeed);
 		}
 		else if (bBackLoadTote)
 		{
-			StraightDriveLoop(fBackLoadSpeed);
+			StraightDriveLoop(fDirectionBck * localMessage.params.autonomous.driveSpeed);
 		}
 		else if (bKeepAligned)
 		{
@@ -306,7 +306,7 @@ void Drivetrain::Turn(float targetAngle, float timeout) {
 		//if you don't disable this during non-auto, it will keep trying to turn during teleop. Not fun.
 		float degreesLeft = targetAngle - gyro->GetAngle();
 
-		printf("Turning target %f current %f\n", targetAngle, gyro->GetAngle());
+		//printf("Turning target %f current %f\n", targetAngle, gyro->GetAngle());
 
 		if ((degreesLeft < angleError) && (degreesLeft > -angleError))
 		{

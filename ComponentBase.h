@@ -41,7 +41,7 @@ public:
 
 protected:
 	//Timer *pSafetyTimer; //TODO: add after world's
-	//Timer *pAutoTimer; //TODO: add after world's
+	Timer *pAutoTimer;
 	//TODO: move to private after worlds? subclasses shouldn't need access thanks to SmartDashboardUpdate()
 	Timer *pRemoteUpdateTimer;
 	Task *pTask;

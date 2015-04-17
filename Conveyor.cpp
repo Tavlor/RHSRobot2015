@@ -30,8 +30,8 @@ Conveyor::Conveyor() :
 
 	wpi_assert(conveyorMotor->IsAlive());
 
-	pAutoTimer = new Timer();
-	pAutoTimer->Start();
+	//pAutoTimer = new Timer();IN COMPONENT BASE
+	//pAutoTimer->Start();
 	pTask = new Task(CONVEYOR_TASKNAME, (FUNCPTR) &Conveyor::StartTask,
 			CONVEYOR_PRIORITY, CONVEYOR_STACKSIZE);
 	wpi_assert(pTask);
@@ -127,29 +127,53 @@ void Conveyor::Run() {
 		break;
 
 	//AUTONOMOUS CASES
-	case COMMAND_CONVEYOR_WATCH_TOTE_FRONT:
+	case COMMAND_CONVEYOR_SEEK_TOTE_FRONT:
+		pAutoTimer->Reset();
 		responseCommand = COMMAND_AUTONOMOUS_RESPONSE_OK;
 		while (conveyorMotor->IsRevLimitSwitchClosed() && ISAUTO)
 		{
+			//TIMEOUT
+			if(pAutoTimer->Get() > localMessage.params.autonomous.timeout)
+			{
+				responseCommand = COMMAND_AUTONOMOUS_RESPONSE_ERROR;
+				conveyorMotor->Set(0);
+				break;
+			}
 			conveyorMotor->Set(fLoadSpeed);
 		}
 		SendCommandResponse(responseCommand);
 		break;
 
-	case COMMAND_CONVEYOR_WATCH_TOTE_BACK:
+	case COMMAND_CONVEYOR_SEEK_TOTE_BACK:
+		pAutoTimer->Reset();
 		responseCommand = COMMAND_AUTONOMOUS_RESPONSE_OK;
 		while (conveyorMotor->IsFwdLimitSwitchClosed() && ISAUTO)
 		{
+			//TIMEOUT
+			if(pAutoTimer->Get() > localMessage.params.autonomous.timeout)
+			{
+				responseCommand = COMMAND_AUTONOMOUS_RESPONSE_ERROR;
+				conveyorMotor->Set(0);
+				break;
+			}
 			conveyorMotor->Set(-fLoadSpeed);
 		}
 		SendCommandResponse(responseCommand);
 		break;
 
 	case COMMAND_CONVEYOR_FRONTLOAD_TOTE:
+		pAutoTimer->Reset();
 		responseCommand = COMMAND_AUTONOMOUS_RESPONSE_OK;
 		//convey backwards until back sensor
 		while (conveyorMotor->IsFwdLimitSwitchClosed() && ISAUTO)
 		{
+			//TIMEOUT
+			if(pAutoTimer->Get() > localMessage.params.autonomous.timeout)
+			{
+				responseCommand = COMMAND_AUTONOMOUS_RESPONSE_ERROR;
+				conveyorMotor->Set(0);
+				break;
+			}
 			conveyorMotor->Set(fLoadSpeed);
 		}
 		conveyorMotor->Set(0);
@@ -157,10 +181,18 @@ void Conveyor::Run() {
 		break;
 
 	case COMMAND_CONVEYOR_BACKLOAD_TOTE:
+		pAutoTimer->Reset();
 		responseCommand = COMMAND_AUTONOMOUS_RESPONSE_OK;
 		//convey forwards until forward sensor
 		while (conveyorMotor->IsRevLimitSwitchClosed() && ISAUTO)
 		{
+			//TIMEOUT
+			if(pAutoTimer->Get() > localMessage.params.autonomous.timeout)
+			{
+				responseCommand = COMMAND_AUTONOMOUS_RESPONSE_ERROR;
+				conveyorMotor->Set(0);
+				break;
+			}
 			conveyorMotor->Set(-fLoadSpeed);
 		}
 		conveyorMotor->Set(0);
@@ -194,6 +226,14 @@ void Conveyor::Run() {
 				conveyorMotor->Set(fPushSpeed);
 		break;
 
+	case COMMAND_CONVEYOR_WAIT_FRONT_BEAM:
+			bReplyFrontSensor = true;
+		break;
+
+	case COMMAND_CONVEYOR_WAIT_BACK_BEAM:
+				bReplyBackSensor = true;
+			break;
+
 	case COMMAND_CONVEYOR_DEPOSITTOTES_BCK:
 		conveyorMotor->ConfigLimitMode(
 				CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
@@ -212,6 +252,23 @@ void Conveyor::Run() {
 		//SmartDashboard::PutString("Conveyor CMD", "SYSTEM_MSGTIMEOUT");
 	default:
 		break;
+	}
+
+	if(bReplyFrontSensor)
+	{
+		if(!conveyorMotor->IsRevLimitSwitchClosed())
+		{
+			SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
+			bReplyFrontSensor = false;
+		}
+	}
+	if(bReplyBackSensor)
+	{
+		if(!conveyorMotor->IsFwdLimitSwitchClosed())
+		{
+			SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
+			bReplyBackSensor = false;
+		}
 	}
 
 

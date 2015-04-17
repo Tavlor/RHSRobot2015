@@ -43,8 +43,8 @@ CanLifter::CanLifter() :
 
 	pSafetyTimer = new Timer();
 	pSafetyTimer->Start();
-	pAutoTimer = new Timer();
-	pAutoTimer->Start();
+	//pAutoTimer = new Timer();IN COMPONENT BASE
+	//pAutoTimer->Start();
 
 	pTask = new Task(CANLIFTER_TASKNAME, (FUNCPTR) &CanLifter::StartTask,
 			CANLIFTER_PRIORITY, CANLIFTER_STACKSIZE);

@@ -36,10 +36,18 @@ typedef enum AUTO_COMMAND_TOKENS
 	AUTO_TOKEN_BACK_LOAD_TOTE,		//!<R	pull tote in the back, stop at front sensor
 	AUTO_TOKEN_FRONT_SEEK_TOTE,		//!<N	drive until tote hits front sensor
 	AUTO_TOKEN_BACK_SEEK_TOTE,		//!<N	drive until tote hits back sensor
+	//DRIVETRAIN
+	AUTO_TOKEN_START_DRIVE_FWD,
+	AUTO_TOKEN_START_DRIVE_BCK,
+	AUTO_TOKEN_STOP_DRIVE,
+	//CONVEYOR
+	AUTO_TOKEN_WAIT_FRONT_BEAM,		//!<R	delay until the front sensor is broken
+	AUTO_TOKEN_WAIT_BACK_BEAM,		//!<R	delay until the back sensor is broken
 	AUTO_TOKEN_DEPOSITTOTES_BCK,	//!<R	deposit totestack out the back
 	AUTO_TOKEN_SHIFT_TOTES_FWD,		//!<N	shift totestack to the front sensor
 	AUTO_TOKEN_SHIFT_TOTES_BCK,		//!<N	shift totestack to the back sensor
 	AUTO_TOKEN_PUSH_TOTES_BCK,		//!<N	push totestack into the stack lifter
+	//STUPID STICK
 	AUTO_TOKEN_CAN_ARM_OPEN,		//!<R	open the can arm to push a can away
 	AUTO_TOKEN_CAN_ARM_CLOSE,		//!<N	close the can arm
 	//Old stuff

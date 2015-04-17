@@ -42,7 +42,7 @@ private:
 	Encoder *encoder;
 	BuiltInAccelerometer accelerometer;
 	DigitalInput *toteSensor;
-	Timer *pAutoTimer; //watches autonomous time and disables it if needed.
+	//Timer *pAutoTimer; //watches autonomous time and disables it if needed.IN COMPONENT BASE
 	//stores motor values during autonomous
 	float left = 0;
 	float right = 0;
@@ -54,14 +54,17 @@ private:
 	const float fBackLoadSpeed = -.250;
 	const float fToteSeekSpeed = -.50;
 
+	const float fDirectionFwd = 1;//multiplier for forward direction
+	const float fDirectionBck = -1;//multiplier for backwards direction
+
 	///how strong direction recovery is in straight drive, higher = stronger
-	const float recoverStrength = .04;
-	const float fMaxRecoverSpeed = .3;
+	const float recoverStrength = .09;
+	const float fMaxRecoverSpeed = .35;
 	const float fMaxRecoverAngle = 30.0; 		//used to keep straight drive recovery from becoming to violent
 	///how far from goal the robot can be before stopping
 	const float distError = 1.0;				//inches
 	const float angleError = 2.0;				//degrees
-	const float turnAngleSpeedMultiplyer = .03;
+	const float turnAngleSpeedMultiplyer = .05;
 
 	//angle * mult = speed to be reduced by limit
 	const float turnSpeedLimit = .50;

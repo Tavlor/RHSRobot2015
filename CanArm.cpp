@@ -14,8 +14,8 @@ CanArm::CanArm() : ComponentBase(CANARM_TASKNAME, CANARM_QUEUE, CANARM_PRIORITY)
 			CANSpeedController::NeutralMode::kNeutralMode_Brake);
 	armMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 
-	pAutoTimer = new Timer();
-	pAutoTimer->Start();
+	//pAutoTimer = new Timer(); IN COMPONENT BASE
+	//pAutoTimer->Start();
 	wpi_assert(armMotor->IsAlive());
 	pTask = new Task(CANARM_TASKNAME, (FUNCPTR) &CanArm::StartTask,
 			CANARM_PRIORITY, CANARM_STACKSIZE);

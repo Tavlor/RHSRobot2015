@@ -39,16 +39,18 @@ private:
 	 */
 
 	CANTalon *conveyorMotor;
-	Timer *pAutoTimer;
+	//Timer *pAutoTimer;IN COMPONENT BASE
 	const float fConveyorSpeed = 0.75;//1.0;
 	const float fConveyorSpeedBack = 0.5;
 	const float fConveyorSpeedFwd = -0.5;
 	//dial these down as you go - but start fast.
 	const float fLoadSpeed = .75;
-	const float fShiftSpeed = 0.3;//good to keep low.
+	const float fShiftSpeed = 0.4;//good to keep low.
 	const float fPushSpeed = 0.1;
 	const float fDepositSpeed = 1.0;
 	bool bBackStopEnable;
+	bool bReplyFrontSensor = false; //reply to auto when the front sensor breaks
+	bool bReplyBackSensor = false; //reply to auto when the back sensor breaks
 	MessageCommand responseCommand;
 
 	void OnStateChange();

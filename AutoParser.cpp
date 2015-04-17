@@ -23,42 +23,51 @@ const char *szTokens[] = {
 		"MODE",
 		"BEGIN",
 		"END",
-		"DELAY",
-		"MOVE",
-		"MMOVE",
-		"TURN",
-		"STRAIGHT",
-		"CLAWOPEN",
-		"CLAWCLOSE",
+		"DELAY",			//!<(seconds)
+		"MOVE",				//!<(left speed) (right speed)
+		"MMOVE",			//!<(speed) (distance:inches) (timeout)
+		"TURN",				//!<(degrees) (timeout)
+		"STRAIGHT",			//!<(speed) (duration)
+		"CLAWOPEN",			//!<
+		"CLAWCLOSE",		//!<
 		//LIFTER
-		"CLAWTOTOP",
-		"CLAWTOBOTTOM",
-		//"CANUP",
-		"RAISECANTOLOMID",
-		"LOWERCANTOHIMID",
-		"STACKUP",
-		"STACKDOWN",
-		"STARTSTACKUP",
+		"CLAWTOTOP",		//!<
+		"CLAWTOBOTTOM",		//!<
+		//"CANUP",			//!<
+		"RAISECANTOLOMID",	//!<
+		"LOWERCANTOHIMID",	//!<
+		"STACKUP",			//!<
+		"STACKDOWN",		//!<
+		"STARTSTACKUP",		//!<
 		//CONVEYOR/DRIVETRAIN
-		"FRONTLOADTOTE",
-		"BACKLOADTOTE",
-		"FRONTSEEKTOTE",
-		"BACKSEEKTOTE",
-		"DEPOSITTOTESBACK",
-		"TOTESHIFTFWD",
-		"TOTESHIFTBCK",
-		"TOTEPUSHBCK",
-		"CANARMOPEN",
-		"CANARMCLOSE",
+		"FRONTLOADTOTE",	//!<(timeout)
+		"BACKLOADTOTE",		//!<(timeout)
+		"FRONTSEEKTOTE",	//!<(drive speed) (timeout)
+		"BACKSEEKTOTE",		//!<(drive speed) (timeout)
+		//DRIVETRAIN
+		"STARTDRIVEFWD",	//!<(drive speed)
+		"STARTDRIVEBCK",	//!<(drive speed)
+		"STOPDRIVE",
+		//CONVEYOR
+		"WAITFRONTBEAM",
+		"WAITBACKBEAM",
+		"DEPOSITTOTESBACK",	//!<
+		"TOTESHIFTFWD",		//!<
+		"TOTESHIFTBCK",		//!<
+		"TOTEPUSHBCK",		//!<
+		"CANARMOPEN",		//!<
+		"CANARMCLOSE",		//!<
 		//Old commands from past auto attemts
-		"SEEKTOTE",
-		"STARTTOTEUP",
-		"TOTEEXTEND",
-		"TOTERETRACT",
-		"CUBEAUTO",
-		"CLICKERUP",
-		"CLICKERDOWN",
+		"SEEKTOTE",			//!<
+		"STARTTOTEUP",		//!<
+		"TOTEEXTEND",		//!<
+		"TOTERETRACT",		//!<
+		"CUBEAUTO",			//!<
+		"CLICKERUP",		//!<
+		"CLICKERDOWN",		//!<
 		"NOP" };
+//TODO: add START and FINISH, which send messages to all components
+// (Begin and End are doing this now, but they shouldn't)
 
 bool Autonomous::Evaluate(std::string rStatement) {
 	char *pToken;
@@ -246,57 +255,100 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		bReturn = !CommandNoResponse(CLAW_QUEUE);
 		break;
 
-	//TESTED
+	case AUTO_TOKEN_FRONT_SEEK_TOTE:
+		//drive & convey until the tote is seen by the front sensor
+
+		//Get speed and timeout
+		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+		Message.params.autonomous.driveSpeed = atof(pToken);
+		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+		Message.params.autonomous.timeout = atof(pToken);
+
+		//start the drive train
+		Message.command = COMMAND_DRIVETRAIN_START_DRIVE_FWD;//simply drives forward
+		CommandNoResponse(DRIVETRAIN_QUEUE);
+		//when front sensor sees tote, stop drivetrain and conveyor
+		Message.command = COMMAND_CONVEYOR_SEEK_TOTE_FRONT;
+		bReturn = !CommandResponse(CONVEYOR_QUEUE);
+		Message.command = COMMAND_DRIVETRAIN_STOP;//stop it!
+		CommandNoResponse(DRIVETRAIN_QUEUE);
+		break;
+
 	case AUTO_TOKEN_FRONT_LOAD_TOTE:
 		//draw tote into the robot from the front
-		//convey, drive robot fwd until front sensor, cont. convey until back sensor
+		//assumes tote is in position: convey until back sensor
 
-		//start driving forwards
-		Message.command = COMMAND_DRIVETRAIN_FRONTLOAD_TOTE;//simply drives forward
-		CommandNoResponse(DRIVETRAIN_QUEUE);
-		//when front sensor sees tote, stop drivetrain no matter what
-		Message.command = COMMAND_CONVEYOR_WATCH_TOTE_FRONT;
+		//Get timeout
+		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+		Message.params.autonomous.timeout = atof(pToken);
+
+		Message.command = COMMAND_CONVEYOR_FRONTLOAD_TOTE;
 		bReturn = !CommandResponse(CONVEYOR_QUEUE);
-		Message.command = COMMAND_DRIVETRAIN_STOP;//simply drives forward
-		CommandNoResponse(DRIVETRAIN_QUEUE);
-		//if front sensor sees, continue until back sensor sees; otherwise, stop.
-		if(!bReturn)
-		{
-			Message.command = COMMAND_CONVEYOR_FRONTLOAD_TOTE;
-			bReturn = !CommandResponse(CONVEYOR_QUEUE);
-		}
-		else
-		{
-			Message.command = COMMAND_CONVEYOR_STOP;
-			CommandNoResponse(CONVEYOR_QUEUE);
-		}
 		break;
 
-	//TESTED
+	case AUTO_TOKEN_BACK_SEEK_TOTE:
+		//drive & convey until the tote is seen by the back sensor
+
+		//Get speed and timeout
+		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+		Message.params.autonomous.driveSpeed = atof(pToken);
+		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+		Message.params.autonomous.timeout = atof(pToken);
+
+		//start the drive train
+		Message.command = COMMAND_DRIVETRAIN_START_DRIVE_BCK;	//simply drives backwards
+		CommandNoResponse(DRIVETRAIN_QUEUE);
+		//when back sensor sees tote, stop drivetrain and conveyor
+		Message.command = COMMAND_CONVEYOR_SEEK_TOTE_BACK;
+		bReturn = !CommandResponse(CONVEYOR_QUEUE);
+		Message.command = COMMAND_DRIVETRAIN_STOP;		//stop it!
+		CommandNoResponse(DRIVETRAIN_QUEUE);
+		break;
+
 	case AUTO_TOKEN_BACK_LOAD_TOTE:
 		//draw tote into the robot from the back
-		//convey, drive robot back until front sensor, cont. convey until front sensor
+		//assumes tote is in position: convey until front sensor
 
-		//start driving backwards
-		Message.command = COMMAND_DRIVETRAIN_BACKLOAD_TOTE;	//simply drives forward
-		CommandNoResponse(DRIVETRAIN_QUEUE);
-		//when front sensor sees tote, stop drivetrain no matter what
-		Message.command = COMMAND_CONVEYOR_WATCH_TOTE_BACK;
+		//Get timeout
+		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+		Message.params.autonomous.timeout = atof(pToken);
+
+		Message.command = COMMAND_CONVEYOR_BACKLOAD_TOTE;
 		bReturn = !CommandResponse(CONVEYOR_QUEUE);
-		Message.command = COMMAND_DRIVETRAIN_STOP;	//simply drives backwards
-		CommandNoResponse(DRIVETRAIN_QUEUE);
-		//if back sensor sees, continue until front sensor sees; otherwise, stop.
-		if (!bReturn)
-		{
-			Message.command = COMMAND_CONVEYOR_BACKLOAD_TOTE;
-			bReturn = !CommandResponse(CONVEYOR_QUEUE);
-		}
-		else
-		{
-			Message.command = COMMAND_CONVEYOR_STOP;
-			CommandNoResponse(CONVEYOR_QUEUE);
-		}
 		break;
+
+	case AUTO_TOKEN_START_DRIVE_FWD:
+		//Get speed and timeout
+		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+		Message.params.autonomous.driveSpeed = atof(pToken);
+
+		Message.command = COMMAND_DRIVETRAIN_START_DRIVE_FWD;//simply drives forward
+		CommandNoResponse(DRIVETRAIN_QUEUE);
+		break;
+
+	case AUTO_TOKEN_START_DRIVE_BCK:
+		//Get speed and timeout
+		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+		Message.params.autonomous.driveSpeed = atof(pToken);
+
+		Message.command = COMMAND_DRIVETRAIN_START_DRIVE_BCK;	//simply drives back
+		CommandNoResponse(DRIVETRAIN_QUEUE);
+		break;
+
+	case AUTO_TOKEN_STOP_DRIVE:
+		Message.command = COMMAND_DRIVETRAIN_STOP;
+		CommandNoResponse(DRIVETRAIN_QUEUE);
+		break;
+
+	case AUTO_TOKEN_WAIT_FRONT_BEAM:
+		Message.command = COMMAND_CONVEYOR_WAIT_FRONT_BEAM;
+		bReturn = !CommandResponse(CONVEYOR_QUEUE);
+		break;
+
+	case AUTO_TOKEN_WAIT_BACK_BEAM:
+			Message.command = COMMAND_CONVEYOR_WAIT_BACK_BEAM;
+			bReturn = !CommandResponse(CONVEYOR_QUEUE);
+			break;
 
 		//TESTED
 	case AUTO_TOKEN_DEPOSITTOTES_BCK:
@@ -323,12 +375,23 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		break;
 
 	case AUTO_TOKEN_CAN_ARM_OPEN:
-		Message.command = COMMAND_DRIVETRAIN_START_KEEPALIGN;
-		bReturn = !CommandNoResponse(DRIVETRAIN_QUEUE);
+		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+		Message.params.autonomous.driveSpeed = atof(pToken);
+		/*pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+		Message.params.autonomous.timeout = atof(pToken);*/
+
+		//start the drive train
+		Message.command = COMMAND_DRIVETRAIN_START_DRIVE_FWD;//simply drives forward - we're borrowing this (should change it)
+		CommandNoResponse(DRIVETRAIN_QUEUE);
 		Message.command = COMMAND_CANARM_OPEN;
 		bReturn = !CommandResponse(CANARM_QUEUE);
-		Message.command = COMMAND_DRIVETRAIN_STOP_KEEPALIGN;
+		Message.command = COMMAND_DRIVETRAIN_STOP;//stop it!
+		CommandNoResponse(DRIVETRAIN_QUEUE);
+		//if we want to keep still
+		/*Message.command = COMMAND_DRIVETRAIN_START_KEEPALIGN;
 		bReturn = !CommandNoResponse(DRIVETRAIN_QUEUE);
+		//Message.command = COMMAND_DRIVETRAIN_STOP_KEEPALIGN;
+		bReturn = !CommandNoResponse(DRIVETRAIN_QUEUE);*/
 		break;
 
 	case AUTO_TOKEN_CAN_ARM_CLOSE:
@@ -348,21 +411,6 @@ bool Autonomous::Evaluate(std::string rStatement) {
 			rStatus.append("seekTote");
 		}
 		break;
-
-	/*case AUTO_TOKEN_START_RAISE_TOTE:
-		Message.command = COMMAND_CANLIFTER_STARTRAISETOTES;
-		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
-		break;*/
-
-	/*case AUTO_TOKEN_EXTEND_TOTE:
-		Message.command = COMMAND_TOTELIFTER_EXTEND;
-		bReturn = !CommandNoResponse(TOTELIFTER_QUEUE);
-		break;
-
-	case AUTO_TOKEN_RETRACT_TOTE:
-		Message.command = COMMAND_TOTELIFTER_RETRACT;
-		bReturn = !CommandNoResponse(TOTELIFTER_QUEUE);
-		break;*/
 
 	case AUTO_TOKEN_CUBE_AUTO:
 		if (!CubeAuto(pCurrLinePos))

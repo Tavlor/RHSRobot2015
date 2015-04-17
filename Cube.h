@@ -59,7 +59,7 @@ private:
 	CANTalon *clickerMotor;
 	CANTalon *intakeMotor;
 	Timer *pSafetyTimer;
-	Timer *pAutoTimer;
+	//Timer *pAutoTimer;IN COMPONENT BASE
 	//Timer *pRemoteUpdateTimer;
 	Timer *pInterCycleTimer;
 	Timer *pGateTimer;

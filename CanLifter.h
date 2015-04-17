@@ -37,7 +37,7 @@ private:
 	CANTalon *lifterMotor;
 	//Counter *midDetect;
 	Timer *pSafetyTimer;
-	Timer *pAutoTimer;
+	//Timer *pAutoTimer;IN COMPONENT BASE
 
 
 	/* CANLIFTER  (using bag, not CIM)
