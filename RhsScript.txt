@@ -40,62 +40,97 @@
 BEGIN
 # grab the first can
 CLAWCLOSE
-DELAY .2
+DELAY .25
 # lift slightly
 RAISECANTOLOMID
 # load the middle tote - can arm should be open already
 FRONTSEEKTOTE .3 6.0
+# MrB - can we start this earlier? and get a little closer?
+# drive at a higher speed to the second tote
+CLICKERDOWN
+# give the conveyor a chance to pull the tote in more
+DELAY .5
+STRAIGHT -0.4 0.8
 FRONTLOADTOTE 6.0
 TOTEPUSHBCK
-DELAY .5
+DELAY .2
 # lift the loaded tote
 STARTSTACKUP 1
-# drive at a higher speed to the first tote
-STRAIGHT -0.6 0.7
+# MrB - can we start this earlier?
+# drive at a higher speed to the second tote
+#STRAIGHT -0.6 0.7
 STACKUP 1
+# MrB - might need a delay here since we don't wait on it anymore
+DELAY 0.25
 # load the first tote
-BACKSEEKTOTE .2 6.0
+BACKSEEKTOTE -.2 6.0
 BACKLOADTOTE 6.0
 # drive the robot out of the cube
-STRAIGHT 0.6 1.0
+# MrB - drive all the way to the can?
+STRAIGHT 0.6 2.00
+# go ahead and close the arm
+# MrB - can we do this while driving?
+CANARMCLOSE
 # lower claw on top of loaded tote
 STACKDOWN
+DELAY 0.5
 # get loaded tote into the claw tab's way
 TOTESHIFTBCK
-DELAY 1.0
+DELAY 0.5
+# get rid of the can - will drive forward
+# MrB - do this as we are moving?
+CANARMOPEN .4
+DELAY 0.5
 TOTEPUSHBCK
 DELAY .1
+# get rid of the can - will drive forward
+# MrB - do this as we are moving?
+#CANARMOPEN .4
 #
+CLICKERUP
 STARTSTACKUP 2
 # lift the stack
 # go ahead and close the arm
-CANARMCLOSE
+# MrB - can we do this while driving?
+#CANARMCLOSE
 # drive closer to can
-STRAIGHT 0.6 .5
+# MrB - drive all the way to the can?
+#STRAIGHT 0.6 .5
 # check that the stack is up
 STACKUP 2
 # get rid of the can - will drive forward
-CANARMOPEN .4
+# MrB - do this as we are moving?
+#CANARMOPEN .4
 # leave arm open, get last tote
-STRAIGHT 0.6 0.3
-TURN -6.0 1.0
+# MrB - is this necessary for realignment, must test after recent changes
+#STRAIGHT 0.6 0.3
+#TURN -6.0 1.0
 #
 FRONTSEEKTOTE .3 4.0
+# MrB - begin turn sooner?
+TURN 90.0 5.0
 FRONTLOADTOTE 4.0
-# get totes out of the tab's way, then lift the can wilst turning
+# get totes out of the tab's way, then lift the can whilst turning
 TOTESHIFTFWD
-WAITFRONTSENSOR
+DELAY 0.50
+#WAITFRONTSENSOR
 # may need to shift back, drop stack, then fwd again
 # lower stack 
 STACKDOWN
+DELAY 0.5
 # lift can to the top to get it out of the stack's way
-#CLAWTOTOP
+CLAWTOTOP
 # turn to face autozone
+# MrB - begin turn sooner?
 #TURN 90.0 5.0
 # deposit totes - drive to the edge of autozone, spit, drive back
-#STRAIGHT -0.75 3.0
-#DEPOSITTOTESBACK
-#STRAIGHT 0.75 3.0
+STRAIGHT -0.75 3.0
+DELAY 1.5
+STOP
+DEPOSITTOTESBACK
+STRAIGHT 0.75 3.0
+DELAY 1.5
+STOP
 #may need to lower to loading height for noodling after auto
 #LOWERCANTOHIMID
 END

@@ -81,11 +81,12 @@ private:
 	const float fClickerStop = 0.0;
 	const float fIntakeRun = -0.5;
 	const float fIntakeStop = 0.0;
+	const float fDelayAfterCycle = 3.0;
 
 	ClickerState clickerLastState = STATE_CLICKER_TOP;
 
 	bool irBlocked;
-	int topIR;
+	bool topBlocked;
 	bool clickerHallEffectBottom;
 	bool clickerHallEffectTop;
 

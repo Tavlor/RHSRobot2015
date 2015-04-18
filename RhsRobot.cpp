@@ -62,7 +62,7 @@ void RhsRobot::Init() {
 	conveyor = new Conveyor();
 	canlifter = new CanLifter();
 	claw = new Claw();
-	//cube = new Cube();
+	cube = new Cube();
 	canarm = new CanArm();
 	autonomous = new Autonomous();
 

@@ -23,7 +23,7 @@ typedef enum AUTO_COMMAND_TOKENS
 	AUTO_TOKEN_STRAIGHT,			//!<R	straight drive (speed) (duration)
 	AUTO_TOKEN_CLAW_OPEN,			//!<N	open the can lifter claw
 	AUTO_TOKEN_CLAW_CLOSE,			//!<N	close the can lifter claw
-	//LIFTER
+	// LIFTER
 	AUTO_TOKEN_CLAW_TO_TOP,			//!<R	lift the claw to the top
 	AUTO_TOKEN_CLAW_TO_BOTTOM,		//!<R	put the claw down to very bottom
 	AUTO_TOKEN_RAISE_CAN_LOMID,		//!<N	lift the claw (with can) to the lower hall effect

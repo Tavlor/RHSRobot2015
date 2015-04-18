@@ -8,7 +8,6 @@
 
 #include "Autonomous.h"
 #include "WPILib.h"
-#include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -57,6 +56,56 @@ bool Autonomous::CommandResponse(const char *szQueueName) {
 		bReturn = false;
 	}
 
+	return bReturn;
+}
+
+//UNTESTED
+//USAGE: MultiCommandResponse({DRIVETRAIN_QUEUE, CONVEYOR_QUEUE}, {COMMAND_DRIVETRAIN_STRAIGHT, COMMAND_CONVEYOR_SEEK_TOTE});
+bool Autonomous::MultiCommandResponse(vector<char*> szQueueNames, vector<MessageCommand> commands) {
+	//wait for several commands at once
+	//check that queue list is as long as command list
+	if(szQueueNames.size() != commands.size())
+	{
+		SmartDashboard::PutString("Auto Status","MULTICOMMAND error!");
+		return false;
+	}
+	bool bReturn = true;
+	int iPipeXmt;
+	iResponseCount = 0;
+	//vector<int> iPipesXmt = new vector<int>();
+	//send messages to each component
+	for (int i = 0; i < szQueueNames.size(); i++)
+	{
+		iPipeXmt = open(szQueueNames[i], O_WRONLY);
+		wpi_assert(iPipeXmt > 0);
+
+		Message.replyQ = AUTONOMOUS_QUEUE;
+		Message.command = commands[i];
+		write(iPipeXmt, (char*) &Message, sizeof(RobotMessage));
+		close(iPipeXmt);
+	}
+	bReceivedCommandResponse = false;
+
+
+	while (iResponseCount < szQueueNames.size())
+	{
+		while (!bReceivedCommandResponse)
+		{
+			//purposefully empty
+		}
+		printf("Response received\n");
+
+		if (ReceivedCommand == COMMAND_AUTONOMOUS_RESPONSE_OK)
+		{
+			SmartDashboard::PutString("Auto Status", "auto ok");
+			bReturn = true;
+		}
+		else if (ReceivedCommand == COMMAND_AUTONOMOUS_RESPONSE_ERROR)
+		{
+			SmartDashboard::PutString("Auto Status", "EARLY DEATH!");
+			bReturn = false;
+		}
+	}
 	return bReturn;
 }
 
@@ -141,9 +190,23 @@ bool Autonomous::MeasuredMove(char *pCurrLinePos) {
 	// parse remainder of line to get length to move
 
 	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+
+	if(pToken == NULL)
+	{
+		SmartDashboard::PutString("Auto Status","EARLY DEATH!");
+		return (false);
+	}
+
 	fSpeed = atof(pToken);
 
 	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+
+	if(pToken == NULL)
+	{
+		SmartDashboard::PutString("Auto Status","EARLY DEATH!");
+		return (false);
+	}
+
 	fDistance = atof(pToken);
 
 	// send the message to the drive train
@@ -163,15 +226,29 @@ bool Autonomous::Straight(char *pCurrLinePos) {
 	// parse remainder of line to get length to move
 
 	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+
+	if(pToken == NULL)
+	{
+		SmartDashboard::PutString("Auto Status","DEATH BY PARAMS!");
+		return (false);
+	}
+
 	fSpeed = atof(pToken);
 	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+
+	if(pToken == NULL)
+	{
+		SmartDashboard::PutString("Auto Status","DEATH BY PARAMS!");
+		return (false);
+	}
+
 	fTime = atof(pToken);
 
 	// send the message to the drive train
 	Message.command = COMMAND_DRIVETRAIN_DRIVE_STRAIGHT;
 	Message.params.autonomous.driveSpeed = fSpeed;
 	Message.params.autonomous.driveTime = fTime;
-	return (CommandResponse(DRIVETRAIN_QUEUE));
+	return (CommandNoResponse(DRIVETRAIN_QUEUE));
 }
 
 bool Autonomous::TimedMove(char *pCurrLinePos) {
@@ -206,16 +283,30 @@ bool Autonomous::Turn(char *pCurrLinePos) {
 
 	// parse remainder of line to get target angle and timeout
 	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+
+	if(pToken == NULL)
+	{
+		SmartDashboard::PutString("Auto Status","DEATH BY PARAMS!");
+		return (false);
+	}
+
 	fAngle = atof(pToken);
 
 	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+
+	if(pToken == NULL)
+	{
+		SmartDashboard::PutString("Auto Status","DEATH BY PARAMS!");
+		return (false);
+	}
+
 	fTimeout = atof(pToken);
 
 	// send the message to the drive train
 	Message.command = COMMAND_DRIVETRAIN_TURN;
 	Message.params.autonomous.turnAngle = fAngle;
 	Message.params.autonomous.timeout = fTimeout;
-	return (CommandResponse(DRIVETRAIN_QUEUE));
+	return (CommandNoResponse(DRIVETRAIN_QUEUE));
 }
 
 bool Autonomous::SeekTote(char *pCurrLinePos) {
@@ -224,9 +315,23 @@ bool Autonomous::SeekTote(char *pCurrLinePos) {
 	float fTimeout;
 
 	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+
+	if(pToken == NULL)
+	{
+		SmartDashboard::PutString("Auto Status","DEATH BY PARAMS!");
+		return (false);
+	}
+
 	fTimein = atof(pToken);
 	// parse remainder of line to get timeout
 	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+
+	if(pToken == NULL)
+	{
+		SmartDashboard::PutString("Auto Status","DEATH BY PARAMS!");
+		return (false);
+	}
+
 	fTimeout = atof(pToken);
 
 	// send the message to the drive train

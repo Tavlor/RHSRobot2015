@@ -52,6 +52,7 @@ private:
 	int lineNumber;	//Current line number
 	Task *pScript;
 	bool bReceivedCommandResponse;
+	int iResponseCount;
 	MessageCommand ReceivedCommand;
 
 	void Delay(float);
@@ -70,6 +71,7 @@ private:
 
 	bool CommandResponse(const char *szQueueName);
 	bool CommandNoResponse(const char *szQueueName);
+	bool MultiCommandResponse(vector<char*> szQueueNames, vector<MessageCommand> commands);
 
 	void Init();
 	void OnStateChange();

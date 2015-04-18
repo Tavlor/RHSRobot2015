@@ -75,11 +75,13 @@ void Autonomous::Run()
 			break;
 
 		case COMMAND_AUTONOMOUS_RESPONSE_OK:
+			iResponseCount++;
 			bReceivedCommandResponse = true;
 			ReceivedCommand = COMMAND_AUTONOMOUS_RESPONSE_OK;
 			break;
 
 		case COMMAND_AUTONOMOUS_RESPONSE_ERROR:
+			iResponseCount++;
 			bReceivedCommandResponse = true;
 			ReceivedCommand = COMMAND_AUTONOMOUS_RESPONSE_ERROR;
 			break;

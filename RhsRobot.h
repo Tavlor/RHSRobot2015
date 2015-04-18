@@ -49,7 +49,7 @@ private:
 	bool bLastConveyorButtonDown;
 	bool bCanlifterNearBottom; //used for speed changes in driving
 	const float fDriveReduction = .5;
-	const float fDriveMax = 0.85;
+	const float fDriveMax = 0.75;
 	int iLoop;
 };
 

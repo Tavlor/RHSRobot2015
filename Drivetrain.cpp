@@ -116,23 +116,29 @@ void Drivetrain::Run() {
 	case COMMAND_DRIVETRAIN_DRIVE_TANK:
 		//SmartDashboard::PutString("Drivetrain CMD", "DRIVETRAIN_DRIVE_TANK");
 		//speed reduction will be controlled by RhsRobot. Power curve is done with raw joystick value
+		bDrivingStraight = false;
+		bTurning = false;
 		leftMotor->Set(localMessage.params.tankDrive.left);
 		rightMotor->Set(-localMessage.params.tankDrive.right);
 		break;
 	case COMMAND_DRIVETRAIN_DRIVE_ARCADE:
 		//SmartDashboard::PutString("Drivetrain CMD", "DRIVETRAIN_DRIVE_ARCADE");
+		bDrivingStraight = false;
+		bTurning = false;
 		ArcadeDrive(localMessage.params.arcadeDrive.x,
 				localMessage.params.arcadeDrive.y);
 		break;
 
 	case COMMAND_DRIVETRAIN_DRIVE_STRAIGHT:
 		//SmartDashboard::PutString("Drivetrain CMD", "DRIVETRAIN_DRIVE_STRAIGHT");
-		StraightDrive(localMessage.params.autonomous.driveSpeed, localMessage.params.autonomous.driveTime);
+		StartStraightDrive(localMessage.params.autonomous.driveSpeed, localMessage.params.autonomous.timeout);
 		break;
 
 	case COMMAND_AUTONOMOUS_RUN:	//when auto starts
 		//SmartDashboard::PutString("Drivetrain CMD", "AUTONOMOUS_RUN");
 		//reset stored values
+		bDrivingStraight = false;
+		bTurning = false;
 		left = 0;
 		right = 0;
 		pAutoTimer->Reset();
@@ -142,6 +148,8 @@ void Drivetrain::Run() {
 	case COMMAND_AUTONOMOUS_COMPLETE:
 		//SmartDashboard::PutString("Drivetrain CMD", "AUTONOMOUS_COMPLETE");
 		//reset all auto variables
+		bDrivingStraight = false;
+		bTurning = false;
 		left = 0;
 		right = 0;
 		leftMotor->Set(left);
@@ -152,6 +160,8 @@ void Drivetrain::Run() {
 	case COMMAND_DRIVETRAIN_AUTO_MOVE:
 		//SmartDashboard::PutString("Drivetrain CMD", "DRIVETRAIN_DRIVE_AUTO_MOVE");
 		//store sent
+		bDrivingStraight = false;
+		bTurning = false;
 		left = localMessage.params.tankDrive.left;
 		right = -localMessage.params.tankDrive.right;
 		leftMotor->Set(left);
@@ -160,7 +170,7 @@ void Drivetrain::Run() {
 
 	case COMMAND_DRIVETRAIN_TURN:
 		//SmartDashboard::PutString("Drivetrain CMD", "DRIVETRAIN_TURN");
-		Turn(localMessage.params.autonomous.turnAngle,localMessage.params.autonomous.timeout);
+		StartTurn(localMessage.params.autonomous.turnAngle,localMessage.params.autonomous.timeout);
 		break;
 
 	/*case COMMAND_DRIVETRAIN_SEEK_TOTE:
@@ -170,6 +180,8 @@ void Drivetrain::Run() {
 	case COMMAND_DRIVETRAIN_STOP:
 		//SmartDashboard::PutString("Drivetrain CMD", "DRIVETRAIN_STOP");
 		//reset all auto variables
+		bDrivingStraight = false;
+		bTurning = false;
 		left = 0;
 		right = 0;
 		leftMotor->Set(left);
@@ -206,23 +218,15 @@ void Drivetrain::Run() {
 	default:
 		break;
 	}
-	if (ISAUTO)
-	{
-		//leftMotor->Set(left);
-		//rightMotor->Set(right);
 
-		if (bFrontLoadTote)
-		{
-			StraightDriveLoop(fDirectionFwd * localMessage.params.autonomous.driveSpeed);
-		}
-		else if (bBackLoadTote)
-		{
-			StraightDriveLoop(fDirectionBck * localMessage.params.autonomous.driveSpeed);
-		}
-		else if (bKeepAligned)
-		{
-			KeepAligned();
-		}
+	if(bDrivingStraight)
+	{
+		IterateStraightDrive();
+	}
+
+	if(bTurning)
+	{
+		IterateTurn();
 	}
 
 	//Put out information
@@ -357,6 +361,81 @@ void Drivetrain::SeekTote(float timein, float timeout) {
 	rightMotor->Set(0.0);
 
 	SendCommandResponse(command);
+}
+
+void Drivetrain::StartStraightDrive(float speed, float time)
+{
+	printf("StartStraightDrive\n");
+	pAutoTimer->Reset();
+	//DO NOT RESET THE GYRO EVER. only zeroing.
+	gyro->Zero();
+
+	fStraightDriveSpeed = speed;
+	fStraightDriveTime = time;
+	bDrivingStraight = true;
+	bTurning = false;
+	printf("speed: %f time %f\n", fStraightDriveSpeed, fStraightDriveTime);
+}
+
+void Drivetrain::IterateStraightDrive(void)
+{
+	if ((pAutoTimer->Get() < fStraightDriveTime) && ISAUTO)
+	{
+		StraightDriveLoop(fStraightDriveSpeed);
+	}
+	else
+	{
+		bDrivingStraight = false;
+		left = 0.0;
+		right = 0.0;
+		leftMotor->Set(0.0);
+		rightMotor->Set(0.0);
+	}
+}
+
+void Drivetrain::StartTurn(float angle, float time)
+{
+	pAutoTimer->Reset();
+	//DO NOT RESET THE GYRO EVER. only zeroing.
+	gyro->Zero();
+
+	fTurnAngle = angle + gyro->GetAngle();
+	fTurnTime = time;
+	bDrivingStraight = false;
+	bTurning = true;
+}
+
+void Drivetrain::IterateTurn(void)
+{
+	float motorValue;
+	float degreesLeft;
+
+	if ((pAutoTimer->Get() < fTurnTime) && ISAUTO)
+	{
+		//if you don't disable this during non-auto, it will keep trying to turn during teleop. Not fun.
+		degreesLeft = fTurnAngle - gyro->GetAngle();
+
+		if ((degreesLeft < angleError) && (degreesLeft > -angleError))
+		{
+			bTurning = false;
+			motorValue = 0.0;
+		}
+		else
+		{
+			motorValue = degreesLeft * turnAngleSpeedMultiplyer;
+			ABLIMIT(motorValue, turnSpeedLimit);
+		}
+	}
+	else
+	{
+		bTurning = false;
+		motorValue = 0.0;
+	}
+
+	leftMotor->Set(motorValue);
+	rightMotor->Set(motorValue);
+	SmartDashboard::PutNumber("Angle Error", 0.0);
+	SmartDashboard::PutNumber("Turn Speed", 0.0);
 }
 
 void Drivetrain::StraightDrive(float speed, float time) {

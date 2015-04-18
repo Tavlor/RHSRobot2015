@@ -57,7 +57,7 @@ const char *szTokens[] = {
 		"TOTEPUSHBCK",		//!<
 		"CANARMOPEN",		//!<
 		"CANARMCLOSE",		//!<
-		//Old commands from past auto attemts
+		//Old commands from past auto attempts
 		"SEEKTOTE",			//!<
 		"STARTTOTEUP",		//!<
 		"TOTEEXTEND",		//!<
@@ -96,6 +96,13 @@ bool Autonomous::Evaluate(std::string rStatement) {
 	// find first token
 
 	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+
+	if(pToken == NULL)
+	{
+		SmartDashboard::PutString("Auto Status","DEATH BY PARAMS!");
+		rStatus.append("missing token");
+		return (bReturn);
+	}
 
 	// which command are we to execute??
 	// this can be (easily) be made much faster... any student want to improve on this?
@@ -200,29 +207,60 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
 		iParam1 = atoi(pToken);
 
-		Message.command = COMMAND_CANLIFTER_RAISE_TOTES;
-		Message.params.canLifterParams.iNumTotes = iParam1;
-		bReturn = !CommandResponse(CANLIFTER_QUEUE);
-		//the conveyor should've pushed the totes. Stop it.
-		Message.command = COMMAND_CONVEYOR_STOP;
-		bReturn = !CommandNoResponse(CONVEYOR_QUEUE);
+		if(pToken == NULL)
+		{
+			SmartDashboard::PutString("Auto Status","DEATH BY PARAMS!");
+			rStatus.append("missing token");
+			bReturn = false;
+		}
+		else
+		{
+			Message.command = COMMAND_CANLIFTER_RAISE_TOTES;
+			Message.params.canLifterParams.iNumTotes = iParam1;
+			bReturn = !CommandResponse(CANLIFTER_QUEUE);
+			//the conveyor should've pushed the totes. Stop it.
+			Message.command = COMMAND_CONVEYOR_STOP;
+			bReturn = !CommandNoResponse(CONVEYOR_QUEUE);
+		}
+
 		break;
 
 	case AUTO_TOKEN_LOWER_TOTES:
 		/*pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+
+		if(pToken == NULL)
+		{
+			SmartDashboard::PutString("Auto Status","EARLY DEATH!");
+			rStatus.append("missing token");
+			break;
+		}
+
 		iParam1 = atoi(pToken);*/
 		Message.command = COMMAND_CANLIFTER_LOWER_TOTES;
 		//Message.params.canLifterParams.iNumTotes = iParam1;
-		bReturn = !CommandResponse(CANLIFTER_QUEUE);
+
+		// MrB - we need to do other things while lifting
+		//bReturn = !CommandResponse(CANLIFTER_QUEUE);
+		bReturn = CommandNoResponse(CANLIFTER_QUEUE);
 		break;
 
 	case AUTO_TOKEN_START_RAISE_TOTES:
 		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
-		iParam1 = atoi(pToken);
 
-		Message.command = COMMAND_CANLIFTER_START_RAISE_TOTES;
-		Message.params.canLifterParams.iNumTotes = iParam1;
-		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
+		if(pToken == NULL)
+		{
+			SmartDashboard::PutString("Auto Status","DEATH BY PARAMS!");
+			rStatus.append("missing token");
+			bReturn = false;
+		}
+		else
+		{
+			iParam1 = atoi(pToken);
+			Message.command = COMMAND_CANLIFTER_START_RAISE_TOTES;
+			Message.params.canLifterParams.iNumTotes = iParam1;
+			bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
+		}
+
 		break;
 
 	case AUTO_TOKEN_CLAW_TO_TOP:
@@ -260,12 +298,27 @@ bool Autonomous::Evaluate(std::string rStatement) {
 
 		//Get speed and timeout
 		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+
+		if(pToken == NULL)
+		{
+			SmartDashboard::PutString("Auto Status","DEATH BY PARAMS!");
+			rStatus.append("missing token");
+			break;
+		}
 		Message.params.autonomous.driveSpeed = atof(pToken);
+
 		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+
+		if(pToken == NULL)
+		{
+			SmartDashboard::PutString("Auto Status","EARLY DEATH!");
+			rStatus.append("missing token");
+			break;
+		}
 		Message.params.autonomous.timeout = atof(pToken);
 
 		//start the drive train
-		Message.command = COMMAND_DRIVETRAIN_START_DRIVE_FWD;//simply drives forward
+		Message.command = COMMAND_DRIVETRAIN_DRIVE_STRAIGHT;//simply drives forward
 		CommandNoResponse(DRIVETRAIN_QUEUE);
 		//when front sensor sees tote, stop drivetrain and conveyor
 		Message.command = COMMAND_CONVEYOR_SEEK_TOTE_FRONT;
@@ -280,10 +333,19 @@ bool Autonomous::Evaluate(std::string rStatement) {
 
 		//Get timeout
 		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
-		Message.params.autonomous.timeout = atof(pToken);
 
-		Message.command = COMMAND_CONVEYOR_FRONTLOAD_TOTE;
-		bReturn = !CommandResponse(CONVEYOR_QUEUE);
+		if(pToken == NULL)
+		{
+			SmartDashboard::PutString("Auto Status","EARLY DEATH!");
+			rStatus.append("missing token");
+			bReturn = false;
+		}
+		else
+		{
+			Message.params.autonomous.timeout = atof(pToken);
+			Message.command = COMMAND_CONVEYOR_FRONTLOAD_TOTE;
+			bReturn = !CommandResponse(CONVEYOR_QUEUE);
+		}
 		break;
 
 	case AUTO_TOKEN_BACK_SEEK_TOTE:
@@ -291,12 +353,30 @@ bool Autonomous::Evaluate(std::string rStatement) {
 
 		//Get speed and timeout
 		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+
+		if(pToken == NULL)
+		{
+			SmartDashboard::PutString("Auto Status","EARLY DEATH!");
+			rStatus.append("missing token");
+			bReturn = false;
+			break;
+		}
+
 		Message.params.autonomous.driveSpeed = atof(pToken);
 		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+
+		if(pToken == NULL)
+		{
+			SmartDashboard::PutString("Auto Status","EARLY DEATH!");
+			rStatus.append("missing token");
+			bReturn = false;
+			break;
+		}
+
 		Message.params.autonomous.timeout = atof(pToken);
 
 		//start the drive train
-		Message.command = COMMAND_DRIVETRAIN_START_DRIVE_BCK;	//simply drives backwards
+		Message.command = COMMAND_DRIVETRAIN_DRIVE_STRAIGHT;	//simply drives backwards
 		CommandNoResponse(DRIVETRAIN_QUEUE);
 		//when back sensor sees tote, stop drivetrain and conveyor
 		Message.command = COMMAND_CONVEYOR_SEEK_TOTE_BACK;
@@ -320,19 +400,39 @@ bool Autonomous::Evaluate(std::string rStatement) {
 	case AUTO_TOKEN_START_DRIVE_FWD:
 		//Get speed and timeout
 		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
-		Message.params.autonomous.driveSpeed = atof(pToken);
 
-		Message.command = COMMAND_DRIVETRAIN_START_DRIVE_FWD;//simply drives forward
-		CommandNoResponse(DRIVETRAIN_QUEUE);
+		if(pToken == NULL)
+		{
+			SmartDashboard::PutString("Auto Status","EARLY DEATH!");
+			rStatus.append("missing token");
+			bReturn = false;
+		}
+		else
+		{
+			Message.params.autonomous.driveSpeed = atof(pToken);
+
+			Message.command = COMMAND_DRIVETRAIN_DRIVE_STRAIGHT;//simply drives forward
+			CommandNoResponse(DRIVETRAIN_QUEUE);
+		}
+
 		break;
 
 	case AUTO_TOKEN_START_DRIVE_BCK:
 		//Get speed and timeout
 		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
-		Message.params.autonomous.driveSpeed = atof(pToken);
+		if(pToken == NULL)
+		{
+			SmartDashboard::PutString("Auto Status","EARLY DEATH!");
+			rStatus.append("missing token");
+			bReturn = false;
+		}
+		else
+		{
+			Message.params.autonomous.driveSpeed = atof(pToken);
 
-		Message.command = COMMAND_DRIVETRAIN_START_DRIVE_BCK;	//simply drives back
-		CommandNoResponse(DRIVETRAIN_QUEUE);
+			Message.command = COMMAND_DRIVETRAIN_DRIVE_STRAIGHT;	//simply drives back
+			CommandNoResponse(DRIVETRAIN_QUEUE);
+		}
 		break;
 
 	case AUTO_TOKEN_STOP_DRIVE:
@@ -376,22 +476,33 @@ bool Autonomous::Evaluate(std::string rStatement) {
 
 	case AUTO_TOKEN_CAN_ARM_OPEN:
 		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
-		Message.params.autonomous.driveSpeed = atof(pToken);
-		/*pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
-		Message.params.autonomous.timeout = atof(pToken);*/
 
-		//start the drive train
-		Message.command = COMMAND_DRIVETRAIN_START_DRIVE_FWD;//simply drives forward - we're borrowing this (should change it)
-		CommandNoResponse(DRIVETRAIN_QUEUE);
-		Message.command = COMMAND_CANARM_OPEN;
-		bReturn = !CommandResponse(CANARM_QUEUE);
-		Message.command = COMMAND_DRIVETRAIN_STOP;//stop it!
-		CommandNoResponse(DRIVETRAIN_QUEUE);
-		//if we want to keep still
-		/*Message.command = COMMAND_DRIVETRAIN_START_KEEPALIGN;
-		bReturn = !CommandNoResponse(DRIVETRAIN_QUEUE);
-		//Message.command = COMMAND_DRIVETRAIN_STOP_KEEPALIGN;
-		bReturn = !CommandNoResponse(DRIVETRAIN_QUEUE);*/
+		if(pToken == NULL)
+		{
+			SmartDashboard::PutString("Auto Status","EARLY DEATH!");
+			rStatus.append("missing token");
+			bReturn = false;
+		}
+		else
+		{
+			//Message.params.autonomous.driveSpeed = atof(pToken);
+			/*pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+			Message.params.autonomous.timeout = atof(pToken);*/
+
+			//start the drive train
+			//Message.command = COMMAND_DRIVETRAIN_START_DRIVE_FWD;//simply drives forward - we're borrowing this (should change it)
+			//CommandNoResponse(DRIVETRAIN_QUEUE);
+			Message.command = COMMAND_CANARM_OPEN;
+			bReturn = !CommandResponse(CANARM_QUEUE);
+			//Message.command = COMMAND_DRIVETRAIN_STOP;//stop it!
+			//CommandNoResponse(DRIVETRAIN_QUEUE);
+			//if we want to keep still
+			/*Message.command = COMMAND_DRIVETRAIN_START_KEEPALIGN;
+			bReturn = !CommandNoResponse(DRIVETRAIN_QUEUE);
+			//Message.command = COMMAND_DRIVETRAIN_STOP_KEEPALIGN;
+			bReturn = !CommandNoResponse(DRIVETRAIN_QUEUE);*/
+		}
+
 		break;
 
 	case AUTO_TOKEN_CAN_ARM_CLOSE:
@@ -424,9 +535,13 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		break;
 
 	case AUTO_TOKEN_CLICKER_UP:
+		Message.command = COMMAND_CUBECLICKER_RAISE;
+		bReturn = !CommandNoResponse(CUBE_QUEUE);
 		break;
 
 	case AUTO_TOKEN_CLICKER_DOWN:
+		Message.command = COMMAND_CUBECLICKER_LOWER;
+		bReturn = !CommandNoResponse(CUBE_QUEUE);
 		break;
 
 	default:

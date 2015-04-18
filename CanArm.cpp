@@ -94,7 +94,7 @@ void CanArm::Run()
 			armMotor->Set(fOpen);
 			if(!CheckArmCurrentOK())
 			{
-				SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
+				//SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 				bOpening = false;
 			}
 		}

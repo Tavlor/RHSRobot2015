@@ -46,7 +46,7 @@ private:
 	//dial these down as you go - but start fast.
 	const float fLoadSpeed = .75;
 	const float fShiftSpeed = 0.4;//good to keep low.
-	const float fPushSpeed = 0.1;
+	const float fPushSpeed = 0.5;
 	const float fDepositSpeed = 1.0;
 	bool bBackStopEnable;
 	bool bReplyFrontSensor = false; //reply to auto when the front sensor breaks

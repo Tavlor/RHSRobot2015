@@ -52,6 +52,7 @@ Cube::Cube() :
 	irBlocked = !intakeMotor->IsRevLimitSwitchClosed();
 	clickerHallEffectBottom = clickerMotor->IsRevLimitSwitchClosed();
 	clickerHallEffectTop = clickerMotor->IsFwdLimitSwitchClosed();
+	topBlocked = (clickerMotor->GetPinStateQuadB() == 1);
 
 	pSafetyTimer = new Timer();
 	pSafetyTimer->Start();
@@ -248,12 +249,15 @@ void Cube::Run() {
 	// update the remote indicators periodically so we do not create too much CAN traffic
 	// or Smart Dashboard traffic either, for that matter (This is really what kills)
 	// NOTE: this segment runs only if we are NOT autocycling
-	if((pRemoteUpdateTimer->Get() > 0.5) && !bEnableAutoCycle)
+	if((pRemoteUpdateTimer->Get() > 0.15))//&& !bEnableAutoCycle)
 	{
 		pRemoteUpdateTimer->Reset();
 		irBlocked = !intakeMotor->IsRevLimitSwitchClosed();
 		clickerHallEffectBottom = clickerMotor->IsRevLimitSwitchClosed();
 		clickerHallEffectTop = clickerMotor->IsFwdLimitSwitchClosed();
+		topBlocked = (clickerMotor->GetPinStateQuadB() == 1);
+
+		SmartDashboard::PutBoolean("Last Tote IR", topBlocked);
 		SmartDashboard::PutBoolean("Cube IR", irBlocked);
 		SmartDashboard::PutBoolean("Clicker @ Top", clickerHallEffectTop);
 		SmartDashboard::PutBoolean("Clicker @ Bottom", clickerHallEffectBottom);
@@ -277,10 +281,10 @@ void Cube::Run() {
 			irBlocked = !intakeMotor->IsRevLimitSwitchClosed();
 			SmartDashboard::PutBoolean("Cube IR", irBlocked);
 
-			topIR = clickerMotor->GetPinStateQuadB();
-			SmartDashboard::PutNumber("top IR", topIR);
+			topBlocked = (clickerMotor->GetPinStateQuadB() == 1);
+			SmartDashboard::PutBoolean("Last Tote IR", topBlocked);
 
-			if(topIR == 1 && irBlocked){
+			if(topBlocked && irBlocked){
 				bPrepareToRemove = true;
 			}
 
@@ -384,7 +388,7 @@ void Cube::Run() {
 			break;
 
 		case STATE_CLICKER_DELAYAFTERCYLE:
-			if(pInterCycleTimer->Get() > 1.0)
+			if(pInterCycleTimer->Get() > fDelayAfterCycle)
 			{
 				clickerLastState = STATE_CLICKER_RAISE;
 			}

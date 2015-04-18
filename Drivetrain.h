@@ -44,12 +44,20 @@ private:
 	DigitalInput *toteSensor;
 	//Timer *pAutoTimer; //watches autonomous time and disables it if needed.IN COMPONENT BASE
 	//stores motor values during autonomous
-	float left = 0;
-	float right = 0;
+	float left = 0.0;
+	float right = 0.0;
+	float fStraightDriveSpeed = 0.0;
+	float fStraightDriveTime = 0.0;
+	float fTurnAngle = 0.0;
+	float fTurnTime = 0.0;
+
 
 	bool bFrontLoadTote = false;
 	bool bBackLoadTote = false;
 	bool bKeepAligned = false;
+	bool bDrivingStraight = false;
+	bool bTurning = false;
+
 	const float fFrontLoadSpeed = .250;
 	const float fBackLoadSpeed = -.250;
 	const float fToteSeekSpeed = -.50;
@@ -82,6 +90,10 @@ private:
 	void SeekTote(float,float);
 	void StraightDrive(float, float);
 	void StraightDriveLoop(float);
+	void StartStraightDrive(float, float);
+	void IterateStraightDrive(void);
+	void StartTurn(float, float);
+	void IterateTurn(void);
 };
 
 #endif			//DRIVETRAIN_H

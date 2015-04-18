@@ -47,7 +47,7 @@ private:
 	const float fLifterUpMult = -1.0;
 	const float fLifterDownMult = 1.0;
 
-	const float fLifterRaise = -.75;
+	const float fLifterRaise = -1.0;
 	const float fLifterLower = 1.0;
 	const float fLifterHover = -.5;
 
