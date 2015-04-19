@@ -118,6 +118,7 @@ enum MessageCommand {
 	COMMAND_CANLIFTER_RAISE,			//!< Tells CanLifter to raise the lift
 	COMMAND_CANLIFTER_LOWER,			//!< Tells CanLifter to lower the lift
 	COMMAND_CANLIFTER_HOVER,			//!< Tells CanLifter to hold the lift where it is
+	COMMAND_CANLIFTER_TOGGLE_HOVER,		//!< Tells CanLifter to toggle hovering
 	COMMAND_CANLIFTER_RAISE_TOTES,		//!< Tells CanLifter to raise to loading position & hover, used by Autonomous
 	COMMAND_CANLIFTER_LOWER_TOTES,		//!< Tells CanLifter to lower to hook position, used by Autonomous
 	COMMAND_CANLIFTER_START_RAISE_TOTES,//!< Tells CanLifter to raise to loading position & hover, used by Autonomous

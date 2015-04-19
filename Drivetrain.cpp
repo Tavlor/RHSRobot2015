@@ -43,7 +43,7 @@ Drivetrain::Drivetrain() :
 	wpi_assert(leftMotor->IsAlive());
 	wpi_assert(rightMotor->IsAlive());
 
-	toteSensor = new DigitalInput(DIO_DRIVETRAIN_BEAM_BREAK);
+	//toteSensor = new DigitalInput(DIO_DRIVETRAIN_BEAM_BREAK);
 
 	//pAutoTimer = new Timer();IN COMPONENT BASE
 	//pAutoTimer->Start();
@@ -233,7 +233,7 @@ void Drivetrain::Run() {
 	if (pRemoteUpdateTimer->Get() > 0.2)
 	{
 		pRemoteUpdateTimer->Reset();
-		SmartDashboard::PutBoolean("Tote Detector", toteSensor->Get());
+		//SmartDashboard::PutBoolean("Tote Detector", toteSensor->Get());
 		//gyro reading is truncated for the sake of the CSV file.
 		SmartDashboard::PutNumber("Gyro Angle", TRUNC_THOU(gyro->GetAngle()));
 	}
@@ -498,7 +498,7 @@ void Drivetrain::StraightDriveLoop(float speed) {
 	if (pRemoteUpdateTimer->Get() > 0.2)
 	{
 		pRemoteUpdateTimer->Reset();
-		SmartDashboard::PutBoolean("Tote Detector", toteSensor->Get());
+		//SmartDashboard::PutBoolean("Tote Detector", toteSensor->Get());
 		SmartDashboard::PutNumber("Angle Adjustment", adjustment);
 		SmartDashboard::PutNumber("Gyro Angle", gyro->GetAngle());
 	}

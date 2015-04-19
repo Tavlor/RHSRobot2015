@@ -53,6 +53,7 @@ bool Autonomous::CommandResponse(const char *szQueueName) {
 	else if (ReceivedCommand == COMMAND_AUTONOMOUS_RESPONSE_ERROR)
 	{
 		SmartDashboard::PutString("Auto Status","EARLY DEATH!");
+		PRINTAUTOERROR;
 		bReturn = false;
 	}
 
@@ -230,6 +231,7 @@ bool Autonomous::Straight(char *pCurrLinePos) {
 	if(pToken == NULL)
 	{
 		SmartDashboard::PutString("Auto Status","DEATH BY PARAMS!");
+		PRINTAUTOERROR;
 		return (false);
 	}
 
@@ -239,6 +241,7 @@ bool Autonomous::Straight(char *pCurrLinePos) {
 	if(pToken == NULL)
 	{
 		SmartDashboard::PutString("Auto Status","DEATH BY PARAMS!");
+		PRINTAUTOERROR;
 		return (false);
 	}
 
@@ -247,7 +250,7 @@ bool Autonomous::Straight(char *pCurrLinePos) {
 	// send the message to the drive train
 	Message.command = COMMAND_DRIVETRAIN_DRIVE_STRAIGHT;
 	Message.params.autonomous.driveSpeed = fSpeed;
-	Message.params.autonomous.driveTime = fTime;
+	Message.params.autonomous.timeout = fTime;
 	return (CommandNoResponse(DRIVETRAIN_QUEUE));
 }
 

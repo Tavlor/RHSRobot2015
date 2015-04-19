@@ -30,16 +30,20 @@ CanLifter::CanLifter() :
 
 	lifterMotor = new CANTalon(CAN_PALLET_JACK_BIN_LIFT);
 	wpi_assert(lifterMotor);
-	lifterMotor->SetVoltageRampRate(120.0);
+	//lifterMotor->SetVoltageRampRate(120.0);
 	lifterMotor->ConfigNeutralMode(
 			CANSpeedController::NeutralMode::kNeutralMode_Brake);
 	lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 
 	wpi_assert(lifterMotor->IsAlive());
 
+	upperHall = new DigitalInput(DIO_CANLIFTER_UPPER_HALL_EFFECT);
+	lowerHall = new DigitalInput(DIO_CANLIFTER_LOWER_HALL_EFFECT);
 
-	//midDetect = new Counter(midHallEffect);
-	//midDetect->Reset();
+	upperDetect = new Counter(upperHall);
+	upperDetect->Reset();
+	lowerDetect = new Counter(lowerHall);
+	lowerDetect->Reset();
 
 	pSafetyTimer = new Timer();
 	pSafetyTimer->Start();
@@ -113,6 +117,7 @@ void CanLifter::Run() {
 				bHoverEnabled = true;
 			}*/
 			bHoverEnabled = false;
+			bHovering = false;
 			lifterMotor->ConfigLimitMode(
 									CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
 							LifterCurrentLimitDrive(fLifterUpMult * localMessage.params.canLifterParams.lifterSpeed);
@@ -122,14 +127,15 @@ void CanLifter::Run() {
 		case COMMAND_CANLIFTER_LOWER:
 			LifterCurrentLimitDrive(fLifterDownMult * localMessage.params.canLifterParams.lifterSpeed);
 			bHoverEnabled = false;
+			bHovering = false;
 			pSafetyTimer->Reset();
 			break;
 
-		/*case COMMAND_CANLIFTER_HOVER:
+		case COMMAND_CANLIFTER_HOVER:
 			lifterMotor->Set(fLifterHover);
-			bHover = true;
+			bHovering = true;
 			pSafetyTimer->Reset();
-			break;*/
+			break;
 
 		case COMMAND_CANLIFTER_RAISE_TOTES:
 			//to load pos
@@ -139,15 +145,17 @@ void CanLifter::Run() {
 			pSafetyTimer->Reset();
 			iToteLoad = localMessage.params.canLifterParams.iNumTotes;
 
-			while(ISAUTO && !TOPHALLEFFECT)
+			while(ISAUTO && (upperDetect->Get() == 0))
 			{
 				lifterMotor->Set(fLifterRaise);
 				Wait(0.02);
 			}
 
+			upperDetect->Reset();
 			//hovering, so don't stop it
+			lifterMotor->Set(fLifterHover);
 			// MrB - we need to do other things while lifting
-
+			printf("%s Totes Raised\n", __FILE__);
 			SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 			break;
 
@@ -157,13 +165,15 @@ void CanLifter::Run() {
 			bLowerHover = true;
 			pSafetyTimer->Reset();
 
-			while(ISAUTO && !BOTTOMHALLEFFECT)
+			while(ISAUTO && (lowerDetect->Get() == 0))
 			{
 				lifterMotor->Set(fLifterLower);
 				Wait(0.02);
 			}
 
-			lifterMotor->Set(fLifterStop);
+			lowerDetect->Reset();
+			lifterMotor->Set(fLifterHover);
+			printf("%s Totes Lowered\n", __FILE__);
 			SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 			break;
 
@@ -173,7 +183,7 @@ void CanLifter::Run() {
 			bLowerHover = false;
 			pSafetyTimer->Reset();
 			iToteLoad = localMessage.params.canLifterParams.iNumTotes;
-			lifterMotor->Set(fLifterRaise);
+			lifterMotor->Set(fLifterStartRaise);
 			break;
 
 		case COMMAND_CANLIFTER_CLAW_TO_TOP:
@@ -224,18 +234,21 @@ void CanLifter::Run() {
 			bHoverEnabled = false;
 			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 
-			while(ISAUTO && !BOTTOMHALLEFFECT)
+			while(ISAUTO && (lowerDetect->Get()== 0))
 			{
-				lifterMotor->Set(fLifterRaise);
+				lifterMotor->Set(fLifterRaiseLoMid);
 				Wait(0.02);
 			}
+
+			lowerDetect->Reset();
 
 			//go above the halleffect
 			/*while(ISAUTO && BOTTOMHALLEFFECT)
 			{
 				lifterMotor->Set(fLifterRaise);
 			}*/
-			lifterMotor->Set(fLifterStop);
+			printf("%s Lomid Reached\n", __FILE__);
+			lifterMotor->Set(fLifterHover);
 			pSafetyTimer->Reset();
 			break;
 
@@ -244,12 +257,14 @@ void CanLifter::Run() {
 			bLowerHover = false;
 			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 
-			while(ISAUTO && !TOPHALLEFFECT)
+			while(ISAUTO && (upperDetect->Get() == 0))
 			{
 				lifterMotor->Set(fLifterLower);
 				Wait(0.02);
 			}
 
+			upperDetect->Reset();
+			printf("%s Himid Reached\n", __FILE__);
 			pSafetyTimer->Reset();
 			break;
 
@@ -258,6 +273,8 @@ void CanLifter::Run() {
 			pSafetyTimer->Reset();
 			bHoverEnabled = false;
 			bLowerHover = false;
+			bGoingUp = false;
+			bGoingDown = false;
 			break;
 
 		default:
@@ -284,14 +301,14 @@ void CanLifter::Run() {
 	{
 		midDetect->Reset();*/
 
-	if(!bHoverEnabled)
+	/*if(!bHoverEnabled)
 	{
 		bHovering = false;
 	}
 	if(bHoverEnabled && TOPHALLEFFECT)
 	{
 		bHovering = true;
-	}
+	}*/
 
 	if(bHovering)
 	{
@@ -320,18 +337,10 @@ void CanLifter::Run() {
 		}
 		//SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 	}
-
 	else if(ISAUTO && bLowerHover)
-			{
-				if(BOTTOMHALLEFFECT)
-				{
-					lifterMotor->Set(fLifterHoverNoTotes);
-				}
-				else
-				{
-					lifterMotor->Set(fLifterStop);
-				}
-			}
+	{
+		lifterMotor->Set(fLifterHoverNoTotes);
+	}
 	else
 	{
 		// not hovering, just normal can up and down motions
@@ -358,8 +367,8 @@ void CanLifter::Run() {
 		pRemoteUpdateTimer->Reset();
 
 		SmartDashboard::PutNumber("Lift Current", lifterMotor->GetOutputCurrent());
-		SmartDashboard::PutBoolean("Lifter @ Top", TOPHALLEFFECT);
-		SmartDashboard::PutBoolean("Lifter @ Bottom", BOTTOMHALLEFFECT);
+		SmartDashboard::PutBoolean("Lifter @ Top", !upperHall->Get());
+		SmartDashboard::PutBoolean("Lifter @ Bottom", !lowerHall->Get());
 		SmartDashboard::PutBoolean("Lifter Hover Enabled", bHoverEnabled);
 		SmartDashboard::PutBoolean("Lifter Hovering", bHovering);
 		SmartDashboard::PutBoolean("Lifter Raising", bGoingUp);

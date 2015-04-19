@@ -27,6 +27,7 @@ const char* const ROBOT_VERSION =	"2.0";						//Version
 #define ABLIMIT(a,b)	if(a > b) a = b; else if(a < -b) a = -b;
 #define TRUNC_THOU(a)		((int)(1000 * a)) * .001
 #define TRUNC_HUND(a)		((int)(100 * a)) * .01
+#define PRINTAUTOERROR		printf("Early Death! %s %i \n", __FILE__, __LINE__);
 
 //Task Params - Defines component task priorites relative to the default priority.
 //EXAMPLE: const int DRIVETRAIN_PRIORITY = DEFAULT_PRIORITY -2;
@@ -118,8 +119,8 @@ const int CUBECLICKER_MAX_TOTES = 6;
 
 //Digital I/O - Assigns names to Digital I/O ports 1-14 on the Roborio
 //EXAMPLE: const int DIO_DRIVETRAIN_BEAM_BREAK = 0;
-const int DIO_DRIVETRAIN_BEAM_BREAK = 0;
-const int DIO_CANLIFTER_MID_HALL_EFFECT = 1;
+const int DIO_CANLIFTER_LOWER_HALL_EFFECT = 0;
+const int DIO_CANLIFTER_UPPER_HALL_EFFECT = 1;
 
 //Solenoid - Assigns names to Solenoid ports 1-8 on the 9403
 //EXAMPLE: const int SOL_DRIVETRAIN_SOLENOID_SHIFT_IN = 1;

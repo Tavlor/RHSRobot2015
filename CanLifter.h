@@ -14,8 +14,8 @@
 
 #include "ComponentBase.h"			//For ComponentBase class
 
-#define TOPHALLEFFECT		lifterMotor->IsRevLimitSwitchClosed()
-#define BOTTOMHALLEFFECT	lifterMotor->IsFwdLimitSwitchClosed()
+//#define UPPERHALLEFFECT			topHall->Get()
+//#define LOWERHALLEFFECT		bottomHall->Get()
 
 class CanLifter : public ComponentBase
 {
@@ -35,7 +35,10 @@ public:
 private:
 
 	CANTalon *lifterMotor;
-	//Counter *midDetect;
+	DigitalInput *upperHall;
+	DigitalInput *lowerHall;
+	Counter *upperDetect;
+	Counter *lowerDetect;
 	Timer *pSafetyTimer;
 	//Timer *pAutoTimer;IN COMPONENT BASE
 
@@ -48,8 +51,10 @@ private:
 	const float fLifterDownMult = 1.0;
 
 	const float fLifterRaise = -1.0;
+	const float fLifterStartRaise = -0.6;
+	const float fLifterRaiseLoMid = -0.75;
 	const float fLifterLower = 1.0;
-	const float fLifterHover = -.5;
+	const float fLifterHover = -.25;
 
 	const float fLifterHoverNoTotes = -.2;
 	const float fLifterHoverOneTotes = -.20;
@@ -66,7 +71,7 @@ private:
 	const float fLifterLowerTwoTotes = 0.50;
 	const float fLifterLowerThreeTotes = 0.50;
 
-	const float fLifterStop = -.2;///should hover with a can
+	const float fLifterStop = .0;///should hover with a can
 	const float fLifterMotorCurrentMax = 30;
 	const float fLifterMotorCurrentMaxOneCan = 20;
 

@@ -33,16 +33,22 @@ void CanArm::OnStateChange()
 	switch (localMessage.command)
 	{
 		case COMMAND_ROBOT_STATE_AUTONOMOUS:
+			armMotor->ConfigNeutralMode(
+						CANSpeedController::NeutralMode::kNeutralMode_Brake);
 			break;
 
 		case COMMAND_ROBOT_STATE_TEST:
 			break;
 
 		case COMMAND_ROBOT_STATE_TELEOPERATED:
+			armMotor->ConfigNeutralMode(
+				CANSpeedController::NeutralMode::kNeutralMode_Brake);
 			armMotor->Set(0);
 			break;
 
 		case COMMAND_ROBOT_STATE_DISABLED:
+			armMotor->ConfigNeutralMode(
+				CANSpeedController::NeutralMode::kNeutralMode_Coast);
 			break;
 
 		case COMMAND_ROBOT_STATE_UNKNOWN:
@@ -59,8 +65,10 @@ void CanArm::Run()
 	switch(localMessage.command)
 	{
 		case COMMAND_CANARM_OPEN:
+			pAutoTimer->Reset();
 			bOpening = true;
 			bClosing = false;
+			printf("%s opening time %f\n", __FILE__, localMessage.params.autonomous.timeout);
 			armMotor->Set(fOpen);
 			break;
 
@@ -92,16 +100,16 @@ void CanArm::Run()
 		if(bOpening)
 		{
 			armMotor->Set(fOpen);
-			if(!CheckArmCurrentOK())
+			if(!CheckArmCurrentOK() || pAutoTimer->Get() > localMessage.params.autonomous.timeout)
 			{
-				//SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
+				SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 				bOpening = false;
 			}
 		}
 		else if(bClosing)
 		{
 			armMotor->Set(fClose);
-			if(pAutoTimer->Get() >= fCloseTime)
+			if(pAutoTimer->Get() >= localMessage.params.autonomous.timeout)
 			{
 				//SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 				bClosing = false;

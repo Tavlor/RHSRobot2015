@@ -100,6 +100,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 	if(pToken == NULL)
 	{
 		SmartDashboard::PutString("Auto Status","DEATH BY PARAMS!");
+		PRINTAUTOERROR;
 		rStatus.append("missing token");
 		return (bReturn);
 	}
@@ -210,6 +211,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		if(pToken == NULL)
 		{
 			SmartDashboard::PutString("Auto Status","DEATH BY PARAMS!");
+			PRINTAUTOERROR;
 			rStatus.append("missing token");
 			bReturn = false;
 		}
@@ -241,7 +243,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 
 		// MrB - we need to do other things while lifting
 		//bReturn = !CommandResponse(CANLIFTER_QUEUE);
-		bReturn = CommandNoResponse(CANLIFTER_QUEUE);
+		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
 		break;
 
 	case AUTO_TOKEN_START_RAISE_TOTES:
@@ -250,6 +252,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		if(pToken == NULL)
 		{
 			SmartDashboard::PutString("Auto Status","DEATH BY PARAMS!");
+			PRINTAUTOERROR;
 			rStatus.append("missing token");
 			bReturn = false;
 		}
@@ -302,6 +305,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		if(pToken == NULL)
 		{
 			SmartDashboard::PutString("Auto Status","DEATH BY PARAMS!");
+			PRINTAUTOERROR;
 			rStatus.append("missing token");
 			break;
 		}
@@ -312,6 +316,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		if(pToken == NULL)
 		{
 			SmartDashboard::PutString("Auto Status","EARLY DEATH!");
+			PRINTAUTOERROR;
 			rStatus.append("missing token");
 			break;
 		}
@@ -337,6 +342,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		if(pToken == NULL)
 		{
 			SmartDashboard::PutString("Auto Status","EARLY DEATH!");
+			PRINTAUTOERROR;
 			rStatus.append("missing token");
 			bReturn = false;
 		}
@@ -357,6 +363,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		if(pToken == NULL)
 		{
 			SmartDashboard::PutString("Auto Status","EARLY DEATH!");
+			PRINTAUTOERROR;
 			rStatus.append("missing token");
 			bReturn = false;
 			break;
@@ -368,6 +375,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		if(pToken == NULL)
 		{
 			SmartDashboard::PutString("Auto Status","EARLY DEATH!");
+			PRINTAUTOERROR;
 			rStatus.append("missing token");
 			bReturn = false;
 			break;
@@ -404,6 +412,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		if(pToken == NULL)
 		{
 			SmartDashboard::PutString("Auto Status","EARLY DEATH!");
+			PRINTAUTOERROR;
 			rStatus.append("missing token");
 			bReturn = false;
 		}
@@ -423,6 +432,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		if(pToken == NULL)
 		{
 			SmartDashboard::PutString("Auto Status","EARLY DEATH!");
+			PRINTAUTOERROR;
 			rStatus.append("missing token");
 			bReturn = false;
 		}
@@ -470,8 +480,21 @@ bool Autonomous::Evaluate(std::string rStatement) {
 
 		//TESTED
 	case AUTO_TOKEN_PUSH_TOTES_BCK:
-		Message.command = COMMAND_CONVEYOR_PUSHTOTES_BCK;
-		bReturn = !CommandNoResponse(CONVEYOR_QUEUE);
+		/*pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+
+		if (pToken == NULL)
+		{
+			SmartDashboard::PutString("Auto Status", "EARLY DEATH!");
+			PRINTAUTOERROR;
+			rStatus.append("missing token");
+			bReturn = false;
+		}
+		else*/
+		{
+			Message.params.autonomous.timeout = atof(pToken);
+			Message.command = COMMAND_CONVEYOR_PUSHTOTES_BCK;
+			bReturn = !CommandNoResponse(CONVEYOR_QUEUE);
+		}
 		break;
 
 	case AUTO_TOKEN_CAN_ARM_OPEN:
@@ -480,22 +503,15 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		if(pToken == NULL)
 		{
 			SmartDashboard::PutString("Auto Status","EARLY DEATH!");
+			PRINTAUTOERROR;
 			rStatus.append("missing token");
 			bReturn = false;
 		}
 		else
 		{
-			//Message.params.autonomous.driveSpeed = atof(pToken);
-			/*pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
-			Message.params.autonomous.timeout = atof(pToken);*/
-
-			//start the drive train
-			//Message.command = COMMAND_DRIVETRAIN_START_DRIVE_FWD;//simply drives forward - we're borrowing this (should change it)
-			//CommandNoResponse(DRIVETRAIN_QUEUE);
+			Message.params.autonomous.timeout = atof(pToken);
 			Message.command = COMMAND_CANARM_OPEN;
 			bReturn = !CommandResponse(CANARM_QUEUE);
-			//Message.command = COMMAND_DRIVETRAIN_STOP;//stop it!
-			//CommandNoResponse(DRIVETRAIN_QUEUE);
 			//if we want to keep still
 			/*Message.command = COMMAND_DRIVETRAIN_START_KEEPALIGN;
 			bReturn = !CommandNoResponse(DRIVETRAIN_QUEUE);
@@ -506,8 +522,21 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		break;
 
 	case AUTO_TOKEN_CAN_ARM_CLOSE:
-		Message.command = COMMAND_CANARM_CLOSE;
-		bReturn = !CommandNoResponse(CANARM_QUEUE);
+		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+
+		if (pToken == NULL)
+		{
+			SmartDashboard::PutString("Auto Status", "EARLY DEATH!");
+			PRINTAUTOERROR;
+			rStatus.append("missing token");
+			bReturn = false;
+		}
+		else
+		{
+			Message.params.autonomous.timeout = atof(pToken);
+			Message.command = COMMAND_CANARM_CLOSE;
+			bReturn = !CommandNoResponse(CANARM_QUEUE);
+		}
 		break;
 
 //OLD FUNCTIONS
@@ -550,5 +579,6 @@ bool Autonomous::Evaluate(std::string rStatement) {
 	}
 
 	printf("%s\n", rStatus.c_str());
+	SmartDashboard::PutBoolean("bReturn", bReturn);
 	return (bReturn);
 }

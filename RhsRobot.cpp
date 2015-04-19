@@ -141,30 +141,13 @@ void RhsRobot::Run() {
 
 #if 1
 		robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_TANK;
-
-		// limit the speed if the can lifter is NOT at the bottom
-
-		/*if(!canlifter->GetHallEffectBottom())
-		{
-			robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT * fDriveReduction;
-			robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT * fDriveReduction;
-		}
-		else
-		{*/
 			robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT * fDriveMax;
 			robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT * fDriveMax;
-		//}
 
 #else
 		robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_ARCADE;
 		robotMessage.params.arcadeDrive.x = ARCADE_DRIVE_X;
 		robotMessage.params.arcadeDrive.y = ARCADE_DRIVE_Y;
-
-		/*if(!canlifter->GetHallEffectBottom())
-		{
-			robotMessage.params.arcadeDrive.x *= fDriveReduction;
-			robotMessage.params.arcadeDrive.y *= fDriveReduction;
-		}*/
 #endif
 		drivetrain->SendMessage(&robotMessage);
 	}
@@ -286,6 +269,7 @@ void RhsRobot::Run() {
 		}
 
 		SmartDashboard::PutBoolean("Can Lift near bottom", bCanlifterNearBottom);*/
+
 		if(CANLIFTER_RAISE > .1)
 		{
 			robotMessage.command = COMMAND_CANLIFTER_RAISE;

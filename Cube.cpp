@@ -89,6 +89,9 @@ void Cube::OnStateChange() {
 		pSafetyTimer->Reset();
 		break;
 	case COMMAND_ROBOT_STATE_AUTONOMOUS:
+		intakeMotor->Set(0);
+		pSafetyTimer->Reset();
+		break;
 	case COMMAND_ROBOT_STATE_DISABLED:
 		pSafetyTimer->Reset();
 		break;

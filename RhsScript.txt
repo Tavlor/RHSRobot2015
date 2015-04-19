@@ -24,8 +24,8 @@
 #TOTESHIFTFWD
 #TOTESHIFTBCK
 #TOTEPUSHBCK
-#CANARMOPEN <drive speed>
-#CANARMCLOSE
+#CANARMOPEN <delay>
+#CANARMCLOSE <delay>
 # uneeded - do not use, not fully tested
 #SEEKTOTE <time:delay before looking for tote> <timeout>
 #STARTTOTEUP
@@ -47,48 +47,68 @@ RAISECANTOLOMID
 FRONTSEEKTOTE .3 6.0
 # MrB - can we start this earlier? and get a little closer?
 # drive at a higher speed to the second tote
+# lowering the clicker gets it out of the can's way when we grab the first tote
 CLICKERDOWN
 # give the conveyor a chance to pull the tote in more
 DELAY .5
-STRAIGHT -0.4 0.8
-FRONTLOADTOTE 6.0
-TOTEPUSHBCK
+# previous location of straight
+FRONTLOADTOTE 4.0
+STRAIGHT -0.4 1.75
+#TOTEPUSHBCK
+CANARMCLOSE .6
 DELAY .2
 # lift the loaded tote
 STARTSTACKUP 1
+# delay for testing
+DELAY 1.0
 # MrB - can we start this earlier?
 # drive at a higher speed to the second tote
-#STRAIGHT -0.6 0.7
+#~STRAIGHT -0.5 0.6
 STACKUP 1
-# MrB - might need a delay here since we don't wait on it anymore
-DELAY 0.25
+# MrB - might need a delay here since we don't wait on it anymore.
+#DELAY 0.25
 # load the first tote
 BACKSEEKTOTE -.2 6.0
+# move the canarm out a little
+CANARMOPEN .15
 BACKLOADTOTE 6.0
 # drive the robot out of the cube
-# MrB - drive all the way to the can?
-STRAIGHT 0.6 2.00
+# MrB - drive all the way to the can? Ts Yes
+STRAIGHT 0.5 2.0
 # go ahead and close the arm
-# MrB - can we do this while driving?
-CANARMCLOSE
 # lower claw on top of loaded tote
+DELAY .3
 STACKDOWN
-DELAY 0.5
-# get loaded tote into the claw tab's way
+# make sure the arm is completely closed
+
+DELAY 0.3
+# get loaded tote into the claw tab's way, push it with the canarm
 TOTESHIFTBCK
-DELAY 0.5
+CANARMCLOSE .3
+# MrB - can we do this while driving?
+#~DELAY .3 CANARMCLOSE is moved up
+#~CANARMCLOSE
+# delay until to can
+DELAY 1.5
+# past 3 delays should add up to about 2.4
 # get rid of the can - will drive forward
-# MrB - do this as we are moving?
-CANARMOPEN .4
-DELAY 0.5
+# MrB - do this as we are moving
+# the delay on this won't matter
+STRAIGHT .2 .74
+CANARMOPEN 2.0
 TOTEPUSHBCK
 DELAY .1
 # get rid of the can - will drive forward
 # MrB - do this as we are moving?
-#CANARMOPEN .4
+#~CANARMOPEN .4
 #
 CLICKERUP
-STARTSTACKUP 2
+# drive to last tote whilst lifting
+STRAIGHT .6 1.0
+STACKUP 2
+#~STARTSTACKUP 2
+#
+#_______DEADZONE
 # lift the stack
 # go ahead and close the arm
 # MrB - can we do this while driving?
@@ -105,15 +125,18 @@ STACKUP 2
 # MrB - is this necessary for realignment, must test after recent changes
 #STRAIGHT 0.6 0.3
 #TURN -6.0 1.0
+#______ENDODEADZONE
 #
+DELAY .5
 FRONTSEEKTOTE .3 4.0
+DELAY .4
 # MrB - begin turn sooner?
-TURN 90.0 5.0
+TURN -90.0 5.0
 FRONTLOADTOTE 4.0
 # get totes out of the tab's way, then lift the can whilst turning
 TOTESHIFTFWD
 DELAY 0.50
-#WAITFRONTSENSOR
+#~WAITFRONTSENSOR
 # may need to shift back, drop stack, then fwd again
 # lower stack 
 STACKDOWN
@@ -122,7 +145,7 @@ DELAY 0.5
 CLAWTOTOP
 # turn to face autozone
 # MrB - begin turn sooner?
-#TURN 90.0 5.0
+#~TURN 90.0 5.0
 # deposit totes - drive to the edge of autozone, spit, drive back
 STRAIGHT -0.75 3.0
 DELAY 1.5
