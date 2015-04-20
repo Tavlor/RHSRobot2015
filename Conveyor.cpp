@@ -202,37 +202,43 @@ void Conveyor::Run() {
 	case COMMAND_CONVEYOR_SHIFTTOTES_FWD:
 		pAutoTimer->Reset();
 		//move the stack forward until the back sensor is unblocked
-			while (!conveyorMotor->IsFwdLimitSwitchClosed() && ISAUTO
-					&& pAutoTimer->Get()< 3)
-			{
-				conveyorMotor->Set(-fShiftSpeed);
-			}
+		while (!conveyorMotor->IsFwdLimitSwitchClosed() && ISAUTO
+				&& pAutoTimer->Get()< 3.0)
+		{
+			conveyorMotor->Set(-fShiftSpeed);
+		}
 		conveyorMotor->Set(0);
 		break;
 
 	case COMMAND_CONVEYOR_SHIFTTOTES_BCK:
 		pAutoTimer->Reset();
 		//move the stack forward until the back sensor is blocked
-			while (conveyorMotor->IsFwdLimitSwitchClosed() && ISAUTO
-					&& pAutoTimer->Get()< 3)
-			{
-				conveyorMotor->Set(fShiftSpeed);
-			}
+		while (conveyorMotor->IsFwdLimitSwitchClosed() && ISAUTO
+				&& pAutoTimer->Get()< 3.0)
+		{
+			conveyorMotor->Set(fShiftSpeed);
+		}
 		conveyorMotor->Set(0);
 		break;
 
 	case COMMAND_CONVEYOR_PUSHTOTES_BCK:
-		//push totes into the hook
-				conveyorMotor->Set(fPushSpeed);
+		pAutoTimer->Reset();
+
+		while (ISAUTO && pAutoTimer->Get()< 0.25)
+		{
+			conveyorMotor->Set(fShiftSpeed);
+			//conveyorMotor->Set(fPushSpeed);
+		}
+		conveyorMotor->Set(0);
 		break;
 
 	case COMMAND_CONVEYOR_WAIT_FRONT_BEAM:
-			bReplyFrontSensor = true;
+		bReplyFrontSensor = true;
 		break;
 
 	case COMMAND_CONVEYOR_WAIT_BACK_BEAM:
-				bReplyBackSensor = true;
-			break;
+		bReplyBackSensor = true;
+		break;
 
 	case COMMAND_CONVEYOR_DEPOSITTOTES_BCK:
 		conveyorMotor->ConfigLimitMode(

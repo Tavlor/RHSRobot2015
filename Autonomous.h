@@ -49,10 +49,11 @@ protected:
 
 private:
 	std::string script[AUTONOMOUS_SCRIPT_LINES];	//Autonomous script
-	int lineNumber;	//Current line number
+	int lineNumber;
+	int iAutoDebugMode;
 	Task *pScript;
 	bool bReceivedCommandResponse;
-	int iResponseCount;
+	unsigned int uResponseCount;
 	MessageCommand ReceivedCommand;
 
 	void Delay(float);

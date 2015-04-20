@@ -44,6 +44,7 @@ protected:
 	Timer *pAutoTimer;
 	//TODO: move to private after worlds? subclasses shouldn't need access thanks to SmartDashboardUpdate()
 	Timer *pRemoteUpdateTimer;
+	Timer *pDebugTimer;
 	Task *pTask;
 	RobotMessage localMessage;
 	int iLoop;

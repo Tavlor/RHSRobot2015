@@ -20,6 +20,7 @@ Autonomous::Autonomous()
 {
 	lineNumber = 0;
 	bInAutoMode = false;
+	iAutoDebugMode = 0;
 	bReceivedCommandResponse = false;
 	ReceivedCommand = COMMAND_UNKNOWN;
 
@@ -53,6 +54,7 @@ void Autonomous::OnStateChange()	//Handles state changes
 	{
 		bPauseAutoMode = false;
 		bInAutoMode = true;
+		pDebugTimer->Reset();
 	}
 	else if(localMessage.command == COMMAND_ROBOT_STATE_TELEOPERATED)
 	{
@@ -75,13 +77,13 @@ void Autonomous::Run()
 			break;
 
 		case COMMAND_AUTONOMOUS_RESPONSE_OK:
-			iResponseCount++;
+			uResponseCount++;
 			bReceivedCommandResponse = true;
 			ReceivedCommand = COMMAND_AUTONOMOUS_RESPONSE_OK;
 			break;
 
 		case COMMAND_AUTONOMOUS_RESPONSE_ERROR:
-			iResponseCount++;
+			uResponseCount++;
 			bReceivedCommandResponse = true;
 			ReceivedCommand = COMMAND_AUTONOMOUS_RESPONSE_ERROR;
 			break;

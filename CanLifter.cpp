@@ -33,7 +33,9 @@ CanLifter::CanLifter() :
 	//lifterMotor->SetVoltageRampRate(120.0);
 	lifterMotor->ConfigNeutralMode(
 			CANSpeedController::NeutralMode::kNeutralMode_Brake);
-	lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
+	// MrB we moved the sensors so this doesn't do anything
+	//lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
+	lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
 
 	wpi_assert(lifterMotor->IsAlive());
 
@@ -69,17 +71,20 @@ void CanLifter::OnStateChange() {
 		case COMMAND_ROBOT_STATE_AUTONOMOUS:
 			lifterMotor->Set(fLifterStop);
 			pSafetyTimer->Reset();
-			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
+			//lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 			break;
 		case COMMAND_ROBOT_STATE_TEST:
 			lifterMotor->Set(fLifterStop);
 			pSafetyTimer->Reset();
-			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
+			//lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
 			break;
 		case COMMAND_ROBOT_STATE_TELEOPERATED:
+			bHoverEnabled = false;
+			bHovering = false;
+			bLowerHover = false;
 			lifterMotor->Set(fLifterStop);
 			pSafetyTimer->Reset();
-			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
+			//lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
 			break;
 		case COMMAND_ROBOT_STATE_DISABLED:
 			lifterMotor->Set(fLifterStop);
@@ -104,23 +109,22 @@ void CanLifter::Run() {
 			{
 				if(!bHoverEnabled)
 				{
-					lifterMotor->ConfigLimitMode(
-							CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
+					//lifterMotor->ConfigLimitMode(
+					//		CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
 					LifterCurrentLimitDrive(fLifterUpMult * localMessage.params.canLifterParams.lifterSpeed);
 				}
 			}
 			else
 			{
-				lifterMotor->ConfigLimitMode(
-						CANSpeedController::kLimitMode_SwitchInputsOnly);
+				//lifterMotor->ConfigLimitMode(
+				//		CANSpeedController::kLimitMode_SwitchInputsOnly);
 				LifterCurrentLimitDrive(fLifterUpMult * localMessage.params.canLifterParams.lifterSpeed);
 				bHoverEnabled = true;
 			}*/
 			bHoverEnabled = false;
 			bHovering = false;
-			lifterMotor->ConfigLimitMode(
-									CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
-							LifterCurrentLimitDrive(fLifterUpMult * localMessage.params.canLifterParams.lifterSpeed);
+			//lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
+			LifterCurrentLimitDrive(fLifterUpMult * localMessage.params.canLifterParams.lifterSpeed);
 			pSafetyTimer->Reset();
 			break;
 
@@ -139,13 +143,22 @@ void CanLifter::Run() {
 
 		case COMMAND_CANLIFTER_RAISE_TOTES:
 			//to load pos
-			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
+			//lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 			bHoverEnabled = true;
 			bLowerHover = false;
 			pSafetyTimer->Reset();
+			upperDetect->Reset();
 			iToteLoad = localMessage.params.canLifterParams.iNumTotes;
 
-			while(ISAUTO && (upperDetect->Get() == 0))
+			// start out slow then accelerate after we have the handle
+
+			while(ISAUTO && (pSafetyTimer->Get() < 0.25))
+			{
+				lifterMotor->Set(fLifterStartRaise);
+				Wait(0.02);
+			}
+
+			while(ISAUTO && (upperDetect->Get() == 0) && (pSafetyTimer->Get() < 2.00))
 			{
 				lifterMotor->Set(fLifterRaise);
 				Wait(0.02);
@@ -160,10 +173,11 @@ void CanLifter::Run() {
 			break;
 
 		case COMMAND_CANLIFTER_LOWER_TOTES:
-			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
+			//lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 			bHoverEnabled = false;
 			bLowerHover = true;
 			pSafetyTimer->Reset();
+			lowerDetect->Reset();
 
 			while(ISAUTO && (lowerDetect->Get() == 0))
 			{
@@ -178,7 +192,7 @@ void CanLifter::Run() {
 			break;
 
 		case COMMAND_CANLIFTER_START_RAISE_TOTES:
-			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
+			//lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 			bHoverEnabled = true;
 			bLowerHover = false;
 			pSafetyTimer->Reset();
@@ -187,7 +201,7 @@ void CanLifter::Run() {
 			break;
 
 		case COMMAND_CANLIFTER_CLAW_TO_TOP:
-			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
+			//lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
 			bHoverEnabled = false;
 			bLowerHover = false;
 
@@ -211,7 +225,7 @@ void CanLifter::Run() {
 		case COMMAND_CANLIFTER_CLAW_TO_BOTTOM:
 			bHoverEnabled = false;
 			bLowerHover = false;
-			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
+			//	lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SrxDisableSwitchInputs);
 
 			while(ISAUTO && LifterCurrentLimitDrive(fLifterLower))
 			{
@@ -232,7 +246,7 @@ void CanLifter::Run() {
 		case COMMAND_CANLIFTER_RAISE_LOMID:
 			bLowerHover = true;
 			bHoverEnabled = false;
-			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
+			//lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 
 			while(ISAUTO && (lowerDetect->Get()== 0))
 			{
@@ -255,7 +269,7 @@ void CanLifter::Run() {
 		case COMMAND_CANLIFTER_LOWER_HIMID:
 			bHoverEnabled = true;
 			bLowerHover = false;
-			lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
+			//lifterMotor->ConfigLimitMode(CANSpeedController::kLimitMode_SwitchInputsOnly);
 
 			while(ISAUTO && (upperDetect->Get() == 0))
 			{

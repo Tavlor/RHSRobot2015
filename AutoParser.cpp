@@ -21,6 +21,8 @@ using namespace std;
 
 const char *szTokens[] = {
 		"MODE",
+		"DEBUG",
+		"MESSAGE",
 		"BEGIN",
 		"END",
 		"DELAY",			//!<(seconds)
@@ -39,6 +41,7 @@ const char *szTokens[] = {
 		"STACKUP",			//!<
 		"STACKDOWN",		//!<
 		"STARTSTACKUP",		//!<
+		"CANLIFTSTOP",		//!<
 		//CONVEYOR/DRIVETRAIN
 		"FRONTLOADTOTE",	//!<(timeout)
 		"BACKLOADTOTE",		//!<(timeout)
@@ -91,8 +94,6 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		return (bReturn);
 	}
 
-	printf("%s\n", rStatement.c_str());
-
 	// find first token
 
 	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
@@ -102,7 +103,8 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		SmartDashboard::PutString("Auto Status","DEATH BY PARAMS!");
 		PRINTAUTOERROR;
 		rStatus.append("missing token");
-		return (bReturn);
+		printf("%0.3lf %s\n", pDebugTimer->Get(), rStatement.c_str());
+		return (true);
 	}
 
 	// which command are we to execute??
@@ -118,8 +120,8 @@ bool Autonomous::Evaluate(std::string rStatement) {
 	if(iCommand == AUTO_TOKEN_LAST) {
 		// no valid token found
 		rStatus.append("no tokens - check script spelling");
-		printf("%s\n", rStatus.c_str());
-		return (bReturn);
+		printf("%0.3lf %s\n", pDebugTimer->Get(), rStatement.c_str());
+		return (true);
 	}
 
 	// if we are paused wait here before executing a real command
@@ -130,6 +132,11 @@ bool Autonomous::Evaluate(std::string rStatement) {
 	}
 
 	// execute the proper command
+
+	if(iAutoDebugMode)
+	{
+		printf("%0.3lf %s %s\n", pDebugTimer->Get(), pToken, pCurrLinePos);
+	}
 
 	switch (iCommand)
 	{
@@ -142,6 +149,15 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		End(pCurrLinePos);
 		rStatus.append("done");
 		bReturn = true;
+		break;
+
+	case AUTO_TOKEN_DEBUG:
+		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+		iAutoDebugMode = atoi(pToken);
+		break;
+
+	case AUTO_TOKEN_MESSAGE:
+		printf("%0.3lf %03d: %s\n", pDebugTimer->Get(), lineNumber, pCurrLinePos);
 		break;
 
 	case AUTO_TOKEN_DELAY:
@@ -217,9 +233,17 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		}
 		else
 		{
+			if(iAutoDebugMode)
+			{
+				printf("%0.3lf Raise Totes\n", pDebugTimer->Get());
+			}
 			Message.command = COMMAND_CANLIFTER_RAISE_TOTES;
 			Message.params.canLifterParams.iNumTotes = iParam1;
 			bReturn = !CommandResponse(CANLIFTER_QUEUE);
+			if(iAutoDebugMode)
+			{
+				printf("%0.3lf Stop Conveyor\n", pDebugTimer->Get());
+			}
 			//the conveyor should've pushed the totes. Stop it.
 			Message.command = COMMAND_CONVEYOR_STOP;
 			bReturn = !CommandNoResponse(CONVEYOR_QUEUE);
@@ -264,6 +288,11 @@ bool Autonomous::Evaluate(std::string rStatement) {
 			bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
 		}
 
+		break;
+
+	case AUTO_TOKEN_CANLIFT_STOP:
+		Message.command = COMMAND_CANLIFTER_STOP;
+		bReturn = !CommandNoResponse(CANLIFTER_QUEUE);
 		break;
 
 	case AUTO_TOKEN_CLAW_TO_TOP:
@@ -323,11 +352,23 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		Message.params.autonomous.timeout = atof(pToken);
 
 		//start the drive train
+		if(iAutoDebugMode)
+		{
+			printf("%0.3lf Drive Straight\n", pDebugTimer->Get());
+		}
 		Message.command = COMMAND_DRIVETRAIN_DRIVE_STRAIGHT;//simply drives forward
 		CommandNoResponse(DRIVETRAIN_QUEUE);
 		//when front sensor sees tote, stop drivetrain and conveyor
+		if(iAutoDebugMode)
+		{
+			printf("%0.3lf Seek Front Tote Sensor\n", pDebugTimer->Get());
+		}
 		Message.command = COMMAND_CONVEYOR_SEEK_TOTE_FRONT;
 		bReturn = !CommandResponse(CONVEYOR_QUEUE);
+		if(iAutoDebugMode)
+		{
+			printf("%0.3lf Drive Stop\n", pDebugTimer->Get());
+		}
 		Message.command = COMMAND_DRIVETRAIN_STOP;//stop it!
 		CommandNoResponse(DRIVETRAIN_QUEUE);
 		break;
@@ -384,11 +425,20 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		Message.params.autonomous.timeout = atof(pToken);
 
 		//start the drive train
+		printf("%0.3lf Drive Straight\n", pDebugTimer->Get());
 		Message.command = COMMAND_DRIVETRAIN_DRIVE_STRAIGHT;	//simply drives backwards
 		CommandNoResponse(DRIVETRAIN_QUEUE);
 		//when back sensor sees tote, stop drivetrain and conveyor
+		if(iAutoDebugMode)
+		{
+			printf("%0.3lf Seek Rear Tote Sensor\n", pDebugTimer->Get());
+		}
 		Message.command = COMMAND_CONVEYOR_SEEK_TOTE_BACK;
 		bReturn = !CommandResponse(CONVEYOR_QUEUE);
+		if(iAutoDebugMode)
+		{
+			printf("%0.3lf Drive Stop\n", pDebugTimer->Get());
+		}
 		Message.command = COMMAND_DRIVETRAIN_STOP;		//stop it!
 		CommandNoResponse(DRIVETRAIN_QUEUE);
 		break;
@@ -456,9 +506,9 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		break;
 
 	case AUTO_TOKEN_WAIT_BACK_BEAM:
-			Message.command = COMMAND_CONVEYOR_WAIT_BACK_BEAM;
-			bReturn = !CommandResponse(CONVEYOR_QUEUE);
-			break;
+		Message.command = COMMAND_CONVEYOR_WAIT_BACK_BEAM;
+		bReturn = !CommandResponse(CONVEYOR_QUEUE);
+		break;
 
 		//TESTED
 	case AUTO_TOKEN_DEPOSITTOTES_BCK:
@@ -511,14 +561,13 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		{
 			Message.params.autonomous.timeout = atof(pToken);
 			Message.command = COMMAND_CANARM_OPEN;
-			bReturn = !CommandResponse(CANARM_QUEUE);
+			bReturn = !CommandNoResponse(CANARM_QUEUE);
 			//if we want to keep still
 			/*Message.command = COMMAND_DRIVETRAIN_START_KEEPALIGN;
 			bReturn = !CommandNoResponse(DRIVETRAIN_QUEUE);
 			//Message.command = COMMAND_DRIVETRAIN_STOP_KEEPALIGN;
 			bReturn = !CommandNoResponse(DRIVETRAIN_QUEUE);*/
 		}
-
 		break;
 
 	case AUTO_TOKEN_CAN_ARM_CLOSE:
@@ -578,7 +627,11 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		break;
 	}
 
-	printf("%s\n", rStatus.c_str());
+	if(bReturn)
+	{
+		printf("%0.3lf %s\n", pDebugTimer->Get(), rStatement.c_str());
+	}
+
 	SmartDashboard::PutBoolean("bReturn", bReturn);
 	return (bReturn);
 }

@@ -100,9 +100,14 @@ void CanArm::Run()
 		if(bOpening)
 		{
 			armMotor->Set(fOpen);
-			if(!CheckArmCurrentOK() || pAutoTimer->Get() > localMessage.params.autonomous.timeout)
+//			if(!CheckArmCurrentOK() || pAutoTimer->Get() > localMessage.params.autonomous.timeout)
+//			{
+//				SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
+//				bOpening = false;
+//			}
+			if(pAutoTimer->Get() >= localMessage.params.autonomous.timeout)
 			{
-				SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
+				//SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 				bOpening = false;
 			}
 		}

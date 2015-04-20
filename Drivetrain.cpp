@@ -182,12 +182,12 @@ void Drivetrain::Run() {
 		//reset all auto variables
 		bDrivingStraight = false;
 		bTurning = false;
-		left = 0;
-		right = 0;
-		leftMotor->Set(left);
-		rightMotor->Set(right);
 		bFrontLoadTote = false;
 		bBackLoadTote = false;
+		left = 0.0;
+		right = 0.0;
+		leftMotor->Set(left);
+		rightMotor->Set(right);
 		gyro->Zero();
 		break;
 
@@ -310,8 +310,6 @@ void Drivetrain::Turn(float targetAngle, float timeout) {
 		//if you don't disable this during non-auto, it will keep trying to turn during teleop. Not fun.
 		float degreesLeft = targetAngle - gyro->GetAngle();
 
-		//printf("Turning target %f current %f\n", targetAngle, gyro->GetAngle());
-
 		if ((degreesLeft < angleError) && (degreesLeft > -angleError))
 		{
 			break;
@@ -335,7 +333,6 @@ void Drivetrain::Turn(float targetAngle, float timeout) {
 
 	SmartDashboard::PutNumber("Angle Error", 0.0);
 	SmartDashboard::PutNumber("Turn Speed", 0.0);
-	printf("Finished turning %f degrees\n", targetAngle);
 }
 
 void Drivetrain::SeekTote(float timein, float timeout) {
@@ -347,7 +344,6 @@ void Drivetrain::SeekTote(float timein, float timeout) {
 	{
 		if (toteSensor->Get() && pAutoTimer->Get() > timein)
 		{
-			printf("Tote reached.\n");
 			command = COMMAND_AUTONOMOUS_RESPONSE_OK;
 			break;
 		}
@@ -365,7 +361,6 @@ void Drivetrain::SeekTote(float timein, float timeout) {
 
 void Drivetrain::StartStraightDrive(float speed, float time)
 {
-	printf("StartStraightDrive\n");
 	pAutoTimer->Reset();
 	//DO NOT RESET THE GYRO EVER. only zeroing.
 	gyro->Zero();
@@ -374,7 +369,6 @@ void Drivetrain::StartStraightDrive(float speed, float time)
 	fStraightDriveTime = time;
 	bDrivingStraight = true;
 	bTurning = false;
-	printf("speed: %f time %f\n", fStraightDriveSpeed, fStraightDriveTime);
 }
 
 void Drivetrain::IterateStraightDrive(void)
@@ -486,8 +480,6 @@ void Drivetrain::StraightDriveLoop(float speed) {
 		left = 0.0;
 		right = 0.0;
 	}
-
-	//printf("left %0.03f right %0.03f adjust %0.03f\n", left, right, adjustment);
 
 	ABLIMIT(left, 1.0);
 	ABLIMIT(right, 1.0);

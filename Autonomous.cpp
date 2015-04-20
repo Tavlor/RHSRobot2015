@@ -43,7 +43,11 @@ bool Autonomous::CommandResponse(const char *szQueueName) {
 	{
 		//purposefully empty
 	}
-	printf("Response received\n");
+
+	if(iAutoDebugMode)
+	{
+		printf("%0.3lf Response received\n", pDebugTimer->Get());
+	}
 
 	if (ReceivedCommand == COMMAND_AUTONOMOUS_RESPONSE_OK)
 	{
@@ -60,6 +64,7 @@ bool Autonomous::CommandResponse(const char *szQueueName) {
 	return bReturn;
 }
 
+
 //UNTESTED
 //USAGE: MultiCommandResponse({DRIVETRAIN_QUEUE, CONVEYOR_QUEUE}, {COMMAND_DRIVETRAIN_STRAIGHT, COMMAND_CONVEYOR_SEEK_TOTE});
 bool Autonomous::MultiCommandResponse(vector<char*> szQueueNames, vector<MessageCommand> commands) {
@@ -72,10 +77,10 @@ bool Autonomous::MultiCommandResponse(vector<char*> szQueueNames, vector<Message
 	}
 	bool bReturn = true;
 	int iPipeXmt;
-	iResponseCount = 0;
+	uResponseCount = 0;
 	//vector<int> iPipesXmt = new vector<int>();
 	//send messages to each component
-	for (int i = 0; i < szQueueNames.size(); i++)
+	for (unsigned int i = 0; i < szQueueNames.size(); i++)
 	{
 		iPipeXmt = open(szQueueNames[i], O_WRONLY);
 		wpi_assert(iPipeXmt > 0);
@@ -85,16 +90,20 @@ bool Autonomous::MultiCommandResponse(vector<char*> szQueueNames, vector<Message
 		write(iPipeXmt, (char*) &Message, sizeof(RobotMessage));
 		close(iPipeXmt);
 	}
+
 	bReceivedCommandResponse = false;
 
-
-	while (iResponseCount < szQueueNames.size())
+	while (uResponseCount < szQueueNames.size())
 	{
 		while (!bReceivedCommandResponse)
 		{
 			//purposefully empty
 		}
-		printf("Response received\n");
+
+		if(iAutoDebugMode)
+		{
+			printf("%0.3lf Response received\n", pDebugTimer->Get());
+		}
 
 		if (ReceivedCommand == COMMAND_AUTONOMOUS_RESPONSE_OK)
 		{
@@ -125,16 +134,16 @@ void Autonomous::Delay(float delayTime)
 {
 	//breaks the delay into little bits to prevent issues in the event of disabling
 	for (double fWait = 0.0; fWait < delayTime; fWait += 0.01)
-				{
-					// if we are paused break the delay into pieces
+	{
+		// if we are paused break the delay into pieces
 
-					while (bPauseAutoMode)
-					{
-						Wait(0.02);
-					}
+		while (bPauseAutoMode)
+		{
+			Wait(0.02);
+		}
 
-					Wait(0.01);
-				}
+		Wait(0.01);
+	}
 }
 bool Autonomous::Begin(char *pCurrLinePos)
 {

@@ -14,6 +14,8 @@ const char szDelimiters[] = " ,[]()";
 typedef enum AUTO_COMMAND_TOKENS
 {
 	AUTO_TOKEN_MODE,				//!<	mode block number, number(integer)
+	AUTO_TOKEN_DEBUG,				//!<	debug mode, 0 = off, 1 = on
+	AUTO_TOKEN_MESSAGE,				//!<	print debug message
 	AUTO_TOKEN_BEGIN,				//!<	mark beginning of mode block
 	AUTO_TOKEN_END,					//!<	mark end of mode block
 	AUTO_TOKEN_DELAY,				//!<	delay (seconds - float)
@@ -31,6 +33,7 @@ typedef enum AUTO_COMMAND_TOKENS
 	AUTO_TOKEN_RAISE_TOTES,			//!<R	can lift raises tote stack to accept a new tote
 	AUTO_TOKEN_LOWER_TOTES,			//!<R	can lift lowers tote stack to add new tote
 	AUTO_TOKEN_START_RAISE_TOTES,	//!<N	can lift starts to raise tote stack
+	AUTO_TOKEN_CANLIFT_STOP,		//!<N	turn off can lift motor
 	//CONVEYOR/DRIVETRAIN
 	AUTO_TOKEN_FRONT_LOAD_TOTE,		//!<R	pull tote in the front, stop at back sensor
 	AUTO_TOKEN_BACK_LOAD_TOTE,		//!<R	pull tote in the back, stop at front sensor
