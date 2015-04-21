@@ -124,6 +124,7 @@ void ComponentBase::DoWork()
 		//AutoBehavior is where the actual auto stuff is called - it should be periodic rather than stop up the thread
 		//It should be structured as a state machine; Run will change the state.
 		//if(pRemoteUpdateTimer->Get() > fUpdateDelay) { pRemoteUpdateTimer->Reset(); SmartDashboardUpdate(); } //TODO: add this after world's
+		lastCommand = localMessage.command;
 		iLoop++;
 	}
 }

@@ -24,7 +24,8 @@ RhsRobot::RhsRobot() {
 	cube = NULL;
 	canlifter = NULL;
 	claw = NULL;
-	canarm = NULL;
+	//canarm = NULL;
+	noodlefan = NULL;
 
 	bLastConveyorButtonDown = false;
 	bCanlifterNearBottom = false;
@@ -63,7 +64,8 @@ void RhsRobot::Init() {
 	canlifter = new CanLifter();
 	claw = new Claw();
 	cube = new Cube();
-	canarm = new CanArm();
+	//canarm = new CanArm();
+	noodlefan = new NoodleFan();
 	autonomous = new Autonomous();
 
 	std::vector<ComponentBase *>::iterator nextComponent = ComponentSet.begin();
@@ -93,9 +95,14 @@ void RhsRobot::Init() {
 		nextComponent = ComponentSet.insert(nextComponent, claw);
 	}
 
-	if(canarm)
+	/*if(canarm)
 	{
 		nextComponent = ComponentSet.insert(nextComponent, canarm);
+	}*/
+
+	if(noodlefan)
+	{
+		nextComponent = ComponentSet.insert(nextComponent, noodlefan);
 	}
 
 	if(autonomous)
@@ -280,10 +287,10 @@ void RhsRobot::Run() {
 			robotMessage.command = COMMAND_CANLIFTER_LOWER;
 			robotMessage.params.canLifterParams.lifterSpeed = CANLIFTER_LOWER;
 		}
-		else if(ControllerListen_1->ButtonPressed(CANLIFTER_HOVER_ID))
+		/*else if(ControllerListen_1->ButtonPressed(CANLIFTER_HOVER_ID))
 		{
 			robotMessage.command = COMMAND_CANLIFTER_HOVER;
-		}
+		}*/
 		else
 		{
 			robotMessage.command = COMMAND_CANLIFTER_STOP;
@@ -308,7 +315,7 @@ void RhsRobot::Run() {
 		claw->SendMessage(&robotMessage);
 	}
 
-	if (canarm)
+	/*if (canarm)
 	{
 		if(CANARM_OPEN)
 		{
@@ -325,7 +332,17 @@ void RhsRobot::Run() {
 
 		canarm->SendMessage(&robotMessage);
 
+	}*/
+
+	if(noodlefan)
+	{
+		if(ControllerListen_1->ButtonPressed(NOODLEFAN_TOGGLE_ID))
+		{
+			robotMessage.command = COMMAND_NOODLEFAN_TOGGLE;
+		}
+		noodlefan->SendMessage(&robotMessage);
 	}
+
 	ControllerListen_1->FinalUpdate();
 	ControllerListen_2->FinalUpdate();
 	iLoop++;

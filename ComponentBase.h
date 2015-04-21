@@ -47,6 +47,7 @@ protected:
 	Timer *pDebugTimer;
 	Task *pTask;
 	RobotMessage localMessage;
+	MessageCommand lastCommand;//used to detect changes in commands sent
 	int iLoop;
 	
 	virtual void OnStateChange() = 0;

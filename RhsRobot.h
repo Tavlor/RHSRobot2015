@@ -15,7 +15,8 @@
 #include "Drivetrain.h"
 #include "CanLifter.h"
 #include "Claw.h"
-#include "CanArm.h"
+//#include "CanArm.h"
+#include "NoodleFan.h"
 #include "RhsRobotBase.h"
 #include "JoystickListener.h"
 
@@ -36,7 +37,8 @@ private:
 	Cube* cube;
 	CanLifter* canlifter;
 	Claw* claw;
-	CanArm* canarm;
+	//CanArm* canarm;
+	NoodleFan *noodlefan;
 
 	std::vector <ComponentBase *> ComponentSet;
 	

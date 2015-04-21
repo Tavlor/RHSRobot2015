@@ -14,8 +14,6 @@
 
 #include "ComponentBase.h"			//For ComponentBase class
 
-//#define UPPERHALLEFFECT			topHall->Get()
-//#define LOWERHALLEFFECT		bottomHall->Get()
 
 class CanLifter : public ComponentBase
 {
@@ -35,10 +33,12 @@ public:
 private:
 
 	CANTalon *lifterMotor;
-	DigitalInput *upperHall;
+	DigitalInput *hoverHallEffect;
+	Counter *hoverHallDetect;
+	/*DigitalInput *upperHall;
 	DigitalInput *lowerHall;
 	Counter *upperDetect;
-	Counter *lowerDetect;
+	Counter *lowerDetect;*/
 	Timer *pSafetyTimer;
 	//Timer *pAutoTimer;IN COMPONENT BASE
 
@@ -55,6 +55,7 @@ private:
 	const float fLifterRaiseLoMid = -0.75;
 	const float fLifterLower = 1.0;
 	const float fLifterHover = -.25;
+	const float fLifterStop = .0;
 
 	const float fLifterHoverNoTotes = -.2;
 	const float fLifterHoverOneTotes = -.20;
@@ -64,26 +65,26 @@ private:
 	const float fLifterLiftNoTotes = -0.50;
 	const float fLifterLiftOneTotes = -1.0;
 	const float fLifterLiftTwoTotes = -1.0;
-	const float fLifterLiftThreeTotes = -0.35;
+	const float fLifterLiftThreeTotes = -0.35;//don't ask.
 
 	const float fLifterLowerNoTotes = 0.50;
 	const float fLifterLowerOneTotes = 0.50;
 	const float fLifterLowerTwoTotes = 0.50;
 	const float fLifterLowerThreeTotes = 0.50;
 
-	const float fLifterStop = .0;///should hover with a can
 	const float fLifterMotorCurrentMax = 30;
 	const float fLifterMotorCurrentMaxOneCan = 20;
 
 	//bool lifterHallEffectTopPast;
 	//bool lifterHallEffectBottom;
 	//bool bHover;//hovers by hitting the higher hall effect
-	bool bHoverEnabled;	//able to hover
-	bool bHovering;		//actually hovering
-	bool bLowerHover;
-	bool bGoingUp;
-	bool bGoingDown;
-	int iToteLoad;
+	bool bHoverEnabled = true;	//able to hover, should start true
+	bool bHoverWhileStopped = false; //should hover when stopped
+	//bool bHovering;		//actually hovering
+	//bool bLowerHover;
+	bool bGoingUp = false;
+	bool bGoingDown = false;
+	int iToteLoad = 0;
 
 
 	void OnStateChange();

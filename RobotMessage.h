@@ -150,6 +150,10 @@ enum MessageCommand {
 	COMMAND_CUBEAUTOCYCLE_RELEASE, 		//!< Tells Cube to continue normal autocycle
 	COMMAND_CUBE_STOP,					//!< Tells Cube to stop all components
 
+	COMMAND_NOODLEFAN_START,			//!< Tells NoodleFan to start spinning
+	COMMAND_NOODLEFAN_STOP,				//!< Tells NoodleFan to stop spinning
+	COMMAND_NOODLEFAN_TOGGLE,			//!< Tells NoodleFan to toggle spin activity
+
 	COMMAND_COMPONENT_TEST,				//!< COMMAND_COMPONENT_TEST
 
 	COMMAND_LAST                      //!< COMMAND_LAST 
