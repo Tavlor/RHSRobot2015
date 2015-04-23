@@ -100,7 +100,7 @@ const int PWM_DRIVETRAIN_RIGHT_MOTOR = 0;
 3 - conveyor
 4 - claw
 5 - can lift
-6 - can arm
+6 - noodle fan
 7 - ~~
 8 - cube intake roller
 9 - cube clicker
@@ -126,7 +126,7 @@ const int CUBECLICKER_MAX_TOTES = 6;
 //EXAMPLE: const int DIO_DRIVETRAIN_BEAM_BREAK = 0;
 //const int DIO_CANLIFTER_LOWER_HALL_EFFECT = 0;
 //const int DIO_CANLIFTER_UPPER_HALL_EFFECT = 1;
-const int DIO_CANLIFTER_HOVER_HALL_EFFECT = 0;
+const int DIO_CANLIFTER_HOVER_HALL_EFFECT = 9; //due to cable length
 
 //Solenoid - Assigns names to Solenoid ports 1-8 on the 9403
 //EXAMPLE: const int SOL_DRIVETRAIN_SOLENOID_SHIFT_IN = 1;
@@ -161,7 +161,7 @@ const int POV_STILL = -1;
 /** \page joysticks Joystick Layouts
  * \verbatim
  	 +++++ Controller 1 +++++
-  	A Button					Enable CanLifter hover
+  	A Button					Toggle noodle fan
   	B Button					~~
   	X Button					Hold Cube clicker at bottom to remove totes
   	Y Button					Release Cube clicker from hold

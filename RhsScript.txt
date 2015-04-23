@@ -39,5 +39,5 @@
 #----------------------------------------------------------------
 BEGIN
 # drag the can to the autozone - if other teams get more cans from the step, we get points
-STRAIGHT 0.5 3.0
+#STRAIGHT 0.5 3.0
 END

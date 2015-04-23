@@ -26,7 +26,7 @@ public:
 private:
 
 	CANTalon *fanMotor;
-	const float fPower = -0.65;
+	const float fPower = 1.0;
 
 	bool bBlowing = false;
 
